@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\V1\BillController;
+use App\Http\Controllers\Api\V1\BillController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
