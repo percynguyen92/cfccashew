@@ -25,13 +25,19 @@ class Bill extends Model
         'buyer',
     ];
 
+    /**
+     * Get the containers for the bill.
+     */
     public function containers(): HasMany
     {
-        return $this->hasMany(related: Container::class);
+        return $this->hasMany(Container::class);
     }
 
+    /**
+     * Get the cutting tests for the bill.
+     */
     public function cuttingTests(): HasMany
     {
-        return $this->hasMany(related: CuttingTest::class);
+        return $this->hasMany(CuttingTest::class);
     }
 }

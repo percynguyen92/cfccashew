@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\BillQuery;
 use App\Http\Requests\V1\StoreBillRequest;
 use App\Http\Requests\V1\UpdateBillRequest;
 use App\Http\Resources\V1\BillResource;
@@ -16,9 +17,11 @@ class BillController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(BillQuery $request)
     {
-        return BillResource::collection(Bill::with('containers')->paginate());
+        $query = $request->apply(Bill::query());
+
+        return BillResource::collection($query->paginate(perPage: 10));
     }
 
     /**
@@ -36,7 +39,12 @@ class BillController extends Controller
      */
     public function show(Bill $bill): BillResource
     {
-        return new BillResource($bill->load('containers'));
+        // Allow including relationships on the show route as well
+        if (request()->has('include')) {
+            $bill->load(array_intersect(['containers', 'cuttingTests'], explode(',', request()->input('include', ''))));
+        }
+
+        return new BillResource($bill);
     }
 
     /**

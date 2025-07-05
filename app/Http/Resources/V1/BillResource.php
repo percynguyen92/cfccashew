@@ -20,6 +20,7 @@ class BillResource extends JsonResource
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
             'containers' => ContainerResource::collection($this->whenLoaded('containers')),
+            'cuttingTests' => CuttingTestResource::collection($this->whenLoaded('cuttingTests')),
         ];
     }
 }

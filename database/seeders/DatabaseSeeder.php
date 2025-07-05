@@ -19,12 +19,22 @@ class DatabaseSeeder extends Seeder
             ->count(count: 10)
             ->create()
             ->each(callback: function (Bill $bill) {
-                // Create Containers with their specific container cutting test
-                Container::factory()
+                // Create Containers with their specific container
+                $containers = Container::factory()
                     ->count(count: rand(min: 4, max: 7))
                     ->for($bill)
-                    ->has(CuttingTest::factory()->state(['type' => 4]), 'cuttingTest')
                     ->create();
+
+                // Create the container's cutting test of type 4
+                foreach ($containers as $container) {
+                    CuttingTest::factory()
+                        ->for($container)
+                        ->state([
+                            'bill_id' => $bill->id,
+                            'type' => 4
+                        ])
+                        ->create();
+                }
 
                 // Create the three final sample cuts for the bill
                 CuttingTest::factory()

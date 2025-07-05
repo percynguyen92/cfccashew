@@ -20,7 +20,7 @@ class ContainerFactory extends Factory
         $w_net = $w_gross - $w_dunnage_dribag - $w_tare;
 
         return [
-            'bill_id'           => 1,
+            'bill_id'           => Bill::factory(),
             'truck'             => $this->faker->regexify('\d{2}[A-K]{1}\d{6}'),
             'container_number'  => $this->faker->regexify('[A-Z]{3}[UJZ]\d{7}'),
             'quantity_of_bags'  => $quantity_of_bags,
