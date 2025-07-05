@@ -44,6 +44,18 @@ class BillQueryTest extends TestCase
             ->assertJsonPath('data.0.buyer', $billA->buyer);
     }
 
+    public function test_can_filter_using_like_operator(): void
+    {
+        Bill::factory()->create(['seller' => 'ALPHA TRADERS']);
+        $bill = Bill::factory()->create(['seller' => 'BETA LIMITED']);
+
+        $response = $this->getJson('/api/v1/bills?filter[seller][like]=BETA%25');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $bill->id);
+    }
+
     public function test_can_sort_by_seller_desc(): void
     {
         Bill::factory()->create(['seller' => 'ZETA']);

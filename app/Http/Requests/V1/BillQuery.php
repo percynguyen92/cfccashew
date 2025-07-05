@@ -15,22 +15,15 @@ class BillQuery extends FormRequest
      *
      * @var array<string, string>
      */
-    protected readonly array $operatorMap;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->operatorMap = [
-            'eq' => '=',
-            'ne' => '!=',
-            'lt' => '<',
-            'lte' => '<=',
-            'gt' => '>',
-            'gte' => '>=',
-            'like' => 'like',
-        ];
-    }
+    protected readonly array $operatorMap = [
+        'eq' => '=',
+        'ne' => '!=',
+        'lt' => '<',
+        'lte' => '<=',
+        'gt' => '>',
+        'gte' => '>=',
+        'like' => 'like',
+    ];
 
     public function authorize(): bool
     {
