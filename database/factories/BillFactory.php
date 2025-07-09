@@ -38,22 +38,22 @@ class BillFactory extends Factory
         return $this
             ->has(
                 Container::factory()
-                ->count(4)
-                ->has(
-                    CuttingTest::factory()->state([
-                        'type' => CuttingTestType::CONTAINER_CUT,
-                    ]),
-                    'cuttingTest'
-                ),
+                    ->count(4)
+                    ->has(
+                        CuttingTest::factory()->state([
+                            'type' => CuttingTestType::CONTAINER_CUT,
+                        ]),
+                        'cuttingTest'
+                    ),
                 'containers'
             )
             ->has(
                 CuttingTest::factory()
-                    ->state(new \Illuminate\Support\Collection([
+                    ->count(3)
+                    ->sequence(
                         ['type' => CuttingTestType::FINAL_SAMPLE_FIRST_CUT],
                         ['type' => CuttingTestType::FINAL_SAMPLE_SECOND_CUT],
-                        ['type' => CuttingTestType::FINAL_SAMPLE_THIRD_CUT],
-                    ])->map(fn ($state) => CuttingTest::factory()->state($state))->all()),
+                        ['type' => CuttingTestType::FINAL_SAMPLE_THIRD_CUT],),
                 'cuttingTests'
             );
     }

@@ -7,6 +7,7 @@ namespace App\Http\Requests\V1;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use App\Models\Bill;
 
 class BillQuery extends FormRequest
 {
@@ -15,7 +16,7 @@ class BillQuery extends FormRequest
      *
      * @var array<string, string>
      */
-    protected readonly array $operatorMap = [
+    protected array $operatorMap = [
         'eq' => '=',
         'ne' => '!=',
         'lt' => '<',
@@ -91,7 +92,8 @@ class BillQuery extends FormRequest
 
     private function applyIncludes(Builder $query): void
     {
-        $allowedIncludes = ['containers', 'cuttingTests'];
+        //$allowedIncludes = ['containers', 'cuttingTests'];
+        $allowedIncludes = ['containers', 'cuttingTests', 'containers.cuttingTest'];
         $includes = array_intersect($allowedIncludes, explode(',', $this->input('include', '')));
         $query->with($includes);
     }
