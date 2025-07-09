@@ -111,4 +111,39 @@ class BillQueryTest extends TestCase
         $this->assertTrue($cuttingTypes->contains($expectedTypes[1]));
         $this->assertTrue($cuttingTypes->contains($expectedTypes[2]));
     }
+
+    public function test_can_search_globally(): void
+    {
+        Bill::factory()->create(['seller' => 'ALPHA CO']);
+        $bill = Bill::factory()->create(['buyer' => 'BETA GROUP']);
+
+        $response = $this->getJson('/api/v1/bills?search=BETA');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $bill->id);
+    }
+
+    public function test_can_scope_search_by_field(): void
+    {
+        Bill::factory()->create(['seller' => 'ALPHA CO']);
+        $bill = Bill::factory()->create(['seller' => 'BETA GROUP']);
+
+        $response = $this->getJson('/api/v1/bills?scope[seller]=BETA');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $bill->id);
+    }
+
+    public function test_can_select_returned_fields(): void
+    {
+        $bill = Bill::factory()->create();
+
+        $response = $this->getJson('/api/v1/bills?fields=billNumber,seller');
+
+        $response->assertOk()
+            ->assertJsonStructure(['data' => [['id', 'billNumber', 'seller']]])
+            ->assertJsonMissingPath('data.0.buyer');
+    }
 }
