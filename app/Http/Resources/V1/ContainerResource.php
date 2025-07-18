@@ -6,6 +6,7 @@ namespace App\Http\Resources\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\V1\CuttingTestResource;
 
 class ContainerResource extends JsonResource
 {
@@ -29,6 +30,7 @@ class ContainerResource extends JsonResource
             'wDunnageDribag' => $this->w_dunnage_dribag,
             'wTare' => $this->w_tare,
             'wNet' => $this->w_net,
+            'cuttingTest' => new CuttingTestResource($this->whenLoaded('cuttingTest')),
         ];
     }
 }

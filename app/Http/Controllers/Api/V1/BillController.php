@@ -41,7 +41,9 @@ class BillController extends Controller
     {
         // Allow including relationships on the show route as well
         if (request()->has('include')) {
-            $bill->load(array_intersect(['containers', 'cuttingTests'], explode(',', request()->input('include', ''))));
+            //$bill->load(array_intersect(['containers', 'cuttingTests'], explode(',', request()->input('include', ''))));
+            $allowed = ['containers', 'cuttingTests', 'containers.cuttingTest'];
+            $bill->load(array_intersect($allowed, explode(',', request()->input('include', ''))));
         }
 
         return new BillResource($bill);

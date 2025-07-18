@@ -12,7 +12,7 @@ class BillResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'billNumber' => $this->billNumber,
             'seller' => $this->seller,
@@ -22,5 +22,12 @@ class BillResource extends JsonResource
             'containers' => ContainerResource::collection($this->whenLoaded('containers')),
             'cuttingTests' => CuttingTestResource::collection($this->whenLoaded('cuttingTests')),
         ];
-    }
-}
+
+        if ($request->filled('fields')) {
+            $fields = explode(',', $request->input('fields'));
+            $fields[] = 'id';
+            $data = array_intersect_key($data, array_flip($fields));
+        }
+
+        return $data;
+    }}

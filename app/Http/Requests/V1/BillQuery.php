@@ -7,6 +7,7 @@ namespace App\Http\Requests\V1;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use App\Models\Bill;
 
 class BillQuery extends FormRequest
 {
@@ -15,7 +16,7 @@ class BillQuery extends FormRequest
      *
      * @var array<string, string>
      */
-    protected readonly array $operatorMap = [
+    protected array $operatorMap = [
         'eq' => '=',
         'ne' => '!=',
         'lt' => '<',
@@ -24,6 +25,13 @@ class BillQuery extends FormRequest
         'gte' => '>=',
         'like' => 'like',
     ];
+
+    /**
+     * Fields that can be searched using the global or scoped search.
+     *
+     * @var array<int, string>
+     */
+    protected array $searchable = ['billNumber', 'seller', 'buyer'];
 
     public function authorize(): bool
     {
@@ -41,6 +49,10 @@ class BillQuery extends FormRequest
             'filter.*.gt' => ['sometimes', 'string'],
             'filter.*.gte' => ['sometimes', 'string'],
             'filter.*.like' => ['sometimes', 'string'],
+            'search' => ['sometimes', 'string'],
+            'scope' => ['sometimes', 'array'],
+            'scope.*' => ['sometimes', 'string'],
+            'fields' => ['sometimes', 'string'],
             'sort' => ['sometimes', 'string'],
             'include' => ['sometimes', 'string'],
         ];
@@ -57,6 +69,21 @@ class BillQuery extends FormRequest
         // Apply filters
         if ($this->has('filter')) {
             $this->applyFilters($query);
+        }
+
+        // Global search across common fields
+        if ($this->filled('search')) {
+            $this->applyGlobalSearch($query);
+        }
+
+        // Scoped search for specific fields
+        if ($this->has('scope')) {
+            $this->applyScopeSearch($query);
+        }
+
+        // Field selection
+        if ($this->has('fields')) {
+            $this->applyFields($query);
         }
 
         // Apply includes (eager loading)
@@ -91,7 +118,8 @@ class BillQuery extends FormRequest
 
     private function applyIncludes(Builder $query): void
     {
-        $allowedIncludes = ['containers', 'cuttingTests'];
+        //$allowedIncludes = ['containers', 'cuttingTests'];
+        $allowedIncludes = ['containers', 'cuttingTests', 'containers.cuttingTest'];
         $includes = array_intersect($allowedIncludes, explode(',', $this->input('include', '')));
         $query->with($includes);
     }
@@ -111,4 +139,48 @@ class BillQuery extends FormRequest
             }
         }
     }
-}
+
+    private function applyGlobalSearch(Builder $query): void
+    {
+        $term = $this->input('search');
+
+        $query->where(function (Builder $query) use ($term) {
+            foreach ($this->searchable as $index => $field) {
+                $method = $index === 0 ? 'where' : 'orWhere';
+                $query->{$method}($field, 'like', '%' . $term . '%');
+            }
+        });
+    }
+
+    private function applyScopeSearch(Builder $query): void
+    {
+        foreach ($this->input('scope') as $field => $value) {
+            if (in_array($field, $this->searchable)) {
+                $query->where($field, 'like', '%' . $value . '%');
+            }
+        }
+    }
+
+    private function applyFields(Builder $query): void
+    {
+        $allowed = array_merge(['id'], $this->searchable, ['createdAt', 'updatedAt']);
+        $columnMap = [
+            'createdAt' => 'created_at',
+            'updatedAt' => 'updated_at',
+        ];
+
+        $fields = array_intersect($allowed, explode(',', $this->input('fields', '')));
+        $columns = [];
+
+        foreach ($fields as $field) {
+            $columns[] = $columnMap[$field] ?? $field;
+        }
+
+        if (! empty($columns)) {
+            if (! in_array('id', $columns)) {
+                $columns[] = 'id';
+            }
+
+            $query->select($columns);
+        }
+    }}
