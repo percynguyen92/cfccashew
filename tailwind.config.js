@@ -1,4 +1,5 @@
 import daisyui from "daisyui";
+import themes from "daisyui/theme/object";
 
 export default {
     content: [
@@ -7,9 +8,6 @@ export default {
         "./resources/**/*.vue",
         "./node_modules/daisyui/dist/**/*.js",
     ],
-    theme: {
-        extend: {},
-    },
     plugins: [daisyui],
     daisyui: {
         themes: ["light", "dark"],

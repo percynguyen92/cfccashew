@@ -1,26 +1,28 @@
-// Bills SPA module
 const API_BASE_URL = "/api/v1";
 
-export default function billsApp() {
+function billsApp() {
     return {
-        // State properties
+        // States
         view: "list", // 'list', 'form', 'detail'
-        loading: true,
+        loading: false,
         globalError: "",
+        showDeleteModal: false,
 
-        // List view state
         bills: [],
-        pagination: {},
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            from: 0,
+            to: 0,
+            total: 0,
+        },
 
-        // Form state
         form: { id: null, billNumber: "", seller: "", buyer: "" },
         errors: {},
 
-        // Detail/Delete state
         currentBill: null,
         billToDelete: null,
 
-        // Query parameters for API requests
         queryParams: {
             search: "",
             sort: "createdAt",
@@ -30,91 +32,141 @@ export default function billsApp() {
             },
         },
 
-        // Initialization
         init() {
-            this.handleRouting(); // Set initial view from URL hash
+            this.handleRouting();
             window.addEventListener("hashchange", () => this.handleRouting());
+            this.loadStateFromUrl();
 
-            // Watch for changes in query params and refetch data
-            this.$watch("queryParams", () => {
-                this.queryParams.page = 1; // Reset to first page on filter/sort change
+            this.$watch("queryParams.search", () => {
+                this.queryParams.page = 1;
+                this.updateUrl();
+                this.debouncedFetchBills();
+            });
+
+            this.$watch("queryParams.sort", () => {
+                this.queryParams.page = 1;
                 this.updateUrl();
                 this.fetchBills();
             });
+
+            if (this.view === "list") {
+                this.fetchBills();
+            }
         },
 
-        // --- API Methods ---
+        debouncedFetchBills() {
+            clearTimeout(this.fetchTimeout);
+            this.fetchTimeout = setTimeout(() => {
+                this.fetchBills();
+            }, 500);
+        },
 
-        /**
-         * Fetches a paginated list of bills from the API.
-         * Constructs the URL from queryParams.
-         */
+        getPageTitle() {
+            switch (this.view) {
+                case "list":
+                    return "Bills Management";
+                case "form":
+                    return this.form.id ? "Sửa Bill" : "Tạo Bill mới";
+                case "detail":
+                    return "Chi tiết Bill";
+                default:
+                    return "Bills Management";
+            }
+        },
+
+        getPaginationPages() {
+            const pages = [];
+            const current = this.queryParams.page;
+            const total = this.pagination.last_page || 1;
+            const delta = 2;
+
+            for (
+                let i = Math.max(1, current - delta);
+                i <= Math.min(total, current + delta);
+                i++
+            ) {
+                pages.push(i);
+            }
+
+            return pages;
+        },
+
         async fetchBills() {
             this.loading = true;
             this.globalError = "";
 
-            // Example: /api/v1/bills?page=1&sort=-createdAt&search=term&filter[seller][like]=%value%
-            const params = new URLSearchParams();
-            params.append("page", this.queryParams.page);
-            params.append("sort", this.queryParams.sort);
-            if (this.queryParams.search) {
-                params.append("search", this.queryParams.search);
-            }
-            if (this.queryParams.filters.seller) {
-                params.append(
-                    "filter[seller][like]",
-                    `%${this.queryParams.filters.seller}%`
-                );
-            }
-
             try {
+                const params = new URLSearchParams();
+                params.append("page", this.queryParams.page);
+                params.append("sort", this.queryParams.sort);
+
+                if (this.queryParams.search.trim()) {
+                    params.append("search", this.queryParams.search.trim());
+                }
+
                 const response = await fetch(
                     `${API_BASE_URL}/bills?${params.toString()}`
                 );
-                if (!response.ok) throw new Error("Failed to fetch bills.");
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}: Failed to fetch bills`
+                    );
+                }
                 const result = await response.json();
-                this.bills = result.data;
-                this.pagination = result.meta;
-            } catch (e) {
-                this.globalError = e.message;
+                this.bills = result.data || [];
+                this.pagination = result.meta || this.pagination;
+            } catch (error) {
+                this.globalError = error.message || "Failed to load bills.";
+                this.bills = [];
             } finally {
                 this.loading = false;
             }
         },
 
-        /**
-         * Fetches a single bill by its ID.
-         * Includes related data for the detail view.
-         */
         async fetchBill(id) {
+            if (!id) return;
+
             this.loading = true;
             this.globalError = "";
             this.currentBill = null;
-            // Example: /api/v1/bills/1?include=containers,containers.cuttingTest
-            const include = "containers,containers.cuttingTest";
+
             try {
+                const include = "containers,containers.cuttingTest";
                 const response = await fetch(
                     `${API_BASE_URL}/bills/${id}?include=${include}`
                 );
-                if (!response.ok)
-                    throw new Error(`Bill with ID ${id} not found.`);
+                if (!response.ok) {
+                    throw new Error(`Bill with ID ${id} not found`);
+                }
                 const result = await response.json();
                 this.currentBill = result.data;
-            } catch (e) {
-                this.globalError = e.message;
-                this.changeView("list"); // Go back to list if bill not found
+            } catch (error) {
+                this.globalError =
+                    error.message || "Failed to load bill details";
+                this.changeView("list");
             } finally {
                 this.loading = false;
             }
         },
 
-        /**
-         * Saves a bill (creates or updates).
-         */
         async saveBill() {
             this.loading = true;
             this.errors = {};
             this.globalError = "";
+
+            if (!this.form.billNumber.trim()) {
+                this.errors.billNumber = "Bill number is required";
+            }
+            if (!this.form.seller.trim()) {
+                this.errors.seller = "Seller is required";
+            }
+            if (!this.form.buyer.trim()) {
+                this.errors.buyer = "Buyer is required";
+            }
+            if (Object.keys(this.errors).length > 0) {
+                this.loading = false;
+                return;
+            }
 
             const isCreating = !this.form.id;
             const url = isCreating
@@ -124,112 +176,143 @@ export default function billsApp() {
 
             try {
                 const response = await fetch(url, {
-                    method: method,
+                    method,
                     headers: {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
-                    body: JSON.stringify(this.form),
+                    body: JSON.stringify({
+                        billNumber: this.form.billNumber.trim(),
+                        seller: this.form.seller.trim(),
+                        buyer: this.form.buyer.trim(),
+                    }),
                 });
 
                 const result = await response.json();
 
                 if (!response.ok) {
-                    if (response.status === 422) {
-                        // Validation errors
+                    if (response.status === 422 && result.errors) {
                         this.errors = Object.entries(result.errors).reduce(
-                            (acc, [key, value]) => ({
-                                ...acc,
-                                [key]: value[0],
-                            }),
+                            (acc, [key, messages]) => {
+                                acc[key] = Array.isArray(messages)
+                                    ? messages[0]
+                                    : messages;
+                                return acc;
+                            },
                             {}
                         );
                     } else {
-                        throw new Error(result.message || "An error occurred.");
+                        throw new Error(
+                            result.message || "Failed to save bill"
+                        );
                     }
                 } else {
-                    this.changeView("list"); // Success, go back to the list
+                    this.changeView("list");
+                    this.fetchBills();
                 }
-            } catch (e) {
-                this.globalError = e.message;
+            } catch (error) {
+                this.globalError = error.message || "Failed to save bill.";
             } finally {
                 this.loading = false;
             }
         },
 
-        /**
-         * Deletes a bill after confirmation.
-         */
         async deleteBill() {
-            if (!this.billToDelete) return;
+            if (!this.billToDelete?.id) return;
 
             this.loading = true;
             this.globalError = "";
+
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/bills/${this.billToDelete.id}`,
-                    { method: "DELETE" }
+                    {
+                        method: "DELETE",
+                        headers: { Accept: "application/json" },
+                    }
                 );
-                if (!response.ok) throw new Error("Failed to delete the bill.");
+                if (!response.ok) {
+                    const result = await response.json().catch(() => ({}));
+                    throw new Error(result.message || "Failed to delete bill");
+                }
 
-                // Remove from list view and close modal
                 this.bills = this.bills.filter(
                     (b) => b.id !== this.billToDelete.id
                 );
+                this.showDeleteModal = false;
                 this.billToDelete = null;
-                document.getElementById("delete_modal").close();
-            } catch (e) {
-                this.globalError = e.message;
+
+                if (this.bills.length === 0 && this.queryParams.page > 1) {
+                    this.queryParams.page--;
+                    this.fetchBills();
+                }
+            } catch (error) {
+                this.globalError = error.message || "Failed to delete bill.";
             } finally {
                 this.loading = false;
             }
         },
 
-        // --- UI & Routing Methods ---
-
-        /**
-         * Handles view changes and fetches necessary data.
-         */
         changeView(newView, id = null) {
-            this.view = newView;
             this.globalError = "";
-            this.errors = {}; // Clear errors on view change
-            window.location.hash = id ? `${newView}/${id}` : newView;
+            this.errors = {};
+            this.loading = false;
 
             if (newView === "list") {
+                this.view = "list";
                 this.currentBill = null;
-                this.form = { id: null, billNumber: "", seller: "", buyer: "" };
+                this.resetForm();
+                window.location.hash = "";
                 this.fetchBills();
             } else if (newView === "create") {
-                this.form = { id: null, billNumber: "", seller: "", buyer: "" };
                 this.view = "form";
+                this.resetForm();
+                window.location.hash = "create";
             } else if (newView === "edit" && id) {
+                this.view = "form";
+                window.location.hash = `edit/${id}`;
                 this.prepareEditForm(id);
             } else if (newView === "detail" && id) {
+                this.view = "detail";
+                window.location.hash = `detail/${id}`;
                 this.fetchBill(id);
+            } else {
+                this.changeView("list");
             }
         },
 
-        /**
-         * Prepares the form for editing an existing bill.
-         */
+        resetForm() {
+            this.form = { id: null, billNumber: "", seller: "", buyer: "" };
+            this.errors = {};
+        },
+
         async prepareEditForm(id) {
-            // Find bill in existing list to pre-fill form instantly for better UX
-            let bill = this.bills.find((b) => b.id === id);
-            if (bill) {
-                this.form = { ...bill };
-                this.view = "form";
+            if (!id) return;
+
+            const existingBill = this.bills.find((b) => b.id === parseInt(id));
+            if (existingBill) {
+                this.form = {
+                    id: existingBill.id,
+                    billNumber: existingBill.billNumber || "",
+                    seller: existingBill.seller || "",
+                    buyer: existingBill.buyer || "",
+                };
             } else {
-                // If not in the list (e.g., direct navigation), fetch it
                 this.loading = true;
                 try {
                     const response = await fetch(`${API_BASE_URL}/bills/${id}`);
                     if (!response.ok) throw new Error("Bill not found");
                     const result = await response.json();
-                    this.form = result.data;
-                    this.view = "form";
-                } catch (e) {
-                    this.globalError = e.message;
+                    const bill = result.data;
+                    this.form = {
+                        id: bill.id,
+                        billNumber: bill.billNumber || "",
+                        seller: bill.seller || "",
+                        buyer: bill.buyer || "",
+                    };
+                } catch (error) {
+                    this.globalError =
+                        error.message || "Failed to load bill for editing";
                     this.changeView("list");
                 } finally {
                     this.loading = false;
@@ -237,69 +320,86 @@ export default function billsApp() {
             }
         },
 
-        /**
-         * Simple hash-based router.
-         */
         handleRouting() {
-            const hash = window.location.hash.replace("#/", "");
-            const [view, id] = hash.split("/");
+            const hash = window.location.hash.replace("#", "");
+            if (!hash) {
+                if (this.view !== "list") this.changeView("list");
+                return;
+            }
+            const [viewName, id] = hash.split("/");
+            const numericId = id ? parseInt(id) : null;
 
-            this.loadStateFromUrl();
-
-            if (
-                view === "create" ||
-                (view === "edit" && id) ||
-                (view === "detail" && id)
-            ) {
-                this.changeView(view, parseInt(id));
-            } else {
-                this.changeView("list");
+            switch (viewName) {
+                case "create":
+                    if (this.view !== "form" || this.form.id !== null)
+                        this.changeView("create");
+                    break;
+                case "edit":
+                    if (
+                        numericId &&
+                        (this.view !== "form" || this.form.id !== numericId)
+                    )
+                        this.changeView("edit", numericId);
+                    break;
+                case "detail":
+                    if (
+                        numericId &&
+                        (this.view !== "detail" ||
+                            this.currentBill?.id !== numericId)
+                    )
+                        this.changeView("detail", numericId);
+                    break;
+                default:
+                    this.changeView("list");
             }
         },
 
-        /**
-         * Opens the delete confirmation modal.
-         */
         confirmDelete(bill) {
             this.billToDelete = bill;
-            document.getElementById("delete_modal").showModal();
+            this.showDeleteModal = true;
         },
 
-        /**
-         * Handles pagination clicks.
-         */
         gotoPage(page) {
-            this.queryParams.page = page;
+            const pageNum = parseInt(page);
+            if (
+                pageNum < 1 ||
+                pageNum > this.pagination.last_page ||
+                pageNum === this.queryParams.page
+            )
+                return;
+
+            this.queryParams.page = pageNum;
             this.updateUrl();
             this.fetchBills();
+
+            document
+                .querySelector("main")
+                .scrollIntoView({ behavior: "smooth" });
         },
 
-        /**
-         * Syncs queryParams state to the browser's URL search string.
-         */
         updateUrl() {
             const params = new URLSearchParams(window.location.search);
             params.set("page", this.queryParams.page);
             params.set("sort", this.queryParams.sort);
-            params.set("search", this.queryParams.search);
-            params.set("seller", this.queryParams.filters.seller);
-            // Clean up empty params
-            for (const [key, value] of params.entries()) {
-                if (!value) params.delete(key);
+
+            if (this.queryParams.search.trim()) {
+                params.set("search", this.queryParams.search.trim());
+            } else {
+                params.delete("search");
             }
-            history.pushState(
-                null,
-                "",
-                `?${params.toString()}${window.location.hash}`
-            );
+
+            const newUrl = `${window.location.pathname}?${params.toString()}${
+                window.location.hash
+            }`;
+            history.replaceState(null, "", newUrl);
         },
 
-        /**
-         * Loads initial state from URL search parameters on page load.
-         */
         loadStateFromUrl() {
             const params = new URLSearchParams(window.location.search);
-            this.queryParams.page = parseInt(params.get("page")) || 1;
+            this.queryParams.page = Math.max(
+                1,
+                parseInt(params.get("page")) || 1
+            );
             this.queryParams.sort = params.get("sort") || "createdAt";
             this.queryParams.search = params.get("search") || "";
             this.queryParams.filters.seller = params.get("seller") || "";
@@ -307,5 +407,4 @@ export default function billsApp() {
     };
 }
 
-// expose globally for alpine initialization in the blade template
 window.billsApp = billsApp;
