@@ -1,8 +1,8 @@
-<template x-if="globalError">
+<template v-if="globalError">
     <div class="alert alert-error shadow-lg mb-6">
         <div>
             <i class="fas fa-exclamation-circle"></i>
-            <span x-text="globalError"></span>
+            <span v-text="globalError"></span>
         </div>
         <button @click="globalError=''" class="btn btn-sm btn-circle btn-ghost">
             ✕

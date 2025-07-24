@@ -1,6 +1,5 @@
 <x-layout title="Bills Management System">
-    <div x-data="billsApp()" x-init="init()"
-        class="min-h-screen flex flex-col bg-gradient-to-r from-cyan-500 to-blue-500">
+    <div class="min-h-screen flex flex-col bg-gradient-to-r from-cyan-500 to-blue-500">
         <!-- Main -->
         <main class="max-w-6xl mx-auto">
             <x-bills.header />
