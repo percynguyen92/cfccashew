@@ -1,6 +1,6 @@
 const API_BASE_URL = "/api/v1";
 
-function billsApp() {
+export default function billsApp() {
     return {
         // States
         view: "list", // 'list', 'form', 'detail'
@@ -406,5 +406,3 @@ function billsApp() {
         },
     };
 }
-
-window.billsApp = billsApp;

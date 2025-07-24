@@ -11,11 +11,11 @@
     <!-- FontAwesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
 
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.14.9/dist/cdn.min.js"></script>
 </head>
 <body class="bg-base-300 font-sans antialiased">
-    {{ $slot }}
-    <x-dark-mode-toggle />
+    <div id="app">
+        {{ $slot }}
+        <x-dark-mode-toggle />
+    </div>
 </body>
 </html>
