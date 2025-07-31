@@ -1,0 +1,24 @@
+/* resources/css/app.css */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom styles */
+.table th {
+    @apply font-semibold text-base-content;
+}
+
+.modal-open {
+    @apply flex;
+}
+
+.btn-group .btn {
+    @apply border-r-0 last:border-r;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .table-responsive {
+        @apply block overflow-x-auto whitespace-nowrap;
+    }
+}

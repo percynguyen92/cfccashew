@@ -1,0 +1,14 @@
+{
+  "name": "cfccashew-electron",
+  "version": "0.0.1",
+  "description": "frontend for my cfccashew app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "percynguyen92",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^37.2.4"
+  }
+}

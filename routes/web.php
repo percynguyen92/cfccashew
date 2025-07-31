@@ -16,3 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+/*
+Route::get('/', function () {
+    return redirect()->route('bills.index');
+});
+
+Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
+Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');
+
+*/
