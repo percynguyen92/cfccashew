@@ -1,8 +1,16 @@
 <!-- resources/views/pages/bills/show.blade.php -->
-<x-layout.app title="Chi tiết Bill" :breadcrumbs="[
-    ['name' => 'Danh sách Bills', 'url' => route('bills.index')],
-    ['name' => 'Chi tiết Bill: ' . $bill->billNumber]
-]">
+@extends('layouts.master')
+
+@section('title', 'Chi tiết Bill')
+
+@php
+    $breadcrumbs = [
+        ['name' => 'Danh sách Bills', 'url' => route('bills.index')],
+        ['name' => 'Chi tiết Bill: ' . $bill->billNumber],
+    ];
+@endphp
+
+@section('content')
     <div x-data="billDetailManager({{ $bill->id }})" x-init="init()">
         
         <!-- Back Button & Title -->
@@ -94,4 +102,4 @@
         }
     </script>
     @endpush
-</x-layout.app>
+@endsection

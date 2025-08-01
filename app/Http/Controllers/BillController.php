@@ -12,6 +12,6 @@ class BillController extends Controller
      */
     public function index()
     {
-        return view('layout.app');
+        return view('pages.bills.index');
     }
 }
