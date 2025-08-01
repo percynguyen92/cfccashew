@@ -1,5 +1,9 @@
 <!-- resources/views/pages/bills/index.blade.php -->
-<x-layout.app title="Quản lý thông tin điều thô">
+@extends('layouts.master')
+
+@section('title', 'Quản lý thông tin điều thô')
+
+@section('content')
     <div x-data="billsManager()" x-init="init()">
         
         <!-- Search Section -->
@@ -93,4 +97,4 @@
         }
     </script>
     @endpush
-</x-layout.app>
+@endsection
