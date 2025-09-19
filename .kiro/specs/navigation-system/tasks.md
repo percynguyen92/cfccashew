@@ -45,7 +45,13 @@
     - Add "Create New Bill" button and navigation to Bill creation form
     - _Requirements: 2.1, 2.2, 2.4, 2.5_
 
-  - [ ] 3.2 Create Bill detail page with containers display
+  - [x] 3.2 Create Bill detail page with containers display
+
+
+
+
+
+
     - Build Bill detail page showing all Bill information
     - Implement expandable containers table with cutting tests display
     - Add "Add Container" and "Add Final Sample" action buttons

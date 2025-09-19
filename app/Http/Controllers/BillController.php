@@ -66,7 +66,7 @@ class BillController extends Controller
         $billData = $this->billService->getBillById($bill->id);
 
         return Inertia::render('Bills/Show', [
-            'bill' => new BillResource($billData),
+            'bill' => (new BillResource($billData))->resolve(),
         ]);
     }
 
