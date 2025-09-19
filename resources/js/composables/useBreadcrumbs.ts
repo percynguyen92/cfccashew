@@ -31,6 +31,13 @@ export function useBreadcrumbs() {
                     title: 'Create Bill',
                     href: url,
                 });
+            } else if (url.match(/^\/bills\/\d+-.+$/)) {
+                const slug = url.split('/')[2];
+                const billNumber = slug.split('-').slice(1).join('-');
+                breadcrumbItems.push({
+                    title: `Bill ${billNumber}`,
+                    href: url,
+                });
             } else if (url.match(/^\/bills\/\d+$/)) {
                 const billId = url.split('/')[2];
                 breadcrumbItems.push({

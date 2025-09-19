@@ -26,6 +26,7 @@ import { Search, Plus, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-vue-next'
 
 interface Bill {
     id: number
+    slug: string
     bill_number: string | null
     seller: string | null
     buyer: string | null
@@ -154,7 +155,7 @@ const handleSearch = (event: Event) => {
                         </TableHeader>
                         <TableBody>
                             <TableRow v-for="bill in props.bills.data" :key="bill.id" class="cursor-pointer"
-                                @click="router.visit(bills.show.url(bill.id))">
+                                @click="router.visit(bills.show.url(bill.slug || bill.id))">
                                 <TableCell class="font-medium">
                                     {{ bill.bill_number || 'N/A' }}
                                 </TableCell>

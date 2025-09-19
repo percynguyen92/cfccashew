@@ -33,8 +33,12 @@ class BillController extends Controller
 
         $bills = $this->billService->getAllBills($filters, 15);
 
+        // Transform bills data using BillResource
+        $transformedBills = $bills->toArray();
+        $transformedBills['data'] = BillResource::collection($bills->items())->resolve();
+
         return Inertia::render('Bills/Index', [
-            'bills' => $bills,
+            'bills' => $transformedBills,
             'filters' => $filters,
         ]);
     }

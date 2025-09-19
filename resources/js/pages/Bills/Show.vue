@@ -74,7 +74,7 @@ const getTestTypeColor = (type: number): string => {
                 </div>
                 <div class="flex gap-2">
                     <Button variant="outline" as-child>
-                        <Link :href="`/bills/${bill.id}/edit`">
+                        <Link :href="`/bills/${bill.slug}/edit`">
                         Edit Bill
                         </Link>
                     </Button>
@@ -256,7 +256,7 @@ const getTestTypeColor = (type: number): string => {
                                                     <div>
                                                         <span class="text-muted-foreground">Tare Weight:</span>
                                                         <span class="ml-1 font-medium">{{ formatWeight(container.w_tare)
-                                                        }}</span>
+                                                            }}</span>
                                                     </div>
                                                     <div>
                                                         <span class="text-muted-foreground">Container Weight:</span>
@@ -314,7 +314,7 @@ const getTestTypeColor = (type: number): string => {
                                                                         <span class="text-muted-foreground">Date:</span>
                                                                         <span class="ml-1 font-medium">{{ new
                                                                             Date(test.created_at).toLocaleDateString()
-                                                                        }}</span>
+                                                                            }}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>

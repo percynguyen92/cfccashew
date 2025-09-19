@@ -41,6 +41,7 @@ export type BreadcrumbItemType = BreadcrumbItem;
 // Bill, Container, and CuttingTest interfaces
 export interface Bill {
     id: number;
+    slug: string;
     bill_number: string | null;
     seller: string | null;
     buyer: string | null;

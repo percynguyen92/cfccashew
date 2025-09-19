@@ -67,4 +67,36 @@ class Bill extends Model
 
         return round($finalSamples->avg('outturn_rate'), 2);
     }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Get the slug attribute for URL.
+     */
+    public function getSlugAttribute(): string
+    {
+        $billNumber = $this->bill_number ? $this->bill_number : 'bill';
+        return $this->id . '-' . $billNumber;
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        // Extract ID from slug format (id-billnumber)
+        if (str_contains($value, '-')) {
+            $id = explode('-', $value)[0];
+            return $this->where('id', $id)->first();
+        }
+        
+        // Fallback to ID if no slug format
+        return $this->where('id', $value)->first();
+    }
 }
