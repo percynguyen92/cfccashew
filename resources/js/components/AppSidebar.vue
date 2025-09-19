@@ -10,13 +10,13 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes/index';
 import bills from '@/routes/bills';
 import containers from '@/routes/containers';
 import cuttingTests from '@/routes/cutting-tests';
+import { dashboard } from '@/routes/index';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid, FileText, Package, Scissors } from 'lucide-vue-next';
+import { FileText, LayoutGrid, Package, Scissors } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -50,7 +50,7 @@ const mainNavItems: NavItem[] = [
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="dashboard()">
-                        <AppLogo />
+                            <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

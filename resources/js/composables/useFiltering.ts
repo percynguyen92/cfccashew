@@ -1,80 +1,87 @@
-import { router } from '@inertiajs/vue3'
-import { ref, watch } from 'vue'
-import { debounce } from 'lodash-es'
+import { router } from '@inertiajs/vue3';
+import { debounce } from 'lodash-es';
+import { ref, watch } from 'vue';
 
 export interface FilterOptions {
-  search?: string
-  sort_by?: string
-  sort_direction?: 'asc' | 'desc'
-  [key: string]: any
+    search?: string;
+    sort_by?: string;
+    sort_direction?: 'asc' | 'desc';
+    [key: string]: any;
 }
 
 export function useFiltering(initialFilters: FilterOptions = {}) {
-  const filters = ref<FilterOptions>({ ...initialFilters })
-  const isLoading = ref(false)
+    const filters = ref<FilterOptions>({ ...initialFilters });
+    const isLoading = ref(false);
 
-  const debouncedSearch = debounce((searchValue: string) => {
-    updateFilters({ search: searchValue })
-  }, 300)
+    const debouncedSearch = debounce((searchValue: string) => {
+        updateFilters({ search: searchValue });
+    }, 300);
 
-  const updateFilters = (newFilters: Partial<FilterOptions>) => {
-    if (isLoading.value) return
+    const updateFilters = (newFilters: Partial<FilterOptions>) => {
+        if (isLoading.value) return;
 
-    const updatedFilters = { ...filters.value, ...newFilters }
-    
-    // Remove empty values
-    Object.keys(updatedFilters).forEach(key => {
-      if (updatedFilters[key] === '' || updatedFilters[key] === null || updatedFilters[key] === undefined) {
-        delete updatedFilters[key]
-      }
-    })
+        const updatedFilters = { ...filters.value, ...newFilters };
 
-    filters.value = updatedFilters
-    
-    isLoading.value = true
-    router.get(window.location.pathname, updatedFilters, {
-      preserveState: true,
-      preserveScroll: true,
-      onFinish: () => {
-        isLoading.value = false
-      },
-    })
-  }
+        // Remove empty values
+        Object.keys(updatedFilters).forEach((key) => {
+            if (
+                updatedFilters[key] === '' ||
+                updatedFilters[key] === null ||
+                updatedFilters[key] === undefined
+            ) {
+                delete updatedFilters[key];
+            }
+        });
 
-  const sortBy = (column: string) => {
-    const currentSort = filters.value.sort_by
-    const currentDirection = filters.value.sort_direction || 'asc'
-    
-    let newDirection: 'asc' | 'desc' = 'asc'
-    
-    if (currentSort === column) {
-      newDirection = currentDirection === 'asc' ? 'desc' : 'asc'
-    }
+        filters.value = updatedFilters;
 
-    updateFilters({
-      sort_by: column,
-      sort_direction: newDirection,
-    })
-  }
+        isLoading.value = true;
+        router.get(window.location.pathname, updatedFilters, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isLoading.value = false;
+            },
+        });
+    };
 
-  const clearFilters = () => {
-    filters.value = {}
-    updateFilters({})
-  }
+    const sortBy = (column: string) => {
+        const currentSort = filters.value.sort_by;
+        const currentDirection = filters.value.sort_direction || 'asc';
 
-  // Watch for search changes
-  watch(() => filters.value.search, (newSearch) => {
-    if (newSearch !== initialFilters.search) {
-      debouncedSearch(newSearch || '')
-    }
-  })
+        let newDirection: 'asc' | 'desc' = 'asc';
 
-  return {
-    filters,
-    isLoading,
-    updateFilters,
-    sortBy,
-    clearFilters,
-    debouncedSearch,
-  }
+        if (currentSort === column) {
+            newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+        }
+
+        updateFilters({
+            sort_by: column,
+            sort_direction: newDirection,
+        });
+    };
+
+    const clearFilters = () => {
+        filters.value = {};
+        updateFilters({});
+    };
+
+    // Watch for search changes
+    watch(
+        () => filters.value.search,
+        (newSearch) => {
+            if (newSearch !== initialFilters.search) {
+                debouncedSearch(newSearch || '');
+            }
+        },
+    );
+
+    return {
+        filters,
+        isLoading,
+        updateFilters,
+        sortBy,
+        clearFilters,
+        debouncedSearch,
+    };
 }

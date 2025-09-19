@@ -1,76 +1,79 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
-import { useBreadcrumbs } from '@/composables/useBreadcrumbs'
-import { usePagination, type PaginationData } from '@/composables/usePagination'
-import { useFiltering } from '@/composables/useFiltering'
-import { Head, Link, router } from '@inertiajs/vue3'
-import * as bills from '@/routes/bills'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell
-} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
     Pagination,
     PaginationList,
-    PaginationListItem
-} from '@/components/ui/pagination'
-import { Search, Plus, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-vue-next'
+    PaginationListItem,
+} from '@/components/ui/pagination';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
+import { useFiltering } from '@/composables/useFiltering';
+import {
+    usePagination,
+    type PaginationData,
+} from '@/composables/usePagination';
+import AppLayout from '@/layouts/AppLayout.vue';
+import * as bills from '@/routes/bills';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from 'lucide-vue-next';
 
 interface Bill {
-    id: number
-    slug: string
-    bill_number: string | null
-    seller: string | null
-    buyer: string | null
-    containers_count: number
-    final_samples_count: number
-    average_outurn: number | null
-    created_at: string
-    updated_at: string
+    id: number;
+    slug: string;
+    bill_number: string | null;
+    seller: string | null;
+    buyer: string | null;
+    containers_count: number;
+    final_samples_count: number;
+    average_outurn: number | null;
+    created_at: string;
+    updated_at: string;
 }
 
 interface Props {
-    bills: PaginationData & { data: Bill[] }
+    bills: PaginationData & { data: Bill[] };
     filters: {
-        search: string
-        sort_by: string
-        sort_direction: 'asc' | 'desc'
-    }
+        search: string;
+        sort_by: string;
+        sort_direction: 'asc' | 'desc';
+    };
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const { breadcrumbs } = useBreadcrumbs()
-const { goToPage, getPaginationInfo } = usePagination()
-const { filters, isLoading, sortBy } = useFiltering(props.filters)
+const { breadcrumbs } = useBreadcrumbs();
+const { goToPage, getPaginationInfo } = usePagination();
+const { filters, isLoading, sortBy } = useFiltering(props.filters);
 
-const paginationInfo = getPaginationInfo(props.bills)
+const paginationInfo = getPaginationInfo(props.bills);
 
 const getSortIcon = (column: string) => {
-    if (filters.value.sort_by !== column) return ArrowUpDown
-    return filters.value.sort_direction === 'asc' ? ArrowUp : ArrowDown
-}
+    if (filters.value.sort_by !== column) return ArrowUpDown;
+    return filters.value.sort_direction === 'asc' ? ArrowUp : ArrowDown;
+};
 
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
-    })
-}
+        day: 'numeric',
+    });
+};
 
 const handleSearch = (event: Event) => {
-    const target = event.target as HTMLInputElement
-    filters.value.search = target.value
-}
+    const target = event.target as HTMLInputElement;
+    filters.value.search = target.value;
+};
 </script>
 
 <template>
@@ -154,8 +157,11 @@ const handleSearch = (event: Event) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="bill in props.bills.data" :key="bill.id" class="cursor-pointer"
-                                @click="router.visit(bills.show.url(bill.slug || bill.id))">
+                            <TableRow v-for="bill in props.bills.data" :key="bill.id" class="cursor-pointer" @click="
+                                router.visit(
+                                    bills.show.url(bill.slug || bill.id),
+                                )
+                                ">
                                 <TableCell class="font-medium">
                                     {{ bill.bill_number || 'N/A' }}
                                 </TableCell>
@@ -171,13 +177,19 @@ const handleSearch = (event: Event) => {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge :variant="bill.final_samples_count >= 3 ? 'default' : 'destructive'">
+                                    <Badge :variant="bill.final_samples_count >= 3
+                                            ? 'default'
+                                            : 'destructive'
+                                        ">
                                         {{ bill.final_samples_count }}/3
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
                                     <span v-if="bill.average_outurn" class="font-medium">
-                                        {{ bill.average_outurn.toFixed(2) }} lbs/80kg
+                                        {{
+                                            bill.average_outurn.toFixed(2)
+                                        }}
+                                        lbs/80kg
                                     </span>
                                     <span v-else class="text-muted-foreground">N/A</span>
                                 </TableCell>
@@ -188,15 +200,19 @@ const handleSearch = (event: Event) => {
 
                             <!-- Empty State -->
                             <TableRow v-if="props.bills.data.length === 0">
-                                <TableCell :colspan="7" class="text-center py-8">
+                                <TableCell :colspan="7" class="py-8 text-center">
                                     <div class="text-muted-foreground">
-                                        <p class="text-lg font-medium">No bills found</p>
+                                        <p class="text-lg font-medium">
+                                            No bills found
+                                        </p>
                                         <p class="text-sm">
                                             <template v-if="filters.search">
-                                                Try adjusting your search criteria
+                                                Try adjusting your search
+                                                criteria
                                             </template>
                                             <template v-else>
-                                                Get started by creating your first bill
+                                                Get started by creating your
+                                                first bill
                                             </template>
                                         </p>
                                     </div>
@@ -210,8 +226,9 @@ const handleSearch = (event: Event) => {
             <!-- Pagination -->
             <div v-if="props.bills.data.length > 0" class="flex items-center justify-between">
                 <div class="text-sm text-muted-foreground">
-                    Showing {{ paginationInfo.from }} to {{ paginationInfo.to }}
-                    of {{ paginationInfo.total }} results
+                    Showing {{ paginationInfo.from }} to
+                    {{ paginationInfo.to }} of
+                    {{ paginationInfo.total }} results
                 </div>
 
                 <Pagination>

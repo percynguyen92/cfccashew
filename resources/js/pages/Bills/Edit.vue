@@ -3,7 +3,14 @@ import BillForm from '@/components/bills/BillForm.vue';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as bills from '@/routes/bills';
+import type { Bill } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
+
+interface Props {
+    bill: Bill;
+}
+
+const props = defineProps<Props>();
 
 const { breadcrumbs } = useBreadcrumbs();
 
@@ -15,22 +22,27 @@ const handleSuccess = () => {
 
 // Handle form cancel
 const handleCancel = () => {
-    router.visit(bills.index.url());
+    router.visit(bills.show.url(props.bill.id));
 };
 </script>
 
 <template>
-
-    <Head title="Create Bill" />
+    <Head title="Edit Bill" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-semibold">Create Bill</h1>
+                <h1 class="text-2xl font-semibold">Edit Bill</h1>
             </div>
-            <div
-                class="relative min-h-[400px] flex-1 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
-                <p class="text-muted-foreground">Bill creation form will be implemented here.</p>
+            <div class="flex justify-center">
+                <BillForm
+                    :bill="bill"
+                    :is-editing="true"
+                    @success="handleSuccess"
+                    @cancel="handleCancel"
+                />
             </div>
         </div>
     </AppLayout>

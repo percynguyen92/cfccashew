@@ -1,0 +1,161 @@
+<script setup lang="ts">
+import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import * as bills from '@/routes/bills';
+import type { Bill } from '@/types';
+import { useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+interface Props {
+    bill?: Bill;
+    isEditing?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    isEditing: false,
+});
+
+const emit = defineEmits<{
+    success: [];
+    cancel: [];
+}>();
+
+// Form data
+const form = useForm({
+    bill_number: props.bill?.bill_number || '',
+    seller: props.bill?.seller || '',
+    buyer: props.bill?.buyer || '',
+    note: props.bill?.note || '',
+});
+
+// Computed properties
+const isSubmitting = computed(() => form.processing);
+const formTitle = computed(() =>
+    props.isEditing ? 'Edit Bill' : 'Create New Bill',
+);
+const submitButtonText = computed(() =>
+    props.isEditing ? 'Update Bill' : 'Create Bill',
+);
+
+// Methods
+const handleSubmit = () => {
+    if (props.isEditing && props.bill) {
+        form.put(bills.update.url(props.bill.id), {
+            onSuccess: () => {
+                emit('success');
+            },
+        });
+    } else {
+        form.post(bills.store.url(), {
+            onSuccess: () => {
+                emit('success');
+            },
+        });
+    }
+};
+
+const handleCancel = () => {
+    emit('cancel');
+};
+
+// Clear form errors when input changes
+const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
+    if (form.errors[field]) {
+        form.clearErrors(field);
+    }
+};
+</script>
+
+<template>
+    <Card class="w-full max-w-2xl">
+        <CardHeader>
+            <CardTitle>{{ formTitle }}</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <form @submit.prevent="handleSubmit" class="space-y-6">
+                <!-- Bill Number -->
+                <div class="space-y-2">
+                    <Label for="bill_number">Bill Number</Label>
+                    <Input
+                        id="bill_number"
+                        v-model="form.bill_number"
+                        type="text"
+                        placeholder="Enter bill number (optional)"
+                        maxlength="20"
+                        :aria-invalid="!!form.errors.bill_number"
+                        @input="clearError('bill_number')"
+                    />
+                    <InputError :message="form.errors.bill_number" />
+                </div>
+
+                <!-- Seller -->
+                <div class="space-y-2">
+                    <Label for="seller">Seller</Label>
+                    <Input
+                        id="seller"
+                        v-model="form.seller"
+                        type="text"
+                        placeholder="Enter seller name (optional)"
+                        maxlength="255"
+                        :aria-invalid="!!form.errors.seller"
+                        @input="clearError('seller')"
+                    />
+                    <InputError :message="form.errors.seller" />
+                </div>
+
+                <!-- Buyer -->
+                <div class="space-y-2">
+                    <Label for="buyer">Buyer</Label>
+                    <Input
+                        id="buyer"
+                        v-model="form.buyer"
+                        type="text"
+                        placeholder="Enter buyer name (optional)"
+                        maxlength="255"
+                        :aria-invalid="!!form.errors.buyer"
+                        @input="clearError('buyer')"
+                    />
+                    <InputError :message="form.errors.buyer" />
+                </div>
+
+                <!-- Note -->
+                <div class="space-y-2">
+                    <Label for="note">Note</Label>
+                    <Textarea
+                        id="note"
+                        v-model="form.note"
+                        placeholder="Enter additional notes (optional)"
+                        rows="4"
+                        :aria-invalid="!!form.errors.note"
+                        @input="clearError('note')"
+                    />
+                    <InputError :message="form.errors.note" />
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end space-x-4 pt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="handleCancel"
+                        :disabled="isSubmitting"
+                    >
+                        Cancel
+                    </Button>
+                    <Button type="submit" :disabled="isSubmitting">
+                        <span v-if="isSubmitting">
+                            {{ isEditing ? 'Updating...' : 'Creating...' }}
+                        </span>
+                        <span v-else>
+                            {{ submitButtonText }}
+                        </span>
+                    </Button>
+                </div>
+            </form>
+        </CardContent>
+    </Card>
+</template>
