@@ -51,7 +51,14 @@ export function useBreadcrumbs() {
                 href: containers.index.url(),
             });
 
-            if (url.match(/^\/containers\/\d+$/)) {
+            // Match container number format (4 letters + 7 digits) or numeric ID
+            if (url.match(/^\/containers\/[A-Z]{4}\d{7}$/)) {
+                const containerNumber = url.split('/')[2];
+                breadcrumbItems.push({
+                    title: `Container ${containerNumber}`,
+                    href: url,
+                });
+            } else if (url.match(/^\/containers\/\d+$/)) {
                 const containerId = url.split('/')[2];
                 breadcrumbItems.push({
                     title: `Container #${containerId}`,

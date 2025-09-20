@@ -92,7 +92,9 @@ const goBack = () => {
 };
 
 const editContainer = () => {
-    router.visit(containerRoutes.edit.url(props.container.id));
+    // Use container number if available, otherwise fall back to ID
+    const identifier = props.container.container_number || props.container.id;
+    router.visit(containerRoutes.edit.url(identifier.toString()));
 };
 
 const viewBill = () => {
@@ -384,8 +386,3 @@ const addCuttingTest = () => {
         </div>
     </AppLayout>
 </template>
-
-
-
-
-

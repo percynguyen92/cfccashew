@@ -84,11 +84,16 @@
 
 
 
-  - [ ] 4.2 Create Container detail page with cutting tests
+  - [x] 4.2 Create Container detail page with cutting tests
+
+
+
+
+
     - Build Container detail page displaying all container information
     - Show associated cutting tests with proper formatting
     - Implement container information display with Bill context
-
+    - include container number in url
 
     - _Requirements: 4.5_
 

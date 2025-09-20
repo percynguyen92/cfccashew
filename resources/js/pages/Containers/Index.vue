@@ -133,7 +133,9 @@ const formatOuturn = (outurn: number | string | null | undefined): string => {
 };
 
 const viewContainer = (container: Container) => {
-    router.visit(containerRoutes.show.url(container.id));
+    // Use container number if available, otherwise fall back to ID
+    const identifier = container.container_number || container.id;
+    router.visit(containerRoutes.show.url(identifier.toString()));
 };
 
 const paginationLinks = computed(() => {

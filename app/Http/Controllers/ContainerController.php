@@ -88,10 +88,13 @@ class ContainerController extends Controller
      */
     public function show(Container $container): Response
     {
-        $containerData = $this->containerService->getContainerById($container->id);
+        // Load relationships if not already loaded
+        if (!$container->relationLoaded('cuttingTests') || !$container->relationLoaded('bill')) {
+            $container->load(['cuttingTests', 'bill']);
+        }
 
         return Inertia::render('Containers/Show', [
-            'container' => new ContainerResource($containerData),
+            'container' => (new ContainerResource($container))->resolve(),
         ]);
     }
 

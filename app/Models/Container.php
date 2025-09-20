@@ -83,4 +83,26 @@ class Container extends Model
         
         return $test ? $test->outturn_rate : null;
     }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'container_number';
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        // If the value looks like a container number (letters + digits), search by container_number
+        if (preg_match('/^[A-Z]{4}\d{7}$/', $value)) {
+            return $this->where('container_number', $value)->firstOrFail();
+        }
+        
+        // Otherwise, fall back to ID lookup for backward compatibility
+        return $this->where('id', $value)->firstOrFail();
+    }
 }

@@ -21,7 +21,13 @@ Route::get('dashboard', function () {
 // Resource routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('bills', BillController::class);
-    Route::resource('containers', ContainerController::class);
+    
+    // Container routes with custom show route for container number
+    Route::resource('containers', ContainerController::class)->except(['show']);
+    Route::get('containers/{container}', [ContainerController::class, 'show'])
+        ->name('containers.show')
+        ->where('container', '[A-Z]{4}\d{7}|\d+'); // Match container number format or ID
+    
     Route::resource('cutting-tests', CuttingTestController::class);
 });
 

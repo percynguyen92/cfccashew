@@ -21,6 +21,11 @@ class ContainerService
         return $this->containerRepository->findByIdWithRelations($id, ['cuttingTests', 'bill']);
     }
 
+    public function getContainerByIdentifier(string $identifier): ?Container
+    {
+        return $this->containerRepository->findByContainerNumberOrId($identifier, ['cuttingTests', 'bill']);
+    }
+
     public function getContainersByBillId(int $billId): Collection
     {
         return $this->containerQuery->getByBillId($billId);

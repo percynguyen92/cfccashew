@@ -23,6 +23,26 @@ class ContainerRepository
         return $this->model->with($relations)->find($id);
     }
 
+    public function findByContainerNumber(string $containerNumber, array $relations = []): ?Container
+    {
+        return $this->model->with($relations)->where('container_number', $containerNumber)->first();
+    }
+
+    public function findByContainerNumberOrId(string $identifier, array $relations = []): ?Container
+    {
+        // If the identifier looks like a container number (4 letters + 7 digits), search by container_number
+        if (preg_match('/^[A-Z]{4}\d{7}$/', $identifier)) {
+            return $this->findByContainerNumber($identifier, $relations);
+        }
+        
+        // Otherwise, treat it as an ID
+        if (is_numeric($identifier)) {
+            return $this->findByIdWithRelations((int) $identifier, $relations);
+        }
+        
+        return null;
+    }
+
     public function create(array $data): Container
     {
         return $this->model->create($data);
