@@ -1,7 +1,3 @@
-# Product Overview
-
-This is a Laravel Vue Starter Kit - 
-
 # Product Specification
 
 ## Product Overview
