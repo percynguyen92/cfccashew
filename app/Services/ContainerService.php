@@ -90,6 +90,11 @@ class ContainerService
         return $data;
     }
 
+    public function getAllContainersPaginated(array $filters = [], int $perPage = 15)
+    {
+        return $this->containerQuery->getAllPaginated($filters, $perPage);
+    }
+
     public function getContainerStatistics(): array
     {
         $highMoistureContainers = $this->getContainersWithHighMoisture();

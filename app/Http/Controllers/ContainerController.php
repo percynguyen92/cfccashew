@@ -20,18 +20,32 @@ class ContainerController extends Controller
     ) {}
 
     /**
-     * Display a listing of containers for a specific bill.
+     * Display a listing of all containers with pagination and search.
      */
     public function index(Request $request): Response
     {
-        $billId = $request->get('bill_id');
-        $containers = $billId 
-            ? $this->containerService->getContainersByBillId((int) $billId)
-            : collect();
+        $filters = $request->only([
+            'container_number',
+            'truck', 
+            'bill_info',
+            'date_from',
+            'date_to'
+        ]);
+
+        $containers = $this->containerService->getAllContainersPaginated($filters, 15);
 
         return Inertia::render('Containers/Index', [
-            'containers' => ContainerResource::collection($containers),
-            'bill_id' => $billId,
+            'containers' => ContainerResource::collection($containers->items()),
+            'pagination' => [
+                'current_page' => $containers->currentPage(),
+                'last_page' => $containers->lastPage(),
+                'per_page' => $containers->perPage(),
+                'total' => $containers->total(),
+                'from' => $containers->firstItem(),
+                'to' => $containers->lastItem(),
+                'links' => $containers->linkCollection(),
+            ],
+            'filters' => $filters,
         ]);
     }
 
@@ -40,8 +54,16 @@ class ContainerController extends Controller
      */
     public function create(Request $request): Response
     {
+        $billId = $request->get('bill_id');
+        $bill = null;
+        
+        if ($billId) {
+            $bill = \App\Models\Bill::find($billId);
+        }
+
         return Inertia::render('Containers/Create', [
-            'bill_id' => $request->get('bill_id'),
+            'bill_id' => $billId,
+            'bill' => $bill ? new \App\Http\Resources\BillResource($bill) : null,
         ]);
     }
 
