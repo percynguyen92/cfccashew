@@ -67,6 +67,12 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "fresh": [
+            "@php artisan migrate:fresh --seed"
+        ],
+        "import-data": [
+            "@php artisan data:import --fresh"
         ]
     },
     "extra": {
