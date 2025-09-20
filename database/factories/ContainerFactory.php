@@ -16,18 +16,30 @@ class ContainerFactory extends Factory
      */
     public function definition(): array
     {
+        $quantityOfBags = $this->faker->numberBetween(50, 200);
+        $juteWeight = $this->faker->randomFloat(2, 1.00, 2.00);
+        $totalWeight = $this->faker->numberBetween(20000, 30000);
+        $truckWeight = $this->faker->numberBetween(8000, 12000);
+        $containerWeight = $this->faker->numberBetween(2000, 3000);
+        $dunnageWeight = $this->faker->numberBetween(100, 300);
+        
+        // Calculate weights using the correct formulas
+        $grossWeight = $totalWeight - $truckWeight - $containerWeight;
+        $tareWeight = $quantityOfBags * $juteWeight;
+        $netWeight = $grossWeight - $dunnageWeight - $tareWeight;
+        
         return [
             'truck' => 'TRK-' . str_pad($this->faker->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'container_number' => 'CONT' . str_pad($this->faker->numberBetween(1000000, 9999999), 7, '0', STR_PAD_LEFT),
-            'quantity_of_bags' => $this->faker->numberBetween(50, 200),
-            'w_jute_bag' => 1.00,
-            'w_total' => $this->faker->numberBetween(15000, 25000),
-            'w_truck' => $this->faker->numberBetween(8000, 12000),
-            'w_container' => $this->faker->numberBetween(2000, 3000),
-            'w_gross' => $this->faker->numberBetween(20000, 30000),
-            'w_dunnage_dribag' => $this->faker->numberBetween(100, 300),
-            'w_tare' => $this->faker->randomFloat(2, 2100, 3300),
-            'w_net' => $this->faker->randomFloat(2, 17000, 27000),
+            'quantity_of_bags' => $quantityOfBags,
+            'w_jute_bag' => $juteWeight,
+            'w_total' => $totalWeight,
+            'w_truck' => $truckWeight,
+            'w_container' => $containerWeight,
+            'w_gross' => max(0, $grossWeight), // Ensure non-negative
+            'w_dunnage_dribag' => $dunnageWeight,
+            'w_tare' => $tareWeight,
+            'w_net' => max(0, $netWeight), // Ensure non-negative
             'note' => $this->faker->optional()->sentence(),
         ];
     }

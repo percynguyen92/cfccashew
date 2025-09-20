@@ -76,6 +76,10 @@ Containers linked to a Bill.
 - `created_at` TIMESTAMP NULL
 - `updated_at` TIMESTAMP NULL
 - `deleted_at` TIMESTAMP NULL
+**Validate**
+w_gross = w_total - w_truck - w_container
+w_tare = quantity_of_bags * w_jute_bag
+w_net = w_gross - w_dunnage_dribag - w_tare
 
 **Constraints**
 - FK `bill_id` → `bills.id`
@@ -116,6 +120,11 @@ Inspection/cutting test results.
 - `created_at` TIMESTAMP NULL
 - `updated_at` TIMESTAMP NULL
 - `deleted_at` TIMESTAMP NULL
+**Validate**
+outturn_rate = (w_defective_kernel/2 + w_good_kernel) * 80 / 453.6
+alert if (sample_weight - w_sample_after_cut) > 5
+alert if (w_defective_nut/3.3 - w_defective_kernel) > 5
+alert if ((sample_weight - w_reject_nut - w_defective_nut)/3.3 - w_good_kernel) > 10
 
 **Constraints**
 - FK `bill_id` → `bills.id`

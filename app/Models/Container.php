@@ -61,6 +61,45 @@ class Container extends Model
     }
 
     /**
+     * Calculate gross weight using the formula: w_gross = w_total - w_truck - w_container
+     */
+    public function calculateGrossWeight(): ?float
+    {
+        if (is_null($this->w_total) || is_null($this->w_truck) || is_null($this->w_container)) {
+            return null;
+        }
+        
+        return max(0, $this->w_total - $this->w_truck - $this->w_container);
+    }
+
+    /**
+     * Calculate tare weight using the formula: w_tare = quantity_of_bags * w_jute_bag
+     */
+    public function calculateTareWeight(): ?float
+    {
+        if (is_null($this->quantity_of_bags) || is_null($this->w_jute_bag)) {
+            return null;
+        }
+        
+        return $this->quantity_of_bags * $this->w_jute_bag;
+    }
+
+    /**
+     * Calculate net weight using the formula: w_net = w_gross - w_dunnage_dribag - w_tare
+     */
+    public function calculateNetWeight(): ?float
+    {
+        $grossWeight = $this->calculateGrossWeight();
+        $tareWeight = $this->calculateTareWeight();
+        
+        if (is_null($grossWeight) || is_null($tareWeight) || is_null($this->w_dunnage_dribag)) {
+            return null;
+        }
+        
+        return max(0, $grossWeight - $this->w_dunnage_dribag - $tareWeight);
+    }
+
+    /**
      * Get the average moisture from cutting tests.
      */
     public function getAverageMoistureAttribute(): ?float

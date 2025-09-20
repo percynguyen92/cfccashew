@@ -33,7 +33,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as billRoutes from '@/routes/bills';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from 'lucide-vue-next';
+import { ArrowDown, ArrowUp, ArrowUpDown, Pencil, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Bill {
@@ -143,10 +143,10 @@ const confirmDelete = () => {
                     </p>
                 </div>
                 <Link :href="billRoutes.create.url()">
-                    <Button>
-                        <Plus class="mr-2 h-4 w-4" />
-                        Create New Bill
-                    </Button>
+                <Button>
+                    <Plus class="mr-2 h-4 w-4" />
+                    Create New Bill
+                </Button>
                 </Link>
             </div>
 
@@ -237,8 +237,8 @@ const confirmDelete = () => {
                                 </TableCell>
                                 <TableCell>
                                     <Badge :variant="bill.final_samples_count >= 3
-                                            ? 'default'
-                                            : 'destructive'
+                                        ? 'default'
+                                        : 'destructive'
                                         ">
                                         {{ bill.final_samples_count }}/3
                                     </Badge>
@@ -255,14 +255,22 @@ const confirmDelete = () => {
                                 <TableCell class="text-muted-foreground">
                                     {{ formatDate(bill.created_at) }}
                                 </TableCell>
-                                <TableCell class="flex justify-end gap-2">
+                                <TableCell class="flex items-center justify-end gap-2">
                                     <Link :href="billRoutes.edit.url(bill.slug || bill.id)" @click.stop>
-                                        <Button variant="outline" size="sm">
-                                            Edit
+                                        <Button variant="ghost" size="icon" aria-label="Edit bill">
+                                            <Pencil class="h-4 w-4" />
+                                            <span class="sr-only">Edit bill</span>
                                         </Button>
                                     </Link>
-                                    <Button variant="destructive" size="sm" @click.stop="openDeleteDialog(bill)">
-                                        Delete
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        class="text-destructive hover:text-destructive"
+                                        aria-label="Delete bill"
+                                        @click.stop="openDeleteDialog(bill)"
+                                    >
+                                        <Trash2 class="h-4 w-4" />
+                                        <span class="sr-only">Delete bill</span>
                                     </Button>
                                 </TableCell>
                             </TableRow>

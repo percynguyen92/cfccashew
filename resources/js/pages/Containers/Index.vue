@@ -11,13 +11,21 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { usePagination } from '@/composables/usePagination';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as containerRoutes from '@/routes/containers';
 import type { Container } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
-import { Eye, Package, Search } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Package, Pencil, Search, Trash2 } from 'lucide-vue-next';
 import { debounce } from 'lodash-es';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
@@ -62,6 +70,18 @@ const { goToPage } = usePagination();
 
 const containers = computed(() => props.containers);
 const pagination = computed(() => props.pagination);
+
+const isConfirmOpen = ref(false);
+const isDeleting = ref(false);
+const containerPendingDeletion = ref<Container | null>(null);
+
+const pendingContainerLabel = computed(() => {
+    const container = containerPendingDeletion.value;
+
+    if (!container) return '';
+
+    return container.container_number || `ID ${container.id}`;
+});
 
 const searchForm = ref(normalizeFilters(props.filters));
 
@@ -136,6 +156,43 @@ const viewContainer = (container: Container) => {
     // Use container number if available, otherwise fall back to ID
     const identifier = container.container_number || container.id;
     router.visit(containerRoutes.show.url(identifier.toString()));
+};
+
+const editContainer = (container: Container) => {
+    const identifier = container.container_number || container.id;
+    router.visit(containerRoutes.edit.url(identifier.toString()));
+};
+
+const openDeleteDialog = (container: Container) => {
+    containerPendingDeletion.value = container;
+    isConfirmOpen.value = true;
+};
+
+const closeDeleteDialog = () => {
+    isConfirmOpen.value = false;
+    containerPendingDeletion.value = null;
+};
+
+const confirmDelete = () => {
+    if (!containerPendingDeletion.value || isDeleting.value) {
+        return;
+    }
+
+    const container = containerPendingDeletion.value;
+    const identifier = container.container_number || container.id;
+    router.delete(containerRoutes.destroy.url(identifier.toString()), {
+        preserveScroll: true,
+
+        onStart: () => {
+            isDeleting.value = true;
+        },
+        onSuccess: () => {
+            closeDeleteDialog();
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+        },
+    });
 };
 
 const paginationLinks = computed(() => {
@@ -263,8 +320,15 @@ const nextLink = computed<PaginationLink>(() => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Button variant="ghost" size="sm" @click.stop="viewContainer(container)">
-                                    <Eye class="h-4 w-4" />
+                                <Button variant="ghost" size="icon" aria-label="Edit container"
+                                    @click.stop="editContainer(container)">
+                                    <Pencil class="h-4 w-4" />
+                                    <span class="sr-only">Edit container</span>
+                                </Button>
+                                <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive"
+                                    aria-label="Delete container" @click.stop="openDeleteDialog(container)">
+                                    <Trash2 class="h-4 w-4" />
+                                    <span class="sr-only">Delete container</span>
                                 </Button>
                             </TableCell>
                         </TableRow>
@@ -308,5 +372,25 @@ const nextLink = computed<PaginationLink>(() => {
                 </Pagination>
             </div>
         </div>
+        <!-- Confirm Delete Dialog -->
+        <Dialog v-model:open="isConfirmOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Delete container</DialogTitle>
+                    <DialogDescription>
+                        This action permanently removes container {{ pendingContainerLabel }} and all related data.
+                        This cannot be undone.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter class="gap-2">
+                    <Button variant="outline" @click="closeDeleteDialog" :disabled="isDeleting">
+                        Cancel
+                    </Button>
+                    <Button variant="destructive" @click="confirmDelete" :disabled="isDeleting">
+                        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

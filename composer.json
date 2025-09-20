@@ -68,6 +68,12 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "dev:setup": [
+            "@php artisan dev:setup --fresh"
+        ],
+        "dev:user": [
+            "@php artisan user:create-default"
+        ],
         "fresh": [
             "@php artisan migrate:fresh --seed"
         ],

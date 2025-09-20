@@ -82,14 +82,19 @@ class ContainerService
 
     private function calculateWeights(array $data): array
     {
-        // Calculate w_tare if we have the necessary components
-        if (isset($data['w_truck'], $data['w_container'], $data['w_dunnage_dribag'])) {
-            $data['w_tare'] = ($data['w_truck'] + $data['w_container'] + $data['w_dunnage_dribag']);
+        // Calculate w_gross if we have the necessary components: w_gross = w_total - w_truck - w_container
+        if (isset($data['w_total'], $data['w_truck'], $data['w_container'])) {
+            $data['w_gross'] = max(0, $data['w_total'] - $data['w_truck'] - $data['w_container']);
+        }
+        
+        // Calculate w_tare if we have the necessary components: w_tare = quantity_of_bags * w_jute_bag
+        if (isset($data['quantity_of_bags'], $data['w_jute_bag'])) {
+            $data['w_tare'] = $data['quantity_of_bags'] * $data['w_jute_bag'];
         }
 
-        // Calculate w_net if we have gross and tare
-        if (isset($data['w_gross'], $data['w_tare'])) {
-            $data['w_net'] = $data['w_gross'] - $data['w_tare'];
+        // Calculate w_net if we have gross, tare, and dunnage: w_net = w_gross - w_dunnage_dribag - w_tare
+        if (isset($data['w_gross'], $data['w_tare'], $data['w_dunnage_dribag'])) {
+            $data['w_net'] = max(0, $data['w_gross'] - $data['w_dunnage_dribag'] - $data['w_tare']);
         }
 
         return $data;

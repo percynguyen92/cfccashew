@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContainerRequest;
+use App\Http\Requests\UpdateContainerRequest;
 use App\Http\Resources\ContainerResource;
 use App\Models\Container;
 use App\Services\ContainerService;
@@ -111,7 +112,7 @@ class ContainerController extends Controller
     /**
      * Update the specified container in storage.
      */
-    public function update(StoreContainerRequest $request, Container $container): RedirectResponse
+    public function update(UpdateContainerRequest $request, Container $container): RedirectResponse
     {
         $this->containerService->updateContainer($container, $request->validated());
 

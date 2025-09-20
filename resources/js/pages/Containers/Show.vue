@@ -39,27 +39,35 @@ const props = defineProps<Props>();
 const { breadcrumbs } = useBreadcrumbs();
 
 // Format weight display
-const formatWeight = (weight: number | null): string => {
+const formatWeight = (weight: number | string | null): string => {
     if (weight === null || weight === undefined) return '-';
-    return weight.toLocaleString();
+    const numWeight = typeof weight === 'string' ? parseFloat(weight) : weight;
+    if (isNaN(numWeight)) return '-';
+    return numWeight.toLocaleString();
 };
 
 // Format decimal weight display
-const formatDecimalWeight = (weight: number | null): string => {
+const formatDecimalWeight = (weight: number | string | null): string => {
     if (weight === null || weight === undefined) return '-';
-    return weight.toFixed(2);
+    const numWeight = typeof weight === 'string' ? parseFloat(weight) : weight;
+    if (isNaN(numWeight)) return '-';
+    return numWeight.toFixed(2);
 };
 
 // Format moisture display
-const formatMoisture = (moisture: number | null | undefined): string => {
+const formatMoisture = (moisture: number | string | null | undefined): string => {
     if (moisture === null || moisture === undefined) return '-';
-    return `${moisture.toFixed(1)}%`;
+    const numMoisture = typeof moisture === 'string' ? parseFloat(moisture) : moisture;
+    if (isNaN(numMoisture)) return '-';
+    return `${numMoisture.toFixed(1)}%`;
 };
 
 // Format outurn display
-const formatOuturn = (outurn: number | null | undefined): string => {
+const formatOuturn = (outurn: number | string | null | undefined): string => {
     if (outurn === null || outurn === undefined) return '-';
-    return `${outurn.toFixed(2)} lbs/80kg`;
+    const numOuturn = typeof outurn === 'string' ? parseFloat(outurn) : outurn;
+    if (isNaN(numOuturn)) return '-';
+    return `${numOuturn.toFixed(2)} lbs/80kg`;
 };
 
 // Format defective ratio
@@ -117,9 +125,8 @@ const addCuttingTest = () => {
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <Button variant="ghost" size="sm" @click="goBack">
-                        <ArrowLeft class="h-4 w-4 mr-2" />
-                        Back to Containers
+                    <Button variant="ghost" size="icon" @click="goBack">
+                        <ArrowLeft class="h-4 w-4" />
                     </Button>
                     <div class="flex items-center gap-2">
                         <Package class="h-6 w-6" />
@@ -361,23 +368,6 @@ const addCuttingTest = () => {
                                 <p class="text-lg font-medium">
                                     {{ container.cutting_tests?.length || 0 }} tests
                                 </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Container Metadata -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Container Details</CardTitle>
-                        </CardHeader>
-                        <CardContent class="space-y-3">
-                            <div>
-                                <label class="text-sm font-medium text-muted-foreground">Created</label>
-                                <p class="text-sm">{{ new Date(container.created_at).toLocaleString() }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-muted-foreground">Last Updated</label>
-                                <p class="text-sm">{{ new Date(container.updated_at).toLocaleString() }}</p>
                             </div>
                         </CardContent>
                     </Card>

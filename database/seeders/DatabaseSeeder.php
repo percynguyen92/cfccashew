@@ -13,11 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Create default user
+        $this->call(DefaultUserSeeder::class);
 
         // Import real data from import_data.sql
         $this->call(ImportDataSeeder::class);
