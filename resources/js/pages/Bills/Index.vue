@@ -1,7 +1,15 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
     Pagination,
@@ -23,9 +31,10 @@ import {
     type PaginationData,
 } from '@/composables/usePagination';
 import AppLayout from '@/layouts/AppLayout.vue';
-import * as bills from '@/routes/bills';
+import * as billRoutes from '@/routes/bills';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Bill {
     id: number;
@@ -57,6 +66,18 @@ const { filters, isLoading, sortBy } = useFiltering(props.filters);
 
 const paginationInfo = getPaginationInfo(props.bills);
 
+const isConfirmOpen = ref(false);
+const isDeleting = ref(false);
+const billPendingDeletion = ref<Bill | null>(null);
+
+const pendingBillLabel = computed(() => {
+    const bill = billPendingDeletion.value;
+
+    if (!bill) return '';
+
+    return bill.bill_number || `ID ${bill.id}`;
+});
+
 const getSortIcon = (column: string) => {
     if (filters.value.sort_by !== column) return ArrowUpDown;
     return filters.value.sort_direction === 'asc' ? ArrowUp : ArrowDown;
@@ -74,6 +95,37 @@ const handleSearch = (event: Event) => {
     const target = event.target as HTMLInputElement;
     filters.value.search = target.value;
 };
+
+const openDeleteDialog = (bill: Bill) => {
+    billPendingDeletion.value = bill;
+    isConfirmOpen.value = true;
+};
+
+const closeDeleteDialog = () => {
+    isConfirmOpen.value = false;
+    billPendingDeletion.value = null;
+};
+
+const confirmDelete = () => {
+    if (!billPendingDeletion.value || isDeleting.value) {
+        return;
+    }
+
+    const identifier = billPendingDeletion.value.slug || billPendingDeletion.value.id;
+
+    router.delete(billRoutes.destroy.url(identifier), {
+        preserveScroll: true,
+        onStart: () => {
+            isDeleting.value = true;
+        },
+        onSuccess: () => {
+            closeDeleteDialog();
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+        },
+    });
+};
 </script>
 
 <template>
@@ -90,11 +142,11 @@ const handleSearch = (event: Event) => {
                         Manage Bills of Lading and their associated containers
                     </p>
                 </div>
-                <Link :href="bills.create.url()">
-                <Button>
-                    <Plus class="mr-2 h-4 w-4" />
-                    Create New Bill
-                </Button>
+                <Link :href="billRoutes.create.url()">
+                    <Button>
+                        <Plus class="mr-2 h-4 w-4" />
+                        Create New Bill
+                    </Button>
                 </Link>
             </div>
 
@@ -126,7 +178,7 @@ const handleSearch = (event: Event) => {
                                 <TableHead>
                                     <Button variant="ghost" size="sm" @click="sortBy('bill_number')"
                                         class="h-auto p-0 font-medium hover:bg-transparent">
-                                        Bill Number
+                                        Bill #
                                         <component :is="getSortIcon('bill_number')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
@@ -144,7 +196,13 @@ const handleSearch = (event: Event) => {
                                         <component :is="getSortIcon('buyer')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
-                                <TableHead>Containers</TableHead>
+                                <TableHead>
+                                    <Button variant="ghost" size="sm" @click="sortBy('containers_count')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
+                                        Containers
+                                        <component :is="getSortIcon('containers_count')" class="ml-2 h-4 w-4" />
+                                    </Button>
+                                </TableHead>
                                 <TableHead>Final Samples</TableHead>
                                 <TableHead>Avg. Outurn</TableHead>
                                 <TableHead>
@@ -154,12 +212,13 @@ const handleSearch = (event: Event) => {
                                         <component :is="getSortIcon('created_at')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
+                                <TableHead class="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             <TableRow v-for="bill in props.bills.data" :key="bill.id" class="cursor-pointer" @click="
                                 router.visit(
-                                    bills.show.url(bill.slug || bill.id),
+                                    billRoutes.show.url(bill.slug || bill.id),
                                 )
                                 ">
                                 <TableCell class="font-medium">
@@ -196,11 +255,21 @@ const handleSearch = (event: Event) => {
                                 <TableCell class="text-muted-foreground">
                                     {{ formatDate(bill.created_at) }}
                                 </TableCell>
+                                <TableCell class="flex justify-end gap-2">
+                                    <Link :href="billRoutes.edit.url(bill.slug || bill.id)" @click.stop>
+                                        <Button variant="outline" size="sm">
+                                            Edit
+                                        </Button>
+                                    </Link>
+                                    <Button variant="destructive" size="sm" @click.stop="openDeleteDialog(bill)">
+                                        Delete
+                                    </Button>
+                                </TableCell>
                             </TableRow>
 
                             <!-- Empty State -->
                             <TableRow v-if="props.bills.data.length === 0">
-                                <TableCell :colspan="7" class="py-8 text-center">
+                                <TableCell :colspan="8" class="py-8 text-center">
                                     <div class="text-muted-foreground">
                                         <p class="text-lg font-medium">
                                             No bills found
@@ -242,7 +311,9 @@ const handleSearch = (event: Event) => {
 
                         <PaginationListItem v-for="link in props.bills.links.slice(1, -1)" :key="link.label">
                             <Button :variant="link.active ? 'default' : 'outline'" size="sm" :disabled="!link.url"
-                                @click="goToPage(link.url)" v-html="link.label" />
+                                @click="goToPage(link.url)">
+                                <span v-html="link.label" />
+                            </Button>
                         </PaginationListItem>
 
                         <PaginationListItem>
@@ -255,5 +326,25 @@ const handleSearch = (event: Event) => {
                 </Pagination>
             </div>
         </div>
+
+        <Dialog v-model:open="isConfirmOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Delete bill</DialogTitle>
+                    <DialogDescription>
+                        This action permanently removes bill {{ pendingBillLabel }} and all related data.
+                        This cannot be undone.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter class="gap-2">
+                    <Button variant="outline" @click="closeDeleteDialog" :disabled="isDeleting">
+                        Cancel
+                    </Button>
+                    <Button variant="destructive" @click="confirmDelete" :disabled="isDeleting">
+                        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>
