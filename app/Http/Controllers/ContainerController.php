@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Http\Controllers;
@@ -26,16 +25,22 @@ class ContainerController extends Controller
     {
         $filters = $request->only([
             'container_number',
-            'truck', 
+            'truck',
             'bill_info',
             'date_from',
-            'date_to'
+            'date_to',
         ]);
 
         $containers = $this->containerService->getAllContainersPaginated($filters, 15);
+        $containerItems = ContainerResource::collection($containers->items())
+            ->resolve();
+        $activeFilters = array_filter(
+            $filters,
+            fn ($value) => $value !== null && $value !== ''
+        );
 
         return Inertia::render('Containers/Index', [
-            'containers' => ContainerResource::collection($containers->items()),
+            'containers' => $containerItems,
             'pagination' => [
                 'current_page' => $containers->currentPage(),
                 'last_page' => $containers->lastPage(),
@@ -45,7 +50,7 @@ class ContainerController extends Controller
                 'to' => $containers->lastItem(),
                 'links' => $containers->linkCollection(),
             ],
-            'filters' => $filters,
+            'filters' => $activeFilters,
         ]);
     }
 
@@ -65,8 +70,8 @@ class ContainerController extends Controller
             'bill_id' => $billId,
             'bill' => $bill ? new \App\Http\Resources\BillResource($bill) : null,
         ]);
+  
     }
-
     /**
      * Store a newly created container in storage.
      */
@@ -123,3 +128,4 @@ class ContainerController extends Controller
             ->with('success', 'Container deleted successfully.');
     }
 }
+

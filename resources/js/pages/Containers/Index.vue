@@ -111,19 +111,25 @@ const clearFilters = () => {
     submitFilters({});
 };
 
-const formatWeight = (weight: number | null): string => {
+const formatWeight = (weight: number | string | null | undefined): string => {
     if (weight === null || weight === undefined) return '-';
-    return weight.toLocaleString();
+    const numValue = typeof weight === 'string' ? parseFloat(weight) : weight;
+    if (isNaN(numValue)) return '-';
+    return numValue.toLocaleString();
 };
 
-const formatMoisture = (moisture: number | null | undefined): string => {
+const formatMoisture = (moisture: number | string | null | undefined): string => {
     if (moisture === null || moisture === undefined) return '-';
-    return `${moisture.toFixed(1)}%`;
+    const numValue = typeof moisture === 'string' ? parseFloat(moisture) : moisture;
+    if (isNaN(numValue)) return '-';
+    return `${numValue.toFixed(1)}%`;
 };
 
-const formatOuturn = (outurn: number | null | undefined): string => {
+const formatOuturn = (outurn: number | string | null | undefined): string => {
     if (outurn === null || outurn === undefined) return '-';
-    return `${outurn.toFixed(2)} lbs/80kg`;
+    const numValue = typeof outurn === 'string' ? parseFloat(outurn) : outurn;
+    if (isNaN(numValue)) return '-';
+    return `${numValue.toFixed(2)} lbs/80kg`;
 };
 
 const viewContainer = (container: Container) => {
@@ -228,7 +234,7 @@ const nextLink = computed<PaginationLink>(() => {
                             <TableCell>
                                 <div v-if="container.bill" class="space-y-1">
                                     <div class="font-medium">
-                                        {{ container.bill.bill_number || `Bill #${container.bill.id}` }}
+                                        {{ container.bill.bill_number || `Bill ${container.bill.id}` }}
                                     </div>
                                     <div class="text-sm text-muted-foreground">
                                         {{ container.bill.seller }} / {{ container.bill.buyer }}
@@ -277,7 +283,8 @@ const nextLink = computed<PaginationLink>(() => {
                 <Pagination>
                     <PaginationList>
                         <PaginationListItem>
-                            <Button variant="outline" size="sm" :disabled="!previousLink.url" @click="goToPage(previousLink.url)">
+                            <Button variant="outline" size="sm" :disabled="!previousLink.url"
+                                @click="goToPage(previousLink.url)">
                                 Previous
                             </Button>
                         </PaginationListItem>
@@ -290,7 +297,8 @@ const nextLink = computed<PaginationLink>(() => {
                         </PaginationListItem>
 
                         <PaginationListItem>
-                            <Button variant="outline" size="sm" :disabled="!nextLink.url" @click="goToPage(nextLink.url)">
+                            <Button variant="outline" size="sm" :disabled="!nextLink.url"
+                                @click="goToPage(nextLink.url)">
                                 Next
                             </Button>
                         </PaginationListItem>
@@ -300,4 +308,3 @@ const nextLink = computed<PaginationLink>(() => {
         </div>
     </AppLayout>
 </template>
-

@@ -15,14 +15,19 @@ class CuttingTestResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $type = CuttingTestType::from($this->type);
-        
+        $typeEnum = $this->type !== null
+            ? CuttingTestType::tryFrom((int) $this->type)
+            : null;
+
+        $isFinalSample = $typeEnum?->isFinalSample() ?? false;
+        $isContainerTest = $typeEnum?->isContainerTest() ?? false;
+
         return [
             'id' => $this->id,
             'bill_id' => $this->bill_id,
             'container_id' => $this->container_id,
             'type' => $this->type,
-            'type_label' => $type->label(),
+            'type_label' => $typeEnum?->label(),
             'moisture' => $this->moisture,
             'sample_weight' => $this->sample_weight,
             'nut_count' => $this->nut_count,
@@ -36,19 +41,20 @@ class CuttingTestResource extends JsonResource
             'defective_ratio' => $this->when(
                 $this->w_defective_nut && $this->w_defective_kernel,
                 function () {
-                    $ratio = $this->w_defective_nut > 0 
+                    $ratio = $this->w_defective_nut > 0
                         ? round($this->w_defective_kernel / $this->w_defective_nut, 1)
                         : 0;
+
                     return [
                         'defective_nut' => $this->w_defective_nut,
                         'defective_kernel' => $this->w_defective_kernel,
                         'ratio' => $ratio,
-                        'formatted' => "{$this->w_defective_nut}/{$ratio}"
+                        'formatted' => "{$this->w_defective_nut}/{$ratio}",
                     ];
                 }
             ),
-            'is_final_sample' => $type->isFinalSample() && is_null($this->container_id),
-            'is_container_test' => $type->isContainerTest() && !is_null($this->container_id),
+            'is_final_sample' => $isFinalSample && is_null($this->container_id),
+            'is_container_test' => $isContainerTest && !is_null($this->container_id),
             'bill' => new BillResource($this->whenLoaded('bill')),
             'container' => new ContainerResource($this->whenLoaded('container')),
             'created_at' => $this->created_at?->toISOString(),
@@ -56,3 +62,4 @@ class CuttingTestResource extends JsonResource
         ];
     }
 }
+
