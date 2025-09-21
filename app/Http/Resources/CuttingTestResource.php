@@ -37,12 +37,14 @@ class CuttingTestResource extends JsonResource
             'w_good_kernel' => $this->w_good_kernel,
             'w_sample_after_cut' => $this->w_sample_after_cut,
             'outturn_rate' => $this->outturn_rate,
+            'moisture_formatted' => $this->moisture ? number_format((float) $this->moisture, 1) . '%' : null,
+            'outturn_rate_formatted' => $this->outturn_rate ? number_format((float) $this->outturn_rate, 2) . ' lbs/80kg' : null,
             'note' => $this->note,
             'defective_ratio' => $this->when(
                 $this->w_defective_nut && $this->w_defective_kernel,
                 function () {
                     $ratio = $this->w_defective_nut > 0
-                        ? round($this->w_defective_kernel / $this->w_defective_nut, 1)
+                        ? round($this->w_defective_kernel / $this->w_defective_nut * 2, 1)
                         : 0;
 
                     return [

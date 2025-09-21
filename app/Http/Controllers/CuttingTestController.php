@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCuttingTestRequest;
+use App\Http\Requests\UpdateCuttingTestRequest;
 use App\Http\Resources\CuttingTestResource;
 use App\Models\CuttingTest;
 use App\Services\CuttingTestService;
@@ -24,14 +25,31 @@ class CuttingTestController extends Controller
      */
     public function index(Request $request): Response
     {
-        $billId = $request->get('bill_id');
-        $cuttingTests = $billId 
-            ? $this->cuttingTestService->getCuttingTestsByBillId((int) $billId)
-            : collect();
+        $filters = $request->only([
+            'bill_number',
+            'test_type', 
+            'container_id',
+            'moisture_min',
+            'moisture_max',
+            'date_from',
+            'date_to',
+            'per_page',
+            'page'
+        ]);
+
+        $cuttingTests = $this->cuttingTestService->getCuttingTestsWithFilters($filters);
 
         return Inertia::render('CuttingTests/Index', [
-            'cutting_tests' => CuttingTestResource::collection($cuttingTests),
-            'bill_id' => $billId,
+            'cutting_tests' => CuttingTestResource::collection($cuttingTests->items()),
+            'pagination' => [
+                'current_page' => $cuttingTests->currentPage(),
+                'last_page' => $cuttingTests->lastPage(),
+                'per_page' => $cuttingTests->perPage(),
+                'total' => $cuttingTests->total(),
+                'from' => $cuttingTests->firstItem(),
+                'to' => $cuttingTests->lastItem(),
+            ],
+            'filters' => $filters,
         ]);
     }
 
@@ -40,9 +58,18 @@ class CuttingTestController extends Controller
      */
     public function create(Request $request): Response
     {
+        $billId = $request->get('bill_id');
+        $containerId = $request->get('container_id');
+        
+        // Get bill and container data for form context
+        $bill = $billId ? $this->cuttingTestService->getBillById((int) $billId) : null;
+        $container = $containerId ? $this->cuttingTestService->getContainerById((int) $containerId) : null;
+        
         return Inertia::render('CuttingTests/Create', [
-            'bill_id' => $request->get('bill_id'),
-            'container_id' => $request->get('container_id'),
+            'bill_id' => $billId,
+            'container_id' => $containerId,
+            'bill' => $bill ? new \App\Http\Resources\BillResource($bill) : null,
+            'container' => $container ? new \App\Http\Resources\ContainerResource($container) : null,
         ]);
     }
 
@@ -82,7 +109,7 @@ class CuttingTestController extends Controller
     /**
      * Update the specified cutting test in storage.
      */
-    public function update(StoreCuttingTestRequest $request, CuttingTest $cuttingTest): RedirectResponse
+    public function update(UpdateCuttingTestRequest $request, CuttingTest $cuttingTest): RedirectResponse
     {
         $this->cuttingTestService->updateCuttingTest($cuttingTest, $request->validated());
 

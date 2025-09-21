@@ -6,9 +6,12 @@ namespace App\Services;
 
 use App\Enums\CuttingTestType;
 use App\Models\CuttingTest;
+use App\Models\Bill;
+use App\Models\Container;
 use App\Repositories\CuttingTestRepository;
 use App\Queries\CuttingTestQuery;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CuttingTestService
 {
@@ -16,6 +19,11 @@ class CuttingTestService
         private CuttingTestRepository $cuttingTestRepository,
         private CuttingTestQuery $cuttingTestQuery
     ) {}
+
+    public function getCuttingTestsWithFilters(array $filters): LengthAwarePaginator
+    {
+        return $this->cuttingTestRepository->findWithFilters($filters);
+    }
 
     public function getCuttingTestById(int $id): ?CuttingTest
     {
@@ -42,6 +50,9 @@ class CuttingTestService
         // Validate cutting test type and container relationship
         $this->validateCuttingTestData($data);
         
+        // Calculate outturn rate if weights are provided
+        $data = $this->calculateOutturnRate($data);
+        
         return $this->cuttingTestRepository->create($data);
     }
 
@@ -49,6 +60,9 @@ class CuttingTestService
     {
         // Validate cutting test type and container relationship
         $this->validateCuttingTestData($data);
+        
+        // Calculate outturn rate if weights are provided
+        $data = $this->calculateOutturnRate($data);
         
         return $this->cuttingTestRepository->update($cuttingTest, $data);
     }
@@ -123,5 +137,31 @@ class CuttingTestService
             'moisture_distribution' => $moistureDistribution,
             'high_moisture_tests' => $highMoistureTests,
         ];
+    }
+
+    public function getBillById(int $billId): ?Bill
+    {
+        return Bill::find($billId);
+    }
+
+    public function getContainerById(int $containerId): ?Container
+    {
+        return Container::find($containerId);
+    }
+
+    private function calculateOutturnRate(array $data): array
+    {
+        // Calculate outturn rate: (w_defective_kernel/2 + w_good_kernel) * 80 / 453.6
+        if (!empty($data['w_defective_kernel']) && !empty($data['w_good_kernel'])) {
+            $defectiveKernelWeight = (float) $data['w_defective_kernel'];
+            $goodKernelWeight = (float) $data['w_good_kernel'];
+            
+            $data['outturn_rate'] = round(
+                ($defectiveKernelWeight / 2 + $goodKernelWeight) * 80 / 453.6,
+                2
+            );
+        }
+
+        return $data;
     }
 }

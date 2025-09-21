@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Enums\CuttingTestType;
 use App\Models\CuttingTest;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CuttingTestRepository
 {
@@ -78,6 +79,40 @@ class CuttingTestRepository
             ->whereNotNull('container_id')
             ->with('container')
             ->get();
+    }
+
+    public function findWithFilters(array $filters): LengthAwarePaginator
+    {
+        $query = $this->model->with(['bill', 'container'])
+            ->when($filters['bill_number'] ?? null, function ($query, $billNumber) {
+                $query->whereHas('bill', function ($q) use ($billNumber) {
+                    $q->where('bill_number', 'like', "%{$billNumber}%");
+                });
+            })
+            ->when($filters['test_type'] ?? null, function ($query, $type) {
+                $query->where('type', $type);
+            })
+            ->when($filters['container_id'] ?? null, function ($query, $containerId) {
+                $query->where('container_id', $containerId);
+            })
+            ->when($filters['moisture_min'] ?? null, function ($query, $min) {
+                $query->where('moisture', '>=', $min);
+            })
+            ->when($filters['moisture_max'] ?? null, function ($query, $max) {
+                $query->where('moisture', '<=', $max);
+            })
+            ->when($filters['date_from'] ?? null, function ($query, $dateFrom) {
+                $query->whereDate('created_at', '>=', $dateFrom);
+            })
+            ->when($filters['date_to'] ?? null, function ($query, $dateTo) {
+                $query->whereDate('created_at', '<=', $dateTo);
+            });
+
+        $perPage = (int) ($filters['per_page'] ?? 15);
+        
+        return $query->orderBy('created_at', 'desc')
+                    ->paginate($perPage)
+                    ->withQueryString();
     }
 
     public function getTestsWithHighMoisture(float $threshold = 11.0): Collection
