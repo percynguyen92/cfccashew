@@ -90,7 +90,18 @@ class CuttingTestRepository
                 });
             })
             ->when($filters['test_type'] ?? null, function ($query, $type) {
-                $query->where('type', $type);
+                if ($type === 'final') {
+                    $query->whereIn('type', [
+                        CuttingTestType::FinalFirstCut->value,
+                        CuttingTestType::FinalSecondCut->value,
+                        CuttingTestType::FinalThirdCut->value,
+                    ])->whereNull('container_id');
+                } elseif ($type === 'container') {
+                    $query->where('type', CuttingTestType::ContainerCut->value)
+                        ->whereNotNull('container_id');
+                } else {
+                    $query->where('type', $type);
+                }
             })
             ->when($filters['container_id'] ?? null, function ($query, $containerId) {
                 $query->where('container_id', $containerId);

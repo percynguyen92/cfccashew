@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { router, useForm } from '@inertiajs/vue3';
-import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { AlertTriangle, ArrowLeft, Save } from 'lucide-vue-next';
+import { computed, watch } from 'vue';
 
 interface Bill {
     id: number;
@@ -76,9 +80,9 @@ const goodKernelDifference = computed(() => {
 const calculatedOutturnRate = computed(() => {
     const defectiveKernel = Number(form.w_defective_kernel) || 0;
     const goodKernel = Number(form.w_good_kernel) || 0;
-    
+
     if (defectiveKernel > 0 || goodKernel > 0) {
-        return ((defectiveKernel / 2 + goodKernel) * 80 / 453.6).toFixed(2);
+        return (((defectiveKernel / 2 + goodKernel) * 80) / 453.6).toFixed(2);
     }
     return null;
 });
@@ -95,17 +99,20 @@ const testTypeOptions = [
 ];
 
 // Watch for type changes to validate container association
-watch(() => form.type, (newType) => {
-    if ([1, 2, 3].includes(newType)) {
-        // Final samples should not have container
-        form.container_id = '';
-    } else if (newType === 4 && !form.container_id) {
-        // Container tests need container_id
-        if (props.container_id) {
-            form.container_id = props.container_id;
+watch(
+    () => form.type,
+    (newType) => {
+        if ([1, 2, 3].includes(newType)) {
+            // Final samples should not have container
+            form.container_id = '';
+        } else if (newType === 4 && !form.container_id) {
+            // Container tests need container_id
+            if (props.container_id) {
+                form.container_id = props.container_id;
+            }
         }
-    }
-});
+    },
+);
 
 // Submit form
 function submit() {
@@ -138,7 +145,7 @@ const pageTitle = computed(() => {
 
 // Get test type label
 function getTestTypeLabel(type: number) {
-    const option = testTypeOptions.find(opt => opt.value === type);
+    const option = testTypeOptions.find((opt) => opt.value === type);
     return option?.label || `Type ${type}`;
 }
 </script>
@@ -147,19 +154,29 @@ function getTestTypeLabel(type: number) {
     <Head :title="pageTitle" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
+        >
             <!-- Header Section -->
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
-                    <p v-if="props.bill" class="text-sm text-muted-foreground mt-1">
-                        Bill: {{ props.bill.bill_number || `#${props.bill.id}` }}
+                    <p
+                        v-if="props.bill"
+                        class="mt-1 text-sm text-muted-foreground"
+                    >
+                        Bill:
+                        {{ props.bill.bill_number || `#${props.bill.id}` }}
                         <span v-if="props.bill.seller" class="ml-2">
                             | Seller: {{ props.bill.seller }}
                         </span>
                     </p>
                 </div>
-                <Button variant="outline" @click="cancel" class="flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    @click="cancel"
+                    class="flex items-center gap-2"
+                >
                     <ArrowLeft class="h-4 w-4" />
                     Cancel
                 </Button>
@@ -178,7 +195,11 @@ function getTestTypeLabel(type: number) {
                                 <Label for="type">Test Type *</Label>
                                 <Select v-model="form.type" required>
                                     <SelectTrigger>
-                                        <SelectValue :placeholder="getTestTypeLabel(form.type)" />
+                                        <SelectValue
+                                            :placeholder="
+                                                getTestTypeLabel(form.type)
+                                            "
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem
@@ -190,14 +211,19 @@ function getTestTypeLabel(type: number) {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <p v-if="form.errors.type" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.type"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.type }}
                                 </p>
                             </div>
 
                             <!-- Sample Weight -->
                             <div class="space-y-2">
-                                <Label for="sample_weight">Sample Weight (grams) *</Label>
+                                <Label for="sample_weight"
+                                    >Sample Weight (grams) *</Label
+                                >
                                 <Input
                                     id="sample_weight"
                                     v-model="form.sample_weight"
@@ -206,24 +232,43 @@ function getTestTypeLabel(type: number) {
                                     max="65535"
                                     required
                                 />
-                                <p v-if="form.errors.sample_weight" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.sample_weight"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.sample_weight }}
                                 </p>
                             </div>
                         </div>
 
                         <!-- Context Information -->
-                        <div v-if="isFinalSample" class="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                        <div
+                            v-if="isFinalSample"
+                            class="rounded-lg bg-blue-50 p-3 dark:bg-blue-950/20"
+                        >
                             <p class="text-sm text-blue-800 dark:text-blue-200">
-                                <strong>Final Sample Test:</strong> This test will be associated with the bill but not with any specific container.
+                                <strong>Final Sample Test:</strong> This test
+                                will be associated with the bill but not with
+                                any specific container.
                             </p>
                         </div>
 
-                        <div v-if="isContainerTest && props.container" class="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                            <p class="text-sm text-green-800 dark:text-green-200">
-                                <strong>Container Test:</strong> 
-                                Testing container {{ props.container.container_number || `#${props.container.id}` }}
-                                <span v-if="props.container.truck"> (Truck: {{ props.container.truck }})</span>
+                        <div
+                            v-if="isContainerTest && props.container"
+                            class="rounded-lg bg-green-50 p-3 dark:bg-green-950/20"
+                        >
+                            <p
+                                class="text-sm text-green-800 dark:text-green-200"
+                            >
+                                <strong>Container Test:</strong>
+                                Testing container
+                                {{
+                                    props.container.container_number ||
+                                    `#${props.container.id}`
+                                }}
+                                <span v-if="props.container.truck">
+                                    (Truck: {{ props.container.truck }})</span
+                                >
                             </p>
                         </div>
                     </CardContent>
@@ -248,7 +293,10 @@ function getTestTypeLabel(type: number) {
                                     step="0.1"
                                     placeholder="e.g., 12.5"
                                 />
-                                <p v-if="form.errors.moisture" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.moisture"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.moisture }}
                                 </p>
                             </div>
@@ -264,7 +312,10 @@ function getTestTypeLabel(type: number) {
                                     max="65535"
                                     placeholder="Total number of nuts"
                                 />
-                                <p v-if="form.errors.nut_count" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.nut_count"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.nut_count }}
                                 </p>
                             </div>
@@ -281,7 +332,9 @@ function getTestTypeLabel(type: number) {
                         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             <!-- Reject Nut Weight -->
                             <div class="space-y-2">
-                                <Label for="w_reject_nut">Reject Nut Weight</Label>
+                                <Label for="w_reject_nut"
+                                    >Reject Nut Weight</Label
+                                >
                                 <Input
                                     id="w_reject_nut"
                                     v-model="form.w_reject_nut"
@@ -289,14 +342,19 @@ function getTestTypeLabel(type: number) {
                                     min="0"
                                     max="65535"
                                 />
-                                <p v-if="form.errors.w_reject_nut" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.w_reject_nut"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.w_reject_nut }}
                                 </p>
                             </div>
 
                             <!-- Defective Nut Weight -->
                             <div class="space-y-2">
-                                <Label for="w_defective_nut">Defective Nut Weight</Label>
+                                <Label for="w_defective_nut"
+                                    >Defective Nut Weight</Label
+                                >
                                 <Input
                                     id="w_defective_nut"
                                     v-model="form.w_defective_nut"
@@ -304,14 +362,19 @@ function getTestTypeLabel(type: number) {
                                     min="0"
                                     max="65535"
                                 />
-                                <p v-if="form.errors.w_defective_nut" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.w_defective_nut"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.w_defective_nut }}
                                 </p>
                             </div>
 
                             <!-- Defective Kernel Weight -->
                             <div class="space-y-2">
-                                <Label for="w_defective_kernel">Defective Kernel Weight</Label>
+                                <Label for="w_defective_kernel"
+                                    >Defective Kernel Weight</Label
+                                >
                                 <Input
                                     id="w_defective_kernel"
                                     v-model="form.w_defective_kernel"
@@ -319,14 +382,19 @@ function getTestTypeLabel(type: number) {
                                     min="0"
                                     max="65535"
                                 />
-                                <p v-if="form.errors.w_defective_kernel" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.w_defective_kernel"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.w_defective_kernel }}
                                 </p>
                             </div>
 
                             <!-- Good Kernel Weight -->
                             <div class="space-y-2">
-                                <Label for="w_good_kernel">Good Kernel Weight</Label>
+                                <Label for="w_good_kernel"
+                                    >Good Kernel Weight</Label
+                                >
                                 <Input
                                     id="w_good_kernel"
                                     v-model="form.w_good_kernel"
@@ -334,14 +402,19 @@ function getTestTypeLabel(type: number) {
                                     min="0"
                                     max="65535"
                                 />
-                                <p v-if="form.errors.w_good_kernel" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.w_good_kernel"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.w_good_kernel }}
                                 </p>
                             </div>
 
                             <!-- Sample After Cut Weight -->
                             <div class="space-y-2">
-                                <Label for="w_sample_after_cut">Sample Weight After Cut</Label>
+                                <Label for="w_sample_after_cut"
+                                    >Sample Weight After Cut</Label
+                                >
                                 <Input
                                     id="w_sample_after_cut"
                                     v-model="form.w_sample_after_cut"
@@ -349,7 +422,10 @@ function getTestTypeLabel(type: number) {
                                     min="0"
                                     max="65535"
                                 />
-                                <p v-if="form.errors.w_sample_after_cut" class="text-sm text-destructive">
+                                <p
+                                    v-if="form.errors.w_sample_after_cut"
+                                    class="text-sm text-destructive"
+                                >
                                     {{ form.errors.w_sample_after_cut }}
                                 </p>
                             </div>
@@ -357,8 +433,14 @@ function getTestTypeLabel(type: number) {
                             <!-- Calculated Outturn Rate -->
                             <div class="space-y-2">
                                 <Label>Outturn Rate (calculated)</Label>
-                                <div class="px-3 py-2 bg-muted/50 rounded-md text-sm font-mono">
-                                    {{ calculatedOutturnRate ? `${calculatedOutturnRate} lbs/80kg` : 'Not calculated' }}
+                                <div
+                                    class="rounded-md bg-muted/50 px-3 py-2 font-mono text-sm"
+                                >
+                                    {{
+                                        calculatedOutturnRate
+                                            ? `${calculatedOutturnRate} lbs/80kg`
+                                            : 'Not calculated'
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -366,25 +448,44 @@ function getTestTypeLabel(type: number) {
                 </Card>
 
                 <!-- Validation Alerts -->
-                <div v-if="weightDifference > 5 || defectiveNutKernelDifference > 5 || goodKernelDifference > 10" class="space-y-2">
+                <div
+                    v-if="
+                        weightDifference > 5 ||
+                        defectiveNutKernelDifference > 5 ||
+                        goodKernelDifference > 10
+                    "
+                    class="space-y-2"
+                >
                     <Alert v-if="weightDifference > 5" variant="destructive">
                         <AlertTriangle class="h-4 w-4" />
                         <AlertDescription>
-                            Weight difference alert: Sample weight decreased by {{ weightDifference.toFixed(1) }}g after cutting (threshold: 5g)
+                            Weight difference alert: Sample weight decreased by
+                            {{ weightDifference.toFixed(1) }}g after cutting
+                            (threshold: 5g)
                         </AlertDescription>
                     </Alert>
 
-                    <Alert v-if="defectiveNutKernelDifference > 5" variant="destructive">
+                    <Alert
+                        v-if="defectiveNutKernelDifference > 5"
+                        variant="destructive"
+                    >
                         <AlertTriangle class="h-4 w-4" />
                         <AlertDescription>
-                            Defective nut/kernel ratio alert: Difference of {{ defectiveNutKernelDifference.toFixed(1) }}g (threshold: 5g)
+                            Defective nut/kernel ratio alert: Difference of
+                            {{ defectiveNutKernelDifference.toFixed(1) }}g
+                            (threshold: 5g)
                         </AlertDescription>
                     </Alert>
 
-                    <Alert v-if="goodKernelDifference > 10" variant="destructive">
+                    <Alert
+                        v-if="goodKernelDifference > 10"
+                        variant="destructive"
+                    >
                         <AlertTriangle class="h-4 w-4" />
                         <AlertDescription>
-                            Good kernel weight alert: Difference of {{ goodKernelDifference.toFixed(1) }}g (threshold: 10g)
+                            Good kernel weight alert: Difference of
+                            {{ goodKernelDifference.toFixed(1) }}g (threshold:
+                            10g)
                         </AlertDescription>
                     </Alert>
                 </div>
@@ -403,7 +504,10 @@ function getTestTypeLabel(type: number) {
                                 placeholder="Any additional observations or comments..."
                                 rows="3"
                             />
-                            <p v-if="form.errors.note" class="text-sm text-destructive">
+                            <p
+                                v-if="form.errors.note"
+                                class="text-sm text-destructive"
+                            >
                                 {{ form.errors.note }}
                             </p>
                         </div>
@@ -415,9 +519,15 @@ function getTestTypeLabel(type: number) {
                     <Button type="button" variant="outline" @click="cancel">
                         Cancel
                     </Button>
-                    <Button type="submit" :disabled="form.processing" class="flex items-center gap-2">
+                    <Button
+                        type="submit"
+                        :disabled="form.processing"
+                        class="flex items-center gap-2"
+                    >
                         <Save class="h-4 w-4" />
-                        {{ form.processing ? 'Saving...' : 'Save Cutting Test' }}
+                        {{
+                            form.processing ? 'Saving...' : 'Save Cutting Test'
+                        }}
                     </Button>
                 </div>
             </form>

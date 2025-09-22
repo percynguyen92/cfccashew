@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Edit, Trash2, AlertTriangle, Info } from 'lucide-vue-next';
 
 interface CuttingTest {
@@ -164,26 +163,35 @@ const pageTitle = computed(() => {
 
             <!-- Validation Alerts -->
             <div v-if="weightDifference > 5 || defectiveNutKernelDifference > 5 || goodKernelDifference > 10" class="space-y-2">
-                <Alert v-if="weightDifference > 5" variant="destructive">
-                    <AlertTriangle class="h-4 w-4" />
-                    <AlertDescription>
+                <div
+                    v-if="weightDifference > 5"
+                    class="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                >
+                    <AlertTriangle class="mt-0.5 h-4 w-4" />
+                    <span>
                         Weight Alert: Sample weight decreased by {{ weightDifference.toFixed(1) }}g after cutting (threshold: 5g)
-                    </AlertDescription>
-                </Alert>
+                    </span>
+                </div>
 
-                <Alert v-if="defectiveNutKernelDifference > 5" variant="destructive">
-                    <AlertTriangle class="h-4 w-4" />
-                    <AlertDescription>
+                <div
+                    v-if="defectiveNutKernelDifference > 5"
+                    class="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                >
+                    <AlertTriangle class="mt-0.5 h-4 w-4" />
+                    <span>
                         Defective Ratio Alert: Difference of {{ defectiveNutKernelDifference.toFixed(1) }}g between expected and actual defective kernel weight (threshold: 5g)
-                    </AlertDescription>
-                </Alert>
+                    </span>
+                </div>
 
-                <Alert v-if="goodKernelDifference > 10" variant="destructive">
-                    <AlertTriangle class="h-4 w-4" />
-                    <AlertDescription>
+                <div
+                    v-if="goodKernelDifference > 10"
+                    class="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                >
+                    <AlertTriangle class="mt-0.5 h-4 w-4" />
+                    <span>
                         Good Kernel Alert: Difference of {{ goodKernelDifference.toFixed(1) }}g between expected and actual good kernel weight (threshold: 10g)
-                    </AlertDescription>
-                </Alert>
+                    </span>
+                </div>
             </div>
 
             <div class="grid gap-6 lg:grid-cols-2">

@@ -40,7 +40,7 @@ class CuttingTestController extends Controller
         $cuttingTests = $this->cuttingTestService->getCuttingTestsWithFilters($filters);
 
         return Inertia::render('CuttingTests/Index', [
-            'cutting_tests' => CuttingTestResource::collection($cuttingTests->items()),
+            'cutting_tests' => CuttingTestResource::collection($cuttingTests->items())->resolve(),
             'pagination' => [
                 'current_page' => $cuttingTests->currentPage(),
                 'last_page' => $cuttingTests->lastPage(),

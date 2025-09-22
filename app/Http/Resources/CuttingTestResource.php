@@ -21,6 +21,16 @@ class CuttingTestResource extends JsonResource
 
         $isFinalSample = $typeEnum?->isFinalSample() ?? false;
         $isContainerTest = $typeEnum?->isContainerTest() ?? false;
+        $formattedDefectNut = null;
+        $formattedDefectKernel = null;
+
+        if ($this->w_defective_nut !== null) {
+            $formattedDefectNut = sprintf('%s/%s', $this->w_defective_nut, number_format((float) ($this->w_defective_nut / 2)));
+        }
+
+        if ($this->w_defective_kernel !== null) {
+            $formattedDefectKernel = sprintf('%s/%s', $this->w_defective_kernel, number_format((float) ($this->w_defective_kernel / 2)));
+        }
 
         return [
             'id' => $this->id,
@@ -37,28 +47,19 @@ class CuttingTestResource extends JsonResource
             'w_good_kernel' => $this->w_good_kernel,
             'w_sample_after_cut' => $this->w_sample_after_cut,
             'outturn_rate' => $this->outturn_rate,
-            'moisture_formatted' => $this->moisture ? number_format((float) $this->moisture, 1) . '%' : null,
-            'outturn_rate_formatted' => $this->outturn_rate ? number_format((float) $this->outturn_rate, 2) . ' lbs/80kg' : null,
+            'moisture_formatted' => $this->moisture ? number_format((float) $this->moisture, 1) : null,
+            'outturn_rate_formatted' => $this->outturn_rate ? number_format((float) $this->outturn_rate, 2) : null,
+            'defective_nut_formatted' => $formattedDefectNut,
+            'defective_kernel_formatted' => $formattedDefectKernel,
             'note' => $this->note,
-            'defective_ratio' => $this->when(
-                $this->w_defective_nut && $this->w_defective_kernel,
-                function () {
-                    $ratio = $this->w_defective_nut > 0
-                        ? round($this->w_defective_kernel / $this->w_defective_nut * 2, 1)
-                        : 0;
-
-                    return [
-                        'defective_nut' => $this->w_defective_nut,
-                        'defective_kernel' => $this->w_defective_kernel,
-                        'ratio' => $ratio,
-                        'formatted' => "{$this->w_defective_nut}/{$ratio}",
-                    ];
-                }
-            ),
             'is_final_sample' => $isFinalSample && is_null($this->container_id),
             'is_container_test' => $isContainerTest && !is_null($this->container_id),
-            'bill' => new BillResource($this->whenLoaded('bill')),
-            'container' => new ContainerResource($this->whenLoaded('container')),
+            'bill' => $this->whenLoaded('bill', function () use ($request) {
+                return (new BillResource($this->bill))->toArray($request);
+            }),
+            'container' => $this->whenLoaded('container', function () use ($request) {
+                return (new ContainerResource($this->container))->toArray($request);
+            }),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
