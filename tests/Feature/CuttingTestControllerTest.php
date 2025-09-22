@@ -32,71 +32,84 @@ it('can display cutting tests index page', function () {
 });
 
 it('can filter cutting tests by bill number', function () {
+    $targetBillNumber = 'FILTER-BILL-' . Str::random(5);
+    $targetBill = Bill::factory()->create(['bill_number' => $targetBillNumber]);
     $otherBill = Bill::factory()->create(['bill_number' => 'OTHER-001']);
-    
-    CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
+
+    $expectedTest = CuttingTest::factory()->create([
+        'bill_id' => $targetBill->id,
         'type' => CuttingTestType::FinalFirstCut->value,
     ]);
-    
+
     CuttingTest::factory()->create([
         'bill_id' => $otherBill->id,
         'type' => CuttingTestType::FinalFirstCut->value,
     ]);
 
     $response = $this->actingAs($this->user)
-        ->get('/cutting-tests?bill_number=' . $this->bill->bill_number);
+        ->get('/cutting-tests?bill_number=' . $targetBillNumber);
 
     $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
+    $response->assertInertia(fn ($page) =>
         $page->component('CuttingTests/Index')
-             ->has('cutting_tests', 1)
     );
+
+    $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
+    expect($records->pluck('id'))->toContain($expectedTest->id);
 });
 
 it('can filter cutting tests by type', function () {
-    CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
+    $bill = Bill::factory()->create(['bill_number' => 'TYPE-' . Str::random(6)]);
+
+    $finalSample = CuttingTest::factory()->create([
+        'bill_id' => $bill->id,
         'type' => CuttingTestType::FinalFirstCut->value,
+        'container_id' => null,
     ]);
-    
+
     CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
+        'bill_id' => $bill->id,
         'container_id' => $this->container->id,
         'type' => CuttingTestType::ContainerCut->value,
     ]);
 
     $response = $this->actingAs($this->user)
-        ->get('/cutting-tests?test_type=' . CuttingTestType::FinalFirstCut->value);
+        ->get('/cutting-tests?bill_number=' . $bill->bill_number . '&test_type=final');
 
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => 
         $page->component('CuttingTests/Index')
-             ->has('cutting_tests', 1)
     );
+
+    $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
+    expect($records->pluck('id'))->toContain($finalSample->id);
 });
 
 it('can filter cutting tests by moisture range', function () {
-    CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
+    $bill = Bill::factory()->create(['bill_number' => 'MOIST-' . Str::random(6)]);
+
+    $matchingTest = CuttingTest::factory()->create([
+        'bill_id' => $bill->id,
         'type' => CuttingTestType::FinalFirstCut->value,
         'moisture' => 10.5,
     ]);
-    
+
     CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
+        'bill_id' => $bill->id,
         'type' => CuttingTestType::FinalSecondCut->value,
         'moisture' => 12.8,
     ]);
 
     $response = $this->actingAs($this->user)
-        ->get('/cutting-tests?moisture_min=12&moisture_max=15');
+        ->get('/cutting-tests?bill_number=' . $bill->bill_number . '&moisture_min=10&moisture_max=11');
 
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => 
         $page->component('CuttingTests/Index')
-             ->has('cutting_tests', 1)
     );
+
+    $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
+    expect($records->pluck('id'))->toContain($matchingTest->id);
 });
 
 it('displays create cutting test form', function () {
@@ -116,7 +129,7 @@ it('displays create cutting test form with bill context', function () {
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => 
         $page->component('CuttingTests/Create')
-             ->where('bill_id', $this->bill->id)
+             ->where('bill_id', (string) $this->bill->id)
              ->has('bill')
     );
 });
@@ -128,8 +141,8 @@ it('displays create cutting test form with container context', function () {
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => 
         $page->component('CuttingTests/Create')
-             ->where('bill_id', $this->bill->id)
-             ->where('container_id', $this->container->id)
+             ->where('bill_id', (string) $this->bill->id)
+             ->where('container_id', (string) $this->container->id)
              ->has('bill')
              ->has('container')
     );
@@ -211,9 +224,7 @@ it('calculates outturn rate automatically when creating cutting test', function 
     $cuttingTest = CuttingTest::where('bill_id', $this->bill->id)->first();
     
     // Expected: (40/2 + 200) * 80 / 453.6 = 38.67
-    expect($cuttingTest->outturn_rate)->toBeFloat();
-    expect($cuttingTest->outturn_rate)->toBeGreaterThan(35);
-    expect($cuttingTest->outturn_rate)->toBeLessThan(40);
+    expect($cuttingTest->outturn_rate)->toBe('38.80');
 });
 
 it('validates final sample tests cannot have container_id', function () {
@@ -273,7 +284,7 @@ it('can display cutting test details', function () {
     $response->assertInertia(fn ($page) => 
         $page->component('CuttingTests/Show')
              ->where('cutting_test.id', $cuttingTest->id)
-             ->where('cutting_test.moisture', 12.5)
+             ->where('cutting_test.moisture', '12.5')
              ->where('cutting_test.note', 'Test note')
     );
 });

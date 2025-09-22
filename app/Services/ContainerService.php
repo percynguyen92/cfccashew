@@ -77,7 +77,7 @@ class ContainerService
     {
         $test = $container->cuttingTests()->whereNotNull('outturn_rate')->first();
         
-        return $test ? $test->outturn_rate : null;
+        return $test ? (float) $test->outturn_rate : null;
     }
 
     private function calculateWeights(array $data): array

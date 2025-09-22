@@ -92,7 +92,7 @@ class CuttingTestController extends Controller
         $cuttingTestData = $this->cuttingTestService->getCuttingTestById($cuttingTest->id);
 
         return Inertia::render('CuttingTests/Show', [
-            'cutting_test' => new CuttingTestResource($cuttingTestData),
+            'cutting_test' => (new CuttingTestResource($cuttingTestData))->resolve(),
         ]);
     }
 
@@ -102,7 +102,7 @@ class CuttingTestController extends Controller
     public function edit(CuttingTest $cuttingTest): Response
     {
         return Inertia::render('CuttingTests/Edit', [
-            'cutting_test' => new CuttingTestResource($cuttingTest),
+            'cutting_test' => (new CuttingTestResource($cuttingTest))->resolve(),
         ]);
     }
 

@@ -12,6 +12,7 @@ use App\Repositories\CuttingTestRepository;
 use App\Queries\CuttingTestQuery;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\ValidationException;
 
 class CuttingTestService
 {
@@ -118,12 +119,16 @@ class CuttingTestService
         
         // Final samples (types 1-3) should not have container_id
         if ($type->isFinalSample() && !empty($data['container_id'])) {
-            throw new \InvalidArgumentException('Final sample tests cannot be associated with a container.');
+            throw ValidationException::withMessages([
+                'container_id' => 'Final sample tests cannot be associated with a container.',
+            ]);
         }
         
         // Container tests (type 4) must have container_id
         if ($type->isContainerTest() && empty($data['container_id'])) {
-            throw new \InvalidArgumentException('Container tests must be associated with a container.');
+            throw ValidationException::withMessages([
+                'container_id' => 'Container tests must be associated with a container.',
+            ]);
         }
     }
 
@@ -155,11 +160,13 @@ class CuttingTestService
         if (!empty($data['w_defective_kernel']) && !empty($data['w_good_kernel'])) {
             $defectiveKernelWeight = (float) $data['w_defective_kernel'];
             $goodKernelWeight = (float) $data['w_good_kernel'];
-            
-            $data['outturn_rate'] = round(
+
+            $calculated = round(
                 ($defectiveKernelWeight / 2 + $goodKernelWeight) * 80 / 453.6,
                 2
             );
+
+            $data['outturn_rate'] = max(0, min(60, $calculated));
         }
 
         return $data;

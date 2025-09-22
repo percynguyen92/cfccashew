@@ -74,9 +74,11 @@ class CuttingTestQuery
             ')
             ->first();
 
+        $avgMoisture = $tests->avg_moisture ?? null;
+
         return [
             'total_tests' => $tests->total_tests ?? 0,
-            'avg_moisture' => $tests->avg_moisture ? round($tests->avg_moisture, 1) : null,
+            'avg_moisture' => $avgMoisture !== null ? round((float) $avgMoisture, 1) : null,
             'min_moisture' => $tests->min_moisture,
             'max_moisture' => $tests->max_moisture,
             'distribution' => [

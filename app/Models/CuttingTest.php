@@ -31,7 +31,7 @@ class CuttingTest extends Model
         'bill_id' => 'integer',
         'container_id' => 'integer',
         'type' => 'integer',
-        'moisture' => 'decimal:2',
+        'moisture' => 'decimal:1',
         'sample_weight' => 'integer',
         'nut_count' => 'integer',
         'w_reject_nut' => 'integer',
