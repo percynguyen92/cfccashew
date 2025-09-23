@@ -2,6 +2,9 @@
 
 use Laravel\Fortify\Features;
 
+$appEnv = strtolower(trim(env('APP_ENV', 'production')));
+$loginVerificationEnabled = env('LOGIN_VERIFICATION_ENABLED', ! in_array($appEnv, ['local', 'development'], true));
+
 return [
 
     /*
@@ -143,17 +146,19 @@ return [
     |
     */
 
-    'features' => [
-        // Features::registration(),
-        // Features::resetPasswords(),
-        // Features::emailVerification(),
-        // Features::updateProfileInformation(),
-        // Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0
-        ]),
-    ],
+    'features' => $loginVerificationEnabled
+        ? [
+            // Features::registration(),
+            // Features::resetPasswords(),
+            // Features::emailVerification(),
+            // Features::updateProfileInformation(),
+            // Features::updatePasswords(),
+            Features::twoFactorAuthentication([
+                'confirm' => true,
+                'confirmPassword' => true,
+                // 'window' => 0
+            ]),
+        ]
+        : [],
 
 ];
