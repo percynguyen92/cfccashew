@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Badge } from '@/components/ui/badge';
+import BillForm from '@/components/bills/BillForm.vue';
+import ContainerTable from '@/components/ContainerTable.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -8,75 +9,119 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
-import type { Bill } from '@/types';
-import {
-    ChevronDown,
-    ChevronRight,
-    Package,
-    Plus,
-    TestTube,
-} from 'lucide-vue-next';
-import { ref } from 'vue';
+import CuttingTestTable from '@/components/CuttingTestTable.vue';
+import type { Bill, Container, CuttingTest } from '@/types';
+import { Package, Plus, TestTube } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Props {
     bill: Bill;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+const bill = computed(() => props.bill);
+
+const isEditDialogOpen = ref(false);
+
+const openEditDialog = () => {
+    isEditDialogOpen.value = true;
+};
+
+const closeEditDialog = () => {
+    isEditDialogOpen.value = false;
+};
+
+const handleEditSuccess = () => {
+    closeEditDialog();
+};
+
+const handleEditCancel = () => {
+    closeEditDialog();
+};
+
+const containers = computed(() => {
+    const raw = bill.value.containers as
+        | Container[]
+        | { data?: Container[]; [key: string]: unknown }
+        | undefined;
+
+    if (Array.isArray(raw)) {
+        return raw.filter((container): container is Container =>
+            Boolean(container),
+        );
+    }
+
+    if (raw && typeof raw === 'object') {
+        const data = (raw as { data?: Container[] }).data;
+
+        if (Array.isArray(data)) {
+            return data.filter((container): container is Container =>
+                Boolean(container),
+            );
+        }
+    }
+
+    return [] as Container[];
+});
+
+type CuttingTestCollection =
+    | CuttingTest[]
+    | { data?: CuttingTest[]; [key: string]: unknown }
+    | null
+    | undefined;
+
+const normalizeCuttingTests = (tests: CuttingTestCollection): CuttingTest[] => {
+    if (Array.isArray(tests)) {
+        return tests.filter((test): test is CuttingTest => Boolean(test));
+    }
+
+    if (tests && typeof tests === 'object') {
+        const data = (tests as { data?: CuttingTest[] }).data;
+
+        if (Array.isArray(data)) {
+            return data.filter((test): test is CuttingTest => Boolean(test));
+        }
+    }
+
+    return [];
+};
+
+const sortCuttingTests = (tests: CuttingTest[]): CuttingTest[] =>
+    [...tests].sort(
+        (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+
+const resolveCuttingTests = (tests: CuttingTestCollection): CuttingTest[] =>
+    sortCuttingTests(normalizeCuttingTests(tests));
+
+const resolveContainerTests = (tests: CuttingTestCollection): CuttingTest[] =>
+    resolveCuttingTests(tests);
+
+const finalSamples = computed(() =>
+    resolveCuttingTests(bill.value.final_samples as CuttingTestCollection),
+);
 
 const { breadcrumbs } = useBreadcrumbs();
 
-// Track expanded containers
-const expandedContainers = ref<Set<number>>(new Set());
-
-const toggleContainer = (containerId: number) => {
-    if (expandedContainers.value.has(containerId)) {
-        expandedContainers.value.delete(containerId);
-    } else {
-        expandedContainers.value.add(containerId);
-    }
-};
-
-const formatWeight = (weight: number | null | undefined): string => {
-    if (weight === null || weight === undefined) return '-';
-    return weight.toLocaleString();
-};
-
-const formatMoisture = (moisture: number | null | undefined): string => {
-    if (moisture === null || moisture === undefined) return '-';
-    return `${moisture.toFixed(1)}%`;
-};
-
-const formatOutturn = (outturn: number | null | undefined): string => {
+const formatOutturn = (outturn: number | string | null | undefined): string => {
     if (outturn === null || outturn === undefined) return '-';
-    return `${outturn.toFixed(2)} lbs/80kg`;
-};
 
-const getTestTypeColor = (type: number): string => {
-    switch (type) {
-        case 1:
-            return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-        case 2:
-            return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-        case 3:
-            return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-        case 4:
-            return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
-        default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+    const numeric =
+        typeof outturn === 'number'
+            ? outturn
+            : Number.parseFloat(outturn as string);
+
+    if (Number.isNaN(numeric)) {
+        return '-';
     }
+
+    return `${numeric.toFixed(2)} lbs/80kg`;
 };
 </script>
 
@@ -88,34 +133,31 @@ const getTestTypeColor = (type: number): string => {
             class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
         >
             <!-- Header -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold tracking-tight">
-                        Bill #{{ bill.bill_number || bill.id }}
-                    </h1>
+            <div
+                class="flex flex-wrap items-center justify-between gap-4 md:flex-nowrap"
+            >
+                <div class="flex flex-col gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-3xl font-bold tracking-tight">
+                            Bill #{{ bill.bill_number || bill.id }}
+                        </h1>
+                        <Button
+                            variant="outline"
+                            type="button"
+                            @click="openEditDialog"
+                        >
+                            Edit Bill
+                        </Button>
+                    </div>
                     <p class="text-muted-foreground">
                         Created
                         {{ new Date(bill.created_at).toLocaleDateString() }}
                     </p>
                 </div>
-                <div class="flex gap-2">
-                    <Button variant="outline" as-child>
-                        <Link :href="`/bills/${bill.slug}/edit`">
-                            Edit Bill
-                        </Link>
-                    </Button>
-                </div>
             </div>
 
             <!-- Bill Information Card -->
             <Card>
-                <CardHeader>
-                    <CardTitle>Bill Information</CardTitle>
-                    <CardDescription
-                        >Basic details about this Bill of
-                        Lading</CardDescription
-                    >
-                </CardHeader>
                 <CardContent>
                     <div
                         class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
@@ -210,62 +252,10 @@ const getTestTypeColor = (type: number): string => {
                 </CardHeader>
                 <CardContent>
                     <div
-                        v-if="
-                            bill.final_samples && bill.final_samples.length > 0
-                        "
-                        class="space-y-4"
+                        v-if="finalSamples.length > 0"
+                        class="overflow-hidden rounded-lg border"
                     >
-                        <div
-                            v-for="sample in bill.final_samples"
-                            :key="sample.id"
-                            class="flex items-center justify-between rounded-lg border p-4"
-                        >
-                            <div class="flex items-center gap-4">
-                                <Badge :class="getTestTypeColor(sample.type)">
-                                    {{ sample.type_label }}
-                                </Badge>
-                                <div class="grid grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                        <span class="text-muted-foreground"
-                                            >Moisture:</span
-                                        >
-                                        <span class="ml-1 font-medium">{{
-                                            formatMoisture(sample.moisture)
-                                        }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-muted-foreground"
-                                            >Sample Weight:</span
-                                        >
-                                        <span class="ml-1 font-medium"
-                                            >{{
-                                                formatWeight(
-                                                    sample.sample_weight,
-                                                )
-                                            }}g</span
-                                        >
-                                    </div>
-                                    <div>
-                                        <span class="text-muted-foreground"
-                                            >Outturn:</span
-                                        >
-                                        <span class="ml-1 font-medium">{{
-                                            formatOutturn(sample.outturn_rate)
-                                        }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-muted-foreground"
-                                            >Date:</span
-                                        >
-                                        <span class="ml-1 font-medium">{{
-                                            new Date(
-                                                sample.created_at,
-                                            ).toLocaleDateString()
-                                        }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <CuttingTestTable :tests="finalSamples" />
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
                         <TestTube class="mx-auto mb-4 h-12 w-12 opacity-50" />
@@ -303,282 +293,8 @@ const getTestTypeColor = (type: number): string => {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div v-if="bill.containers && bill.containers.length > 0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead class="w-12"></TableHead>
-                                    <TableHead>Container #</TableHead>
-                                    <TableHead>Truck</TableHead>
-                                    <TableHead>Bags</TableHead>
-                                    <TableHead>Net Weight</TableHead>
-                                    <TableHead>Moisture</TableHead>
-                                    <TableHead>Outturn</TableHead>
-                                    <TableHead>Tests</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <template
-                                    v-for="container in bill.containers"
-                                    :key="container.id"
-                                >
-                                    <TableRow
-                                        class="cursor-pointer hover:bg-muted/50"
-                                        @click="toggleContainer(container.id)"
-                                    >
-                                        <TableCell>
-                                            <ChevronRight
-                                                v-if="
-                                                    !expandedContainers.has(
-                                                        container.id,
-                                                    )
-                                                "
-                                                class="h-4 w-4 transition-transform"
-                                            />
-                                            <ChevronDown
-                                                v-else
-                                                class="h-4 w-4 transition-transform"
-                                            />
-                                        </TableCell>
-                                        <TableCell class="font-medium">
-                                            {{
-                                                container.container_number ||
-                                                '-'
-                                            }}
-                                        </TableCell>
-                                        <TableCell>{{
-                                            container.truck || '-'
-                                        }}</TableCell>
-                                        <TableCell>{{
-                                            container.quantity_of_bags || '-'
-                                        }}</TableCell>
-                                        <TableCell>{{
-                                            formatWeight(container.w_net)
-                                        }}</TableCell>
-                                        <TableCell>{{
-                                            formatMoisture(
-                                                container.average_moisture,
-                                            )
-                                        }}</TableCell>
-                                        <TableCell>{{
-                                            formatOutturn(
-                                                container.outturn_rate,
-                                            )
-                                        }}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="secondary">
-                                                {{
-                                                    container.cutting_tests
-                                                        ?.length || 0
-                                                }}
-                                                tests
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
-
-                                    <!-- Expandable Container Details -->
-                                    <TableRow
-                                        v-if="
-                                            expandedContainers.has(container.id)
-                                        "
-                                    >
-                                        <TableCell colspan="8" class="p-0">
-                                            <div
-                                                class="space-y-4 bg-muted/30 p-4"
-                                            >
-                                                <!-- Container Details -->
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4"
-                                                >
-                                                    <div>
-                                                        <span
-                                                            class="text-muted-foreground"
-                                                            >Gross Weight:</span
-                                                        >
-                                                        <span
-                                                            class="ml-1 font-medium"
-                                                            >{{
-                                                                formatWeight(
-                                                                    container.w_gross,
-                                                                )
-                                                            }}</span
-                                                        >
-                                                    </div>
-                                                    <div>
-                                                        <span
-                                                            class="text-muted-foreground"
-                                                            >Tare Weight:</span
-                                                        >
-                                                        <span
-                                                            class="ml-1 font-medium"
-                                                            >{{
-                                                                formatWeight(
-                                                                    container.w_tare,
-                                                                )
-                                                            }}</span
-                                                        >
-                                                    </div>
-                                                    <div>
-                                                        <span
-                                                            class="text-muted-foreground"
-                                                            >Container
-                                                            Weight:</span
-                                                        >
-                                                        <span
-                                                            class="ml-1 font-medium"
-                                                            >{{
-                                                                formatWeight(
-                                                                    container.w_container,
-                                                                )
-                                                            }}</span
-                                                        >
-                                                    </div>
-                                                    <div>
-                                                        <span
-                                                            class="text-muted-foreground"
-                                                            >Truck Weight:</span
-                                                        >
-                                                        <span
-                                                            class="ml-1 font-medium"
-                                                            >{{
-                                                                formatWeight(
-                                                                    container.w_truck,
-                                                                )
-                                                            }}</span
-                                                        >
-                                                    </div>
-                                                </div>
-
-                                                <!-- Cutting Tests -->
-                                                <div>
-                                                    <div
-                                                        class="mb-3 flex items-center justify-between"
-                                                    >
-                                                        <h4 class="font-medium">
-                                                            Cutting Tests
-                                                        </h4>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            as-child
-                                                        >
-                                                            <Link
-                                                                :href="`/cutting-tests/create?bill_id=${bill.id}&container_id=${container.id}&type=4`"
-                                                            >
-                                                                <Plus
-                                                                    class="mr-1 h-4 w-4"
-                                                                />
-                                                                Add Test
-                                                            </Link>
-                                                        </Button>
-                                                    </div>
-
-                                                    <div
-                                                        v-if="
-                                                            container.cutting_tests &&
-                                                            container
-                                                                .cutting_tests
-                                                                .length > 0
-                                                        "
-                                                        class="space-y-2"
-                                                    >
-                                                        <div
-                                                            v-for="test in container.cutting_tests"
-                                                            :key="test.id"
-                                                            class="flex items-center justify-between rounded border bg-background p-3"
-                                                        >
-                                                            <div
-                                                                class="flex items-center gap-4"
-                                                            >
-                                                                <Badge
-                                                                    :class="
-                                                                        getTestTypeColor(
-                                                                            test.type,
-                                                                        )
-                                                                    "
-                                                                >
-                                                                    {{
-                                                                        test.type_label
-                                                                    }}
-                                                                </Badge>
-                                                                <div
-                                                                    class="grid grid-cols-4 gap-4 text-sm"
-                                                                >
-                                                                    <div>
-                                                                        <span
-                                                                            class="text-muted-foreground"
-                                                                            >Moisture:</span
-                                                                        >
-                                                                        <span
-                                                                            class="ml-1 font-medium"
-                                                                            >{{
-                                                                                formatMoisture(
-                                                                                    test.moisture,
-                                                                                )
-                                                                            }}</span
-                                                                        >
-                                                                    </div>
-                                                                    <div>
-                                                                        <span
-                                                                            class="text-muted-foreground"
-                                                                            >Sample:</span
-                                                                        >
-                                                                        <span
-                                                                            class="ml-1 font-medium"
-                                                                            >{{
-                                                                                formatWeight(
-                                                                                    test.sample_weight,
-                                                                                )
-                                                                            }}g</span
-                                                                        >
-                                                                    </div>
-                                                                    <div>
-                                                                        <span
-                                                                            class="text-muted-foreground"
-                                                                            >Outturn:</span
-                                                                        >
-                                                                        <span
-                                                                            class="ml-1 font-medium"
-                                                                            >{{
-                                                                                formatOutturn(
-                                                                                    test.outturn_rate,
-                                                                                )
-                                                                            }}</span
-                                                                        >
-                                                                    </div>
-                                                                    <div>
-                                                                        <span
-                                                                            class="text-muted-foreground"
-                                                                            >Date:</span
-                                                                        >
-                                                                        <span
-                                                                            class="ml-1 font-medium"
-                                                                            >{{
-                                                                                new Date(
-                                                                                    test.created_at,
-                                                                                ).toLocaleDateString()
-                                                                            }}</span
-                                                                        >
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        v-else
-                                                        class="py-4 text-center text-sm text-muted-foreground"
-                                                    >
-                                                        No cutting tests
-                                                        recorded for this
-                                                        container
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                </template>
-                            </TableBody>
-                        </Table>
+                    <div v-if="containers.length > 0">
+                        <ContainerTable :containers="containers" />
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
                         <Package class="mx-auto mb-4 h-12 w-12 opacity-50" />
@@ -590,5 +306,17 @@ const getTestTypeColor = (type: number): string => {
                 </CardContent>
             </Card>
         </div>
+
+        <Dialog v-model:open="isEditDialogOpen">
+            <DialogContent class="max-w-3xl">
+                <BillForm
+                    v-if="isEditDialogOpen"
+                    :bill="bill"
+                    :is-editing="true"
+                    @success="handleEditSuccess"
+                    @cancel="handleEditCancel"
+                />
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

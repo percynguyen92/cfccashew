@@ -32,14 +32,17 @@ export function useBreadcrumbs() {
                     href: url,
                 });
             } else if (url.match(/^\/bills\/\d+-.+$/)) {
-                const slug = url.split('/')[2];
-                const billNumber = slug.split('-').slice(1).join('-');
+                const slug = (url.split('/')[2] ?? '').split('?')[0];
+                const [billId = '', ...billNumberParts] = slug.split('-');
+                const billNumber = billNumberParts.join('-');
+                const titleSuffix = billNumber ? ` - ${billNumber}` : '';
+
                 breadcrumbItems.push({
-                    title: `Bill ${billNumber}`,
+                    title: `Bill #${billId}${titleSuffix}`,
                     href: url,
                 });
             } else if (url.match(/^\/bills\/\d+$/)) {
-                const billId = url.split('/')[2];
+                const billId = (url.split('/')[2] ?? '').split('?')[0];
                 breadcrumbItems.push({
                     title: `Bill #${billId}`,
                     href: url,

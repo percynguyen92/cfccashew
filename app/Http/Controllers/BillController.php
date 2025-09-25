@@ -58,7 +58,7 @@ class BillController extends Controller
     {
         $bill = $this->billService->createBill($request->validated());
 
-        return redirect()->route('bills.show', $bill->id)
+        return redirect()->route('bills.show', $bill)
             ->with('success', 'Bill created successfully.');
     }
 
@@ -91,7 +91,7 @@ class BillController extends Controller
     {
         $this->billService->updateBill($bill, $request->validated());
 
-        return redirect()->route('bills.show', $bill->id)
+        return redirect()->route('bills.show', $bill->fresh())
             ->with('success', 'Bill updated successfully.');
     }
 

@@ -25,10 +25,13 @@ class BillService
     public function getBillById(int $id): ?Bill
     {
         return $this->billRepository->findByIdWithRelations($id, [
-            'containers.cuttingTests',
+            'containers' => function ($query) {
+                $query->orderBy('id')
+                    ->with('cuttingTests');
+            },
             'finalSamples' => function ($query) {
                 $query->orderBy('type');
-            }
+            },
         ]);
     }
 
