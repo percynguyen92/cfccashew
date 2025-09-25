@@ -13,6 +13,23 @@ interface ToastMessage {
 const page = usePage();
 const toasts = ref<ToastMessage[]>([]);
 
+const removeToast = (id: string) => {
+    const index = toasts.value.findIndex((toast) => toast.id === id);
+    if (index > -1) {
+        toasts.value.splice(index, 1);
+    }
+};
+
+const addToast = (type: 'success' | 'error', message: string) => {
+    const id = Date.now().toString();
+    toasts.value.push({ id, type, message });
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        removeToast(id);
+    }, 5000);
+};
+
 // Watch for flash messages from the server
 watch(
     () => page.props.flash,
@@ -26,23 +43,6 @@ watch(
     },
     { immediate: true, deep: true },
 );
-
-const addToast = (type: 'success' | 'error', message: string) => {
-    const id = Date.now().toString();
-    toasts.value.push({ id, type, message });
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        removeToast(id);
-    }, 5000);
-};
-
-const removeToast = (id: string) => {
-    const index = toasts.value.findIndex((toast) => toast.id === id);
-    if (index > -1) {
-        toasts.value.splice(index, 1);
-    }
-};
 
 // Expose addToast for programmatic use
 defineExpose({ addToast });

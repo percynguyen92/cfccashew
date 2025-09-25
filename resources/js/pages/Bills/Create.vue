@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import BillForm from '@/components/bills/BillForm.vue';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as bills from '@/routes/bills';
@@ -34,12 +35,8 @@ defineExpose({
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-semibold">Create Bill</h1>
             </div>
-            <div
-                class="relative min-h-[400px] flex-1 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
-            >
-                <p class="text-muted-foreground">
-                    Bill creation form will be implemented here.
-                </p>
+            <div class="flex justify-center">
+                <BillForm @success="handleSuccess" @cancel="handleCancel" />
             </div>
         </div>
     </AppLayout>
