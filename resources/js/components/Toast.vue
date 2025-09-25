@@ -49,12 +49,14 @@ defineExpose({ addToast });
 </script>
 
 <template>
-    <div class="fixed top-4 right-4 z-50 space-y-2">
+    <div
+        class="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex flex-col items-center gap-3 px-4"
+    >
         <div
             v-for="toast in toasts"
             :key="toast.id"
             :class="[
-                'flex max-w-sm items-center gap-3 rounded-lg border p-4 shadow-lg',
+                'pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-lg border p-4 shadow-lg',
                 'transform transition-all duration-300 ease-in-out',
                 toast.type === 'success'
                     ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200'
