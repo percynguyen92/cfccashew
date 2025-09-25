@@ -9,7 +9,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import type { CuttingTest } from '@/types';
-import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface Props {
@@ -19,6 +18,10 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     tests: () => [],
 });
+
+const emit = defineEmits<{
+    edit: [CuttingTest];
+}>();
 
 const rows = computed(() =>
     (props.tests ?? []).filter((test): test is CuttingTest => Boolean(test)),
@@ -81,9 +84,9 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                         v-if="test.id"
                         size="sm"
                         variant="ghost"
-                        as-child
+                        @click="emit('edit', test)"
                     >
-                        <Link :href="`/cutting-tests/${test.id}/edit`">Edit</Link>
+                        Edit
                     </Button>
                 </TableCell>
             </TableRow>

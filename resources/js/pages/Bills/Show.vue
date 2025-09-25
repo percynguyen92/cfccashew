@@ -14,10 +14,11 @@ import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
+import CuttingTestForm from '@/components/cutting-tests/CuttingTestForm.vue';
 import CuttingTestTable from '@/components/CuttingTestTable.vue';
 import type { Bill, Container, CuttingTest } from '@/types';
 import { Package, Plus, TestTube } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface Props {
     bill: Bill;
@@ -106,6 +107,68 @@ const resolveContainerTests = (tests: CuttingTestCollection): CuttingTest[] =>
 const finalSamples = computed(() =>
     resolveCuttingTests(bill.value.final_samples as CuttingTestCollection),
 );
+
+const isCuttingTestDialogOpen = ref(false);
+const cuttingTestDialogMode = ref<'create' | 'edit'>('create');
+const cuttingTestBeingEdited = ref<CuttingTest | null>(null);
+const defaultFinalSampleType = ref<1 | 2 | 3>(1);
+
+const finalSampleTypesUsed = computed(() => {
+    const used = new Set<1 | 2 | 3>();
+
+    finalSamples.value.forEach((test) => {
+        if (test.type === 1 || test.type === 2 || test.type === 3) {
+            used.add(test.type);
+        }
+    });
+
+    return used;
+});
+
+const nextFinalSampleType = computed<1 | 2 | 3>(() => {
+    for (const type of [1, 2, 3] as const) {
+        if (!finalSampleTypesUsed.value.has(type)) {
+            return type;
+        }
+    }
+
+    return 1;
+});
+
+const openCreateCuttingTestDialog = () => {
+    cuttingTestDialogMode.value = 'create';
+    cuttingTestBeingEdited.value = null;
+    defaultFinalSampleType.value = nextFinalSampleType.value;
+    isCuttingTestDialogOpen.value = true;
+};
+
+const openEditCuttingTestDialog = (test: CuttingTest) => {
+    cuttingTestDialogMode.value = 'edit';
+    cuttingTestBeingEdited.value = test;
+    if (test.type === 1 || test.type === 2 || test.type === 3) {
+        defaultFinalSampleType.value = test.type;
+    }
+    isCuttingTestDialogOpen.value = true;
+};
+
+const closeCuttingTestDialog = () => {
+    isCuttingTestDialogOpen.value = false;
+};
+
+const handleCuttingTestSuccess = () => {
+    closeCuttingTestDialog();
+};
+
+const handleCuttingTestCancel = () => {
+    closeCuttingTestDialog();
+};
+
+watch(isCuttingTestDialogOpen, (isOpen) => {
+    if (!isOpen) {
+        cuttingTestDialogMode.value = 'create';
+        cuttingTestBeingEdited.value = null;
+    }
+});
 
 const { breadcrumbs } = useBreadcrumbs();
 
@@ -222,32 +285,10 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                                 bill</CardDescription
                             >
                         </div>
-                        <div class="flex gap-2">
-                            <Button size="sm" variant="outline" as-child>
-                                <Link
-                                    :href="`/cutting-tests/create?bill_id=${bill.id}&type=1`"
-                                >
-                                    <Plus class="mr-1 h-4 w-4" />
-                                    Add Type 1
-                                </Link>
-                            </Button>
-                            <Button size="sm" variant="outline" as-child>
-                                <Link
-                                    :href="`/cutting-tests/create?bill_id=${bill.id}&type=2`"
-                                >
-                                    <Plus class="mr-1 h-4 w-4" />
-                                    Add Type 2
-                                </Link>
-                            </Button>
-                            <Button size="sm" variant="outline" as-child>
-                                <Link
-                                    :href="`/cutting-tests/create?bill_id=${bill.id}&type=3`"
-                                >
-                                    <Plus class="mr-1 h-4 w-4" />
-                                    Add Type 3
-                                </Link>
-                            </Button>
-                        </div>
+                        <Button size="sm" variant="outline" @click="openCreateCuttingTestDialog">
+                            <Plus class="mr-1 h-4 w-4" />
+                            Add Cutting Test
+                        </Button>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -255,7 +296,10 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                         v-if="finalSamples.length > 0"
                         class="overflow-hidden rounded-lg border"
                     >
-                        <CuttingTestTable :tests="finalSamples" />
+                        <CuttingTestTable
+                            :tests="finalSamples"
+                            @edit="openEditCuttingTestDialog"
+                        />
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
                         <TestTube class="mx-auto mb-4 h-12 w-12 opacity-50" />
@@ -264,6 +308,15 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                             Add final sample cutting tests to track quality
                             metrics
                         </p>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            class="mt-4"
+                            @click="openCreateCuttingTestDialog"
+                        >
+                            <Plus class="mr-1 h-4 w-4" />
+                            Add Cutting Test
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -308,13 +361,31 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
         </div>
 
         <Dialog v-model:open="isEditDialogOpen">
-            <DialogContent class="max-w-3xl">
+            <DialogContent
+                class="max-h-[90vh] w-full max-w-4xl sm:max-w-4xl lg:max-w-5xl overflow-y-auto"
+            >
                 <BillForm
                     v-if="isEditDialogOpen"
                     :bill="bill"
                     :is-editing="true"
                     @success="handleEditSuccess"
                     @cancel="handleEditCancel"
+                />
+            </DialogContent>
+        </Dialog>
+
+        <Dialog v-model:open="isCuttingTestDialogOpen">
+            <DialogContent
+                class="max-h-[90vh] w-full max-w-5xl sm:max-w-5xl xl:max-w-6xl overflow-y-auto"
+            >
+                <CuttingTestForm
+                    v-if="isCuttingTestDialogOpen"
+                    :bill-id="bill.id"
+                    :bill="bill"
+                    :cutting-test="cuttingTestBeingEdited || undefined"
+                    :default-type="defaultFinalSampleType"
+                    @success="handleCuttingTestSuccess"
+                    @cancel="handleCuttingTestCancel"
                 />
             </DialogContent>
         </Dialog>

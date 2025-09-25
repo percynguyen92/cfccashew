@@ -463,7 +463,9 @@ watch(isBillFormOpen, (isOpen) => {
         </div>
 
         <Dialog v-model:open="isBillFormOpen">
-            <DialogContent class="max-w-3xl">
+            <DialogContent
+                class="max-h-[90vh] w-full max-w-4xl sm:max-w-4xl lg:max-w-5xl overflow-y-auto"
+            >
                 <BillForm
                     v-if="isBillFormOpen"
                     :bill="billBeingEdited || undefined"
