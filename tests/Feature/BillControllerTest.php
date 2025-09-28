@@ -189,8 +189,8 @@ class BillControllerTest extends TestCase
         $response = $this->post(route('bills.store'), $billData);
 
         $this->assertDatabaseHas('bills', $billData);
-        
-        $bill = Bill::where('bill_number', 'BL-2024-TEST')->first();
-        $response->assertRedirect(route('bills.show', $bill));
+
+        $response->assertRedirect(route('bills.index'));
+        $response->assertSessionHas('createdBill');
     }
 }

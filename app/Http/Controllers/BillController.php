@@ -58,8 +58,17 @@ class BillController extends Controller
     {
         $bill = $this->billService->createBill($request->validated());
 
-        return redirect()->route('bills.show', $bill)
-            ->with('success', 'Bill created successfully.');
+        $redirectUrl = $request->input('redirect_url');
+
+        if (is_string($redirectUrl) && str_starts_with($redirectUrl, '/')) {
+            return redirect()->to($redirectUrl)
+                ->with('success', 'Bill created successfully.')
+                ->with('createdBill', (new BillResource($bill))->resolve());
+        }
+
+        return redirect()->route('bills.index')
+            ->with('success', 'Bill created successfully.')
+            ->with('createdBill', (new BillResource($bill))->resolve());
     }
 
     /**

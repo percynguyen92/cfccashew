@@ -36,7 +36,11 @@ defineExpose({
                 <h1 class="text-2xl font-semibold">Create Bill</h1>
             </div>
             <div class="flex justify-center">
-                <BillForm @success="handleSuccess" @cancel="handleCancel" />
+                <BillForm
+                    :redirect-url="bills.index.url()"
+                    @success="handleSuccess"
+                    @cancel="handleCancel"
+                />
             </div>
         </div>
     </AppLayout>

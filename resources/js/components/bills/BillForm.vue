@@ -7,16 +7,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import * as bills from '@/routes/bills';
 import type { Bill } from '@/types';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface Props {
     bill?: Bill;
     isEditing?: boolean;
+    redirectUrl?: string | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     isEditing: false,
+    redirectUrl: null,
 });
 
 const emit = defineEmits<{
@@ -30,7 +32,10 @@ const form = useForm({
     seller: props.bill?.seller || '',
     buyer: props.bill?.buyer || '',
     note: props.bill?.note || '',
+    redirect_url: props.redirectUrl,
 });
+
+const page = usePage();
 
 // Computed properties
 const isSubmitting = computed(() => form.processing);
@@ -84,6 +89,10 @@ const handleSubmit = () => {
         return;
     }
 
+    if (!props.isEditing) {
+        form.redirect_url = props.redirectUrl ?? page.url ?? null;
+    }
+
     if (props.isEditing && props.bill) {
         form.put(bills.update.url(props.bill.id), {
             onSuccess: () => {
@@ -92,8 +101,11 @@ const handleSubmit = () => {
         });
     } else {
         form.post(bills.store.url(), {
+            preserveState: true,
+            preserveScroll: true,
             onSuccess: () => {
                 emit('success');
+                form.reset('bill_number', 'seller', 'buyer', 'note');
             },
         });
     }

@@ -34,7 +34,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as billRoutes from '@/routes/bills';
 import type { Bill as BillModel } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import {
     ArrowDown,
     ArrowUp,
@@ -44,7 +44,7 @@ import {
     Search,
     Trash2,
 } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 type BillListItem = BillModel & {
     containers_count: number;
@@ -66,8 +66,80 @@ const props = defineProps<Props>();
 const { breadcrumbs } = useBreadcrumbs();
 const { goToPage, getPaginationInfo } = usePagination();
 const { filters, isLoading, sortBy } = useFiltering(props.filters);
+const page = usePage();
 
 const paginationInfo = getPaginationInfo(props.bills);
+const tableRows = ref<BillListItem[]>([...props.bills.data]);
+const highlightedBillId = ref<number | null>(null);
+let highlightTimer: number | null = null;
+const isBrowser = typeof window !== 'undefined';
+
+const clearHighlightTimer = () => {
+    if (highlightTimer && isBrowser) {
+        window.clearTimeout(highlightTimer);
+        highlightTimer = null;
+    }
+};
+
+const updateHighlightedRow = (billId: number | null) => {
+    highlightedBillId.value = billId;
+
+    clearHighlightTimer();
+
+    if (billId !== null && isBrowser) {
+        highlightTimer = window.setTimeout(() => {
+            if (highlightedBillId.value === billId) {
+                highlightedBillId.value = null;
+            }
+        }, 2500);
+    }
+};
+
+const upsertTableRow = (bill: BillListItem) => {
+    const existingIndex = tableRows.value.findIndex(
+        (item) => item.id === bill.id,
+    );
+
+    if (existingIndex >= 0) {
+        tableRows.value.splice(existingIndex, 1, bill);
+    } else {
+        tableRows.value = [bill, ...tableRows.value];
+    }
+
+    updateHighlightedRow(bill.id);
+};
+
+watch(
+    () => props.bills.data,
+    (newData) => {
+        tableRows.value = [...newData];
+        if (highlightedBillId.value !== null) {
+            const stillExists = tableRows.value.some(
+                (item) => item.id === highlightedBillId.value,
+            );
+
+            if (!stillExists) {
+                updateHighlightedRow(null);
+            }
+        }
+    },
+);
+
+watch(
+    () => (page.props.flash as { createdBill?: BillListItem } | undefined)?.createdBill,
+    (createdBill) => {
+        if (!createdBill) {
+            return;
+        }
+
+        upsertTableRow(createdBill);
+    },
+    { immediate: true },
+);
+
+onBeforeUnmount(() => {
+    clearHighlightTimer();
+});
 
 const isConfirmOpen = ref(false);
 const isDeleting = ref(false);
@@ -160,6 +232,8 @@ const handleBillFormSuccess = () => {
     closeBillFormDialog();
 };
 
+const currentIndexUrl = computed(() => page.url);
+
 watch(isBillFormOpen, (isOpen) => {
     if (!isOpen) {
         billFormMode.value = 'create';
@@ -190,7 +264,7 @@ watch(isBillFormOpen, (isOpen) => {
             </div>
 
             <!-- Search and Filters -->
-            <Card class="gap-1">
+            <Card class="gap-1 py-4">
                 <CardContent class="flex flex-wrap items-center gap-4 px-4">
                     <div class="relative max-w-sm flex-1">
                         <Search
@@ -305,9 +379,14 @@ watch(isBillFormOpen, (isOpen) => {
                         </TableHeader>
                         <TableBody>
                             <TableRow
-                                v-for="bill in props.bills.data"
+                                v-for="bill in tableRows"
                                 :key="bill.id"
-                                class="cursor-pointer"
+                                :class="[
+                                    'cursor-pointer transition-colors duration-500 ease-out',
+                                    highlightedBillId === bill.id
+                                        ? 'highlighted-row'
+                                        : '',
+                                ]"
                                 @click="
                                     router.visit(
                                         billRoutes.show.url(
@@ -382,7 +461,7 @@ watch(isBillFormOpen, (isOpen) => {
                             </TableRow>
 
                             <!-- Empty State -->
-                            <TableRow v-if="props.bills.data.length === 0">
+                            <TableRow v-if="tableRows.length === 0">
                                 <TableCell
                                     :colspan="8"
                                     class="py-8 text-center"
@@ -411,7 +490,7 @@ watch(isBillFormOpen, (isOpen) => {
 
             <!-- Pagination -->
             <div
-                v-if="props.bills.data.length > 0"
+                v-if="tableRows.length > 0"
                 class="flex items-center justify-between"
             >
                 <div class="text-sm text-muted-foreground">
@@ -471,6 +550,7 @@ watch(isBillFormOpen, (isOpen) => {
                     v-if="isBillFormOpen"
                     :bill="billBeingEdited || undefined"
                     :is-editing="isEditingBill"
+                    :redirect-url="currentIndexUrl"
                     @success="handleBillFormSuccess"
                     @cancel="handleBillFormCancel"
                 />
@@ -507,3 +587,23 @@ watch(isBillFormOpen, (isOpen) => {
         </Dialog>
     </AppLayout>
 </template>
+
+<style scoped>
+.highlighted-row {
+    animation: bill-row-highlight 2.4s ease-in-out forwards;
+}
+
+@keyframes bill-row-highlight {
+    0% {
+        background-color: rgba(34, 197, 94, 0.25);
+    }
+
+    60% {
+        background-color: rgba(34, 197, 94, 0.12);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+</style>
