@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,164 +29,271 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// Form data interface
-interface FormData {
-    // Input fields (editable)
-    truck: string | null;
-    container_number: string | null;
+const candidateBillId =
+    props.container?.bill_id ??
+    props.bill?.id ??
+    (typeof props.billId === 'string' ? Number.parseInt(props.billId, 10) : props.billId);
+
+const initialBillId =
+    typeof candidateBillId === 'number' && Number.isFinite(candidateBillId)
+        ? candidateBillId
+        : null;
+
+interface FormFields {
+    bill_id: number | null;
+    truck: string;
+    container_number: string;
     quantity_of_bags: number | null;
-    w_jute_bag: number;
+    w_jute_bag: number | null;
     w_total: number | null;
     w_truck: number | null;
     w_container: number | null;
     w_dunnage_dribag: number | null;
     note: string;
-    bill_id: number;
-    
-    // Calculated fields (read-only) - these will be computed
-    w_gross?: number | null;
-    w_tare?: number | null;
-    w_net?: number | null;
 }
 
-// Initialize form data
-const form = reactive<FormData>({
-    truck: props.container?.truck || null,
-    container_number: props.container?.container_number || null,
-    quantity_of_bags: props.container?.quantity_of_bags || null,
-    w_jute_bag: props.container?.w_jute_bag || 1.5,
-    w_total: props.container?.w_total || null,
-    w_truck: props.container?.w_truck || null,
-    w_container: props.container?.w_container || null,
-    w_dunnage_dribag: props.container?.w_dunnage_dribag || null,
-    note: props.container?.note || '',
-    bill_id: props.container?.bill_id || 
-             (props.bill?.id) || 
-             (typeof props.billId === 'string' ? parseInt(props.billId) : props.billId) || 
-             0,
+const form = useForm<FormFields>({
+    bill_id: initialBillId,
+    truck: props.container?.truck ?? '',
+    container_number: props.container?.container_number ?? '',
+    quantity_of_bags: props.container?.quantity_of_bags ?? null,
+    w_jute_bag: props.container?.w_jute_bag ?? 1.5,
+    w_total: props.container?.w_total ?? null,
+    w_truck: props.container?.w_truck ?? null,
+    w_container: props.container?.w_container ?? null,
+    w_dunnage_dribag: props.container?.w_dunnage_dribag ?? null,
+    note: props.container?.note ?? '',
 });
 
-// Error tracking
-const errors = reactive<Record<string, string>>({});
-const processing = ref(false);
+const asNumber = (value: number | null | undefined): number | null =>
+    typeof value === 'number' && Number.isFinite(value) ? value : null;
 
-// Computed properties for automatic calculations
 const grossWeight = computed(() => {
-    const { w_total, w_truck, w_container } = form;
-    if (w_total === null || w_truck === null || w_container === null) return null;
-    return Math.max(0, w_total - w_truck - w_container);
+    const total = asNumber(form.w_total);
+    const truck = asNumber(form.w_truck);
+    const container = asNumber(form.w_container);
+
+    if (total === null || truck === null || container === null) {
+        return null;
+    }
+
+    return Math.max(0, total - truck - container);
 });
 
 const tareWeight = computed(() => {
-    const { quantity_of_bags, w_jute_bag } = form;
-    if (quantity_of_bags === null || w_jute_bag === null) return null;
-    return quantity_of_bags * w_jute_bag;
+    const quantity = asNumber(form.quantity_of_bags);
+    const juteBag = asNumber(form.w_jute_bag);
+
+    if (quantity === null || juteBag === null) {
+        return null;
+    }
+
+    return quantity * juteBag;
 });
 
 const netWeight = computed(() => {
     const gross = grossWeight.value;
     const tare = tareWeight.value;
-    const { w_dunnage_dribag } = form;
-    
-    if (gross === null || tare === null || w_dunnage_dribag === null) return null;
-    return Math.max(0, gross - w_dunnage_dribag - tare);
+    const dunnage = asNumber(form.w_dunnage_dribag);
+
+    if (gross === null || tare === null || dunnage === null) {
+        return null;
+    }
+
+    return Math.max(0, gross - dunnage - tare);
 });
 
-// Calculation status for UI feedback
 const calculationStatus = computed(() => ({
     gross: grossWeight.value !== null ? 'calculated' : 'pending',
     tare: tareWeight.value !== null ? 'calculated' : 'pending',
     net: netWeight.value !== null ? 'calculated' : 'pending',
 }));
 
-// Validation for business logic constraints
-const validationRules = computed(() => {
-    const issues = [];
-    
-    // Total weight should be greater than truck + container weight
-    if (form.w_total !== null && form.w_truck !== null && form.w_container !== null) {
-        if (form.w_total <= form.w_truck + form.w_container) {
-            issues.push('Total weight should be greater than truck + container weight');
-        }
-    }
-    
-    // Net weight should be positive
-    if (netWeight.value !== null && netWeight.value <= 0) {
-        issues.push('Net weight calculation results in zero or negative value. Please check your inputs.');
-    }
-    
-    // Gross weight should be sufficient for dunnage + tare
+const calculationIssues = computed(() => {
+    const issues: string[] = [];
+
+    const total = asNumber(form.w_total);
+    const truck = asNumber(form.w_truck);
+    const container = asNumber(form.w_container);
+    const dunnage = asNumber(form.w_dunnage_dribag);
     const gross = grossWeight.value;
     const tare = tareWeight.value;
-    if (gross !== null && tare !== null && form.w_dunnage_dribag !== null) {
-        if (gross <= form.w_dunnage_dribag + tare) {
-            issues.push('Gross weight is insufficient for dunnage and tare weights');
+    const net = netWeight.value;
+
+    if (total !== null && truck !== null && container !== null) {
+        if (total <= truck + container) {
+            issues.push('Total weight should be greater than truck + container weight.');
         }
     }
-    
+
+    if (gross !== null && tare !== null && dunnage !== null) {
+        if (gross <= dunnage + tare) {
+            issues.push('Gross weight is insufficient for dunnage and tare weights.');
+        }
+    }
+
+    if (net !== null && net <= 0) {
+        issues.push('Net weight calculation results in zero or negative value. Please check your inputs.');
+    }
+
     return {
         isValid: issues.length === 0,
-        issues
+        issues,
     };
 });
 
-// Format number display
 const formatWeight = (weight: number | null): string => {
-    if (weight === null) return '-';
+    if (weight === null) {
+        return '-';
+    }
+
     return weight.toLocaleString();
 };
 
-// Format date display
-const formatDate = (date: string): string => {
-    return new Date(date).toLocaleString();
+const formatDate = (date: string): string => new Date(date).toLocaleString();
+
+const clearError = (field: keyof FormFields) => {
+    if (form.errors[field]) {
+        form.clearErrors(field);
+    }
 };
 
-// Submit form
-const submit = () => {
-    if (!validationRules.value.isValid) {
+const validateForm = (): boolean => {
+    form.clearErrors();
+    let hasErrors = false;
+
+    const billId = asNumber(form.bill_id);
+    if (billId === null || !Number.isInteger(billId) || billId <= 0) {
+        form.setError('bill_id', 'A valid bill is required.');
+        hasErrors = true;
+    } else {
+        form.bill_id = billId;
+    }
+
+    const trimmedTruck = form.truck.trim();
+    if (trimmedTruck.length > 20) {
+        form.setError('truck', 'Truck identifier cannot exceed 20 characters.');
+        hasErrors = true;
+    }
+    form.truck = trimmedTruck;
+
+    const trimmedContainerNumber = form.container_number.trim().toUpperCase();
+    if (trimmedContainerNumber.length > 0) {
+        if (trimmedContainerNumber.length !== 11) {
+            form.setError('container_number', 'Container number must be exactly 11 characters.');
+            hasErrors = true;
+        } else if (!/^[A-Z]{4}\d{7}$/.test(trimmedContainerNumber)) {
+            form.setError(
+                'container_number',
+                'Container number must match the ISO format (4 letters + 7 digits).',
+            );
+            hasErrors = true;
+        }
+    }
+    form.container_number = trimmedContainerNumber;
+
+    const ensureInteger = (
+        value: number | null,
+        field: keyof FormFields,
+        label: string,
+        min: number,
+    ): number | null => {
+        if (value === null) {
+            return null;
+        }
+
+        if (!Number.isInteger(value)) {
+            form.setError(field, `${label} must be a whole number.`);
+            hasErrors = true;
+
+            return null;
+        }
+
+        if (value < min) {
+            form.setError(field, `${label} cannot be less than ${min}.`);
+            hasErrors = true;
+
+            return null;
+        }
+
+        return value;
+    };
+
+    form.quantity_of_bags = ensureInteger(
+        asNumber(form.quantity_of_bags),
+        'quantity_of_bags',
+        'Quantity of bags',
+        0,
+    );
+
+    form.w_total = ensureInteger(asNumber(form.w_total), 'w_total', 'Total weight', 0);
+    form.w_truck = ensureInteger(asNumber(form.w_truck), 'w_truck', 'Truck weight', 0);
+    form.w_container = ensureInteger(
+        asNumber(form.w_container),
+        'w_container',
+        'Container weight',
+        0,
+    );
+    form.w_dunnage_dribag = ensureInteger(
+        asNumber(form.w_dunnage_dribag),
+        'w_dunnage_dribag',
+        'Dunnage weight',
+        0,
+    );
+
+    const juteWeight = asNumber(form.w_jute_bag);
+    if (juteWeight !== null) {
+        if (juteWeight < 0) {
+            form.setError('w_jute_bag', 'Jute bag weight cannot be negative.');
+            hasErrors = true;
+        } else if (juteWeight > 99.99) {
+            form.setError('w_jute_bag', 'Jute bag weight cannot exceed 99.99 kg.');
+            hasErrors = true;
+        } else {
+            form.w_jute_bag = Number.parseFloat(juteWeight.toFixed(2));
+        }
+    }
+
+    const trimmedNote = form.note.trim();
+    if (trimmedNote.length > 65535) {
+        form.setError('note', 'Note is too long.');
+        hasErrors = true;
+    }
+    form.note = trimmedNote;
+
+    return !hasErrors;
+};
+
+const handleSubmit = () => {
+    if (!validateForm()) {
         return;
     }
-    
-    processing.value = true;
-    Object.keys(errors).forEach(key => delete errors[key]);
-    
-    // Prepare data for submission (exclude calculated fields)
-    const submitData = {
-        truck: form.truck,
-        container_number: form.container_number,
-        quantity_of_bags: form.quantity_of_bags,
-        w_jute_bag: form.w_jute_bag,
-        w_total: form.w_total,
-        w_truck: form.w_truck,
-        w_container: form.w_container,
-        w_dunnage_dribag: form.w_dunnage_dribag,
-        note: form.note || null, // Convert empty string back to null for submission
-        bill_id: form.bill_id,
-    };
-    
-    const url = props.isEditing 
-        ? containerRoutes.update.url(props.container!.id.toString())
-        : containerRoutes.store.url();
-    
-    const method = props.isEditing ? 'patch' : 'post';
-    
-    router[method](url, submitData, {
-        onSuccess: () => {
-            emit('success');
-        },
-        onError: (validationErrors) => {
-            Object.assign(errors, validationErrors);
-        },
-        onFinish: () => {
-            processing.value = false;
-        },
-    });
+
+    form.transform((data) => ({
+        bill_id: data.bill_id,
+        truck: data.truck || null,
+        container_number: data.container_number || null,
+        quantity_of_bags: data.quantity_of_bags,
+        w_jute_bag: data.w_jute_bag,
+        w_total: data.w_total,
+        w_truck: data.w_truck,
+        w_container: data.w_container,
+        w_dunnage_dribag: data.w_dunnage_dribag,
+        note: data.note || null,
+    }));
+
+    if (props.isEditing && props.container) {
+        form.put(containerRoutes.update.url(props.container.id.toString()), {
+            onSuccess: () => emit('success'),
+        });
+    } else {
+        form.post(containerRoutes.store.url(), {
+            onSuccess: () => emit('success'),
+        });
+    }
 };
 
-// Cancel form
-const cancel = () => {
-    emit('cancel');
-};
+const handleCancel = () => emit('cancel');
 </script>
 
 <template>
@@ -201,7 +308,12 @@ const cancel = () => {
             </CardTitle>
         </CardHeader>
         <CardContent>
-            <form @submit.prevent="submit" class="space-y-6">
+            <form @submit.prevent="handleSubmit" class="space-y-6">
+                <InputError
+                    v-if="form.errors.bill_id"
+                    :message="form.errors.bill_id"
+                    class="text-red-600"
+                />
                 <!-- Container Details -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
@@ -211,9 +323,11 @@ const cancel = () => {
                             v-model="form.truck"
                             type="text"
                             placeholder="TRK-001"
-                            :class="{ 'border-red-500': errors.truck }"
+                            :aria-invalid="Boolean(form.errors.truck)"
+                            :class="{ 'border-red-500': form.errors.truck }"
+                            @input="clearError('truck')"
                         />
-                        <InputError v-if="errors.truck" :message="errors.truck" />
+                        <InputError :message="form.errors.truck" />
                     </div>
                     
                     <div class="space-y-2">
@@ -224,9 +338,11 @@ const cancel = () => {
                             type="text"
                             placeholder="CONT1234567"
                             maxlength="11"
-                            :class="{ 'border-red-500': errors.container_number }"
+                            :aria-invalid="Boolean(form.errors.container_number)"
+                            :class="{ 'border-red-500': form.errors.container_number }"
+                            @input="clearError('container_number')"
                         />
-                        <InputError v-if="errors.container_number" :message="errors.container_number" />
+                        <InputError :message="form.errors.container_number" />
                     </div>
                 </div>
                 
@@ -242,11 +358,13 @@ const cancel = () => {
                                 id="quantity_of_bags"
                                 v-model.number="form.quantity_of_bags"
                                 type="number"
-                                min="1"
+                                min="0"
                                 placeholder="150"
-                                :class="{ 'border-red-500': errors.quantity_of_bags }"
+                                :aria-invalid="Boolean(form.errors.quantity_of_bags)"
+                                :class="{ 'border-red-500': form.errors.quantity_of_bags }"
+                                @input="clearError('quantity_of_bags')"
                             />
-                            <InputError v-if="errors.quantity_of_bags" :message="errors.quantity_of_bags" />
+                            <InputError :message="form.errors.quantity_of_bags" />
                         </div>
                         
                         <div class="space-y-2">
@@ -256,12 +374,14 @@ const cancel = () => {
                                 v-model.number="form.w_jute_bag"
                                 type="number"
                                 step="0.01"
-                                min="0.01"
+                                min="0"
                                 max="99.99"
                                 placeholder="1.50"
-                                :class="{ 'border-red-500': errors.w_jute_bag }"
+                                :aria-invalid="Boolean(form.errors.w_jute_bag)"
+                                :class="{ 'border-red-500': form.errors.w_jute_bag }"
+                                @input="clearError('w_jute_bag')"
                             />
-                            <InputError v-if="errors.w_jute_bag" :message="errors.w_jute_bag" />
+                            <InputError :message="form.errors.w_jute_bag" />
                         </div>
                     </div>
                     
@@ -275,9 +395,11 @@ const cancel = () => {
                                 type="number"
                                 min="1"
                                 placeholder="25000"
-                                :class="{ 'border-red-500': errors.w_total }"
+                                :aria-invalid="Boolean(form.errors.w_total)"
+                                :class="{ 'border-red-500': form.errors.w_total }"
+                                @input="clearError('w_total')"
                             />
-                            <InputError v-if="errors.w_total" :message="errors.w_total" />
+                            <InputError :message="form.errors.w_total" />
                         </div>
                         
                         <div class="space-y-2">
@@ -288,9 +410,11 @@ const cancel = () => {
                                 type="number"
                                 min="1"
                                 placeholder="10000"
-                                :class="{ 'border-red-500': errors.w_truck }"
+                                :aria-invalid="Boolean(form.errors.w_truck)"
+                                :class="{ 'border-red-500': form.errors.w_truck }"
+                                @input="clearError('w_truck')"
                             />
-                            <InputError v-if="errors.w_truck" :message="errors.w_truck" />
+                            <InputError :message="form.errors.w_truck" />
                         </div>
                         
                         <div class="space-y-2">
@@ -301,9 +425,11 @@ const cancel = () => {
                                 type="number"
                                 min="1"
                                 placeholder="2500"
-                                :class="{ 'border-red-500': errors.w_container }"
+                                :aria-invalid="Boolean(form.errors.w_container)"
+                                :class="{ 'border-red-500': form.errors.w_container }"
+                                @input="clearError('w_container')"
                             />
-                            <InputError v-if="errors.w_container" :message="errors.w_container" />
+                            <InputError :message="form.errors.w_container" />
                         </div>
                     </div>
                     
@@ -317,9 +443,11 @@ const cancel = () => {
                                 type="number"
                                 min="0"
                                 placeholder="200"
-                                :class="{ 'border-red-500': errors.w_dunnage_dribag }"
+                                :aria-invalid="Boolean(form.errors.w_dunnage_dribag)"
+                                :class="{ 'border-red-500': form.errors.w_dunnage_dribag }"
+                                @input="clearError('w_dunnage_dribag')"
                             />
-                            <InputError v-if="errors.w_dunnage_dribag" :message="errors.w_dunnage_dribag" />
+                            <InputError :message="form.errors.w_dunnage_dribag" />
                         </div>
                     </div>
                 </div>
@@ -397,8 +525,10 @@ const cancel = () => {
                     </div>
                     
                     <!-- Calculation Status Messages -->
-                    <div v-if="calculationStatus.gross === 'pending' || calculationStatus.tare === 'pending' || calculationStatus.net === 'pending'" 
-                         class="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <div
+                        v-if="calculationStatus.gross === 'pending' || calculationStatus.tare === 'pending' || calculationStatus.net === 'pending'"
+                        class="p-3 bg-blue-50 border border-blue-200 rounded-md"
+                    >
                         <p class="text-sm text-blue-700">
                             <Calculator class="h-4 w-4 inline mr-1" />
                             Please fill in all required fields to see calculated weights
@@ -406,10 +536,17 @@ const cancel = () => {
                     </div>
                     
                     <!-- Validation Errors -->
-                    <div v-if="!validationRules.isValid" class="p-3 bg-red-50 border border-red-200 rounded-md">
+                    <div
+                        v-if="!calculationIssues.isValid"
+                        class="p-3 bg-red-50 border border-red-200 rounded-md"
+                    >
                         <p class="text-sm font-medium text-red-700 mb-2">Calculation Issues:</p>
                         <ul class="text-sm text-red-600 space-y-1">
-                            <li v-for="issue in validationRules.issues" :key="issue" class="flex items-start gap-1">
+                            <li
+                                v-for="issue in calculationIssues.issues"
+                                :key="issue"
+                                class="flex items-start gap-1"
+                            >
                                 <span class="font-bold">•</span>
                                 <span>{{ issue }}</span>
                             </li>
@@ -425,24 +562,26 @@ const cancel = () => {
                         v-model="form.note"
                         placeholder="Additional notes..."
                         rows="3"
-                        :class="{ 'border-red-500': errors.note }"
+                        :aria-invalid="Boolean(form.errors.note)"
+                        :class="{ 'border-red-500': form.errors.note }"
+                        @input="clearError('note')"
                     />
-                    <InputError v-if="errors.note" :message="errors.note" />
+                    <InputError :message="form.errors.note" />
                 </div>
                 
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end gap-3 pt-4 border-t">
-                    <Button type="button" variant="outline" @click="cancel">
+                    <Button type="button" variant="outline" @click="handleCancel">
                         <X class="h-4 w-4 mr-2" />
                         Cancel
                     </Button>
                     <Button 
                         type="submit" 
-                        :disabled="processing || !validationRules.isValid"
+                        :disabled="form.processing || !calculationIssues.isValid"
                         class="min-w-[120px]"
                     >
                         <Save class="h-4 w-4 mr-2" />
-                        {{ processing ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+                        {{ form.processing ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
                     </Button>
                 </div>
             </form>

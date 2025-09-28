@@ -253,7 +253,7 @@ npm run format:check
 │   └── navigation-system/
 │       ├── design.md
 │       ├── requirements.md
-│       └── tasks.md
+│       └── tasks.md          #must follow
 └── steering/                 #backbone plan
     ├── product.md
     ├── structure.md

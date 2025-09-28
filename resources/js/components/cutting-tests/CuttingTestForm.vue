@@ -40,6 +40,7 @@ const normalizeType = (type: number | null | undefined): 1 | 2 | 3 => {
     if (type === 2 || type === 3) {
         return type;
     }
+
     return 1;
 };
 
@@ -47,9 +48,40 @@ const initialType = props.cuttingTest
     ? normalizeType(props.cuttingTest.type)
     : normalizeType(props.defaultType);
 
-const form = useForm({
+interface FormFields {
+    bill_id: number;
+    container_id: number | null;
+    type: number;
+    moisture: string | number | null;
+    sample_weight: number | string;
+    nut_count: number | string | null;
+    w_reject_nut: number | string | null;
+    w_defective_nut: number | string | null;
+    w_defective_kernel: number | string | null;
+    w_good_kernel: number | string | null;
+    w_sample_after_cut: number | string | null;
+    note: string;
+}
+
+interface NormalizedPayload {
+    bill_id: number;
+    container_id: number | null;
+    type: number;
+    moisture: number | null;
+    sample_weight: number;
+    nut_count: number | null;
+    w_reject_nut: number | null;
+    w_defective_nut: number | null;
+    w_defective_kernel: number | null;
+    w_good_kernel: number | null;
+    w_sample_after_cut: number | null;
+    outturn_rate: number | null;
+    note: string | null;
+}
+
+const form = useForm<FormFields>({
     bill_id: props.billId,
-    container_id: null as number | null,
+    container_id: props.cuttingTest?.container_id ?? null,
     type: initialType,
     moisture: props.cuttingTest?.moisture ?? '',
     sample_weight: props.cuttingTest?.sample_weight ?? 1000,
@@ -128,22 +160,175 @@ const getTypeLabel = (type: number | string) => {
     );
 };
 
-const clearError = (
-    field:
-        | 'moisture'
-        | 'nut_count'
-        | 'w_reject_nut'
-        | 'w_defective_nut'
-        | 'w_defective_kernel'
-        | 'w_good_kernel'
-        | 'w_sample_after_cut'
-        | 'note'
-        | 'sample_weight'
-        | 'type',
-) => {
+const toOptionalNumber = (value: unknown): number | null => {
+    if (value === null || value === undefined || value === '') {
+        return null;
+    }
+
+    const numeric = Number(value);
+
+    return Number.isFinite(numeric) ? numeric : null;
+};
+
+const clearError = (field: keyof FormFields) => {
     if (form.errors[field]) {
         form.clearErrors(field);
     }
+};
+
+const validateForm = (): NormalizedPayload | null => {
+    form.clearErrors();
+    let hasErrors = false;
+
+    const normalized: NormalizedPayload = {
+        bill_id: form.bill_id,
+        container_id: null,
+        type: form.type,
+        moisture: null,
+        sample_weight: 0,
+        nut_count: null,
+        w_reject_nut: null,
+        w_defective_nut: null,
+        w_defective_kernel: null,
+        w_good_kernel: null,
+        w_sample_after_cut: null,
+        outturn_rate: null,
+        note: null,
+    };
+
+    const billId = Number(form.bill_id);
+    if (!Number.isInteger(billId) || billId <= 0) {
+        form.setError('bill_id', 'A valid bill is required.');
+        hasErrors = true;
+    } else {
+        normalized.bill_id = billId;
+    }
+
+    const type = Number(form.type);
+    if (![1, 2, 3].includes(type)) {
+        form.setError('type', 'Select a valid test type.');
+        hasErrors = true;
+    } else {
+        normalized.type = type;
+    }
+
+    if (form.container_id !== null && form.container_id !== undefined) {
+        form.setError('type', 'Final sample tests cannot reference a container.');
+        hasErrors = true;
+    }
+
+    normalized.container_id = null;
+
+    const sampleWeight = toOptionalNumber(form.sample_weight);
+    if (sampleWeight === null || !Number.isInteger(sampleWeight)) {
+        form.setError('sample_weight', 'Sample weight must be a whole number.');
+        hasErrors = true;
+    } else if (sampleWeight < 1 || sampleWeight > 65535) {
+        form.setError('sample_weight', 'Sample weight must be between 1 and 65,535 grams.');
+        hasErrors = true;
+    } else {
+        normalized.sample_weight = sampleWeight;
+    }
+
+    const moisture = toOptionalNumber(form.moisture);
+    if (moisture !== null) {
+        if (moisture < 0 || moisture > 100) {
+            form.setError('moisture', 'Moisture must be between 0 and 100%.');
+            hasErrors = true;
+        } else {
+            normalized.moisture = Number.parseFloat(moisture.toFixed(2));
+        }
+    }
+
+    const ensureOptionalInteger = (
+        rawValue: unknown,
+        field: keyof FormFields,
+        label: string,
+        max = 65535,
+        unit?: string,
+    ): number | null => {
+        const value = toOptionalNumber(rawValue);
+
+        if (value === null) {
+            return null;
+        }
+
+        if (!Number.isInteger(value)) {
+            form.setError(field, `${label} must be a whole number.`);
+            hasErrors = true;
+
+            return null;
+        }
+
+        if (value < 0 || value > max) {
+            const suffix = unit ? ` ${unit}` : '';
+            form.setError(field, `${label} must be between 0 and ${max}${suffix}.`);
+            hasErrors = true;
+
+            return null;
+        }
+
+        return value;
+    };
+
+    normalized.nut_count = ensureOptionalInteger(form.nut_count, 'nut_count', 'Nut count', 65535);
+    normalized.w_reject_nut = ensureOptionalInteger(
+        form.w_reject_nut,
+        'w_reject_nut',
+        'Reject nut weight',
+        65535,
+        'grams',
+    );
+    normalized.w_defective_nut = ensureOptionalInteger(
+        form.w_defective_nut,
+        'w_defective_nut',
+        'Defective nut weight',
+        65535,
+        'grams',
+    );
+    normalized.w_defective_kernel = ensureOptionalInteger(
+        form.w_defective_kernel,
+        'w_defective_kernel',
+        'Defective kernel weight',
+        65535,
+        'grams',
+    );
+    normalized.w_good_kernel = ensureOptionalInteger(
+        form.w_good_kernel,
+        'w_good_kernel',
+        'Good kernel weight',
+        65535,
+        'grams',
+    );
+    normalized.w_sample_after_cut = ensureOptionalInteger(
+        form.w_sample_after_cut,
+        'w_sample_after_cut',
+        'Sample weight after cut',
+        65535,
+        'grams',
+    );
+
+    const trimmedNote = form.note.trim();
+    if (trimmedNote.length > 65535) {
+        form.setError('note', 'Note is too long.');
+        hasErrors = true;
+    }
+    form.note = trimmedNote;
+    normalized.note = trimmedNote === '' ? null : trimmedNote;
+
+    if (hasErrors) {
+        return null;
+    }
+
+    const defectiveKernel = normalized.w_defective_kernel ?? 0;
+    const goodKernel = normalized.w_good_kernel ?? 0;
+    if (defectiveKernel > 0 || goodKernel > 0) {
+        normalized.outturn_rate = Number(
+            (((defectiveKernel / 2 + goodKernel) * 80) / 453.6).toFixed(2),
+        );
+    }
+
+    return normalized;
 };
 
 watch(
@@ -151,6 +336,8 @@ watch(
     (type) => {
         if (![1, 2, 3].includes(type)) {
             form.type = 1;
+
+            return;
         }
 
         form.container_id = null;
@@ -158,6 +345,14 @@ watch(
 );
 
 const handleSubmit = () => {
+    const payload = validateForm();
+
+    if (!payload) {
+        return;
+    }
+
+    form.transform(() => payload);
+
     if (isEditing.value && props.cuttingTest) {
         form.put(cuttingTestRoutes.update.url(props.cuttingTest.id), {
             onSuccess: () => {
@@ -191,6 +386,11 @@ const handleCancel = () => {
                     <CardTitle>Test Details</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-4">
+                    <InputError
+                        v-if="form.errors.bill_id"
+                        :message="form.errors.bill_id"
+                    />
+
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
                             <Label for="type">Test Type *</Label>

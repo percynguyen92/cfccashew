@@ -1,351 +1,429 @@
 <?php
 
+namespace Tests\Feature;
+
+use App\Enums\CuttingTestType;
 use App\Models\Bill;
 use App\Models\Container;
 use App\Models\CuttingTest;
 use App\Models\User;
-use App\Enums\CuttingTestType;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
-beforeEach(function () {
-    $this->user = User::factory()->create();
-    $this->bill = Bill::factory()->create();
-    $this->container = Container::factory()->create(['bill_id' => $this->bill->id]);
-});
+class CuttingTestControllerTest extends TestCase
+{
+    use RefreshDatabase;
 
-it('can display cutting tests index page', function () {
-    $cuttingTests = CuttingTest::factory()->count(3)->create([
-        'bill_id' => $this->bill->id,
-        'container_id' => $this->container->id,
-        'type' => CuttingTestType::ContainerCut->value,
-    ]);
+    protected User $user;
 
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests');
+    protected Bill $bill;
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Index')
-             ->has('cutting_tests')
-             ->has('pagination')
-             ->has('filters')
-    );
-});
+    protected Container $container;
 
-it('can filter cutting tests by bill number', function () {
-    $targetBillNumber = 'FILTER-BILL-' . Str::random(5);
-    $targetBill = Bill::factory()->create(['bill_number' => $targetBillNumber]);
-    $otherBill = Bill::factory()->create(['bill_number' => 'OTHER-001']);
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-    $expectedTest = CuttingTest::factory()->create([
-        'bill_id' => $targetBill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-    ]);
+        $this->user = User::factory()->create();
+        $this->bill = Bill::factory()->create();
+        $this->container = Container::factory()->create([
+            'bill_id' => $this->bill->id,
+        ]);
 
-    CuttingTest::factory()->create([
-        'bill_id' => $otherBill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-    ]);
+        $this->actingAs($this->user);
+    }
 
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests?bill_number=' . $targetBillNumber);
+    public function test_can_display_cutting_tests_index_page(): void
+    {
+        CuttingTest::factory()->count(3)->create([
+            'bill_id' => $this->bill->id,
+            'container_id' => $this->container->id,
+            'type' => CuttingTestType::ContainerCut->value,
+        ]);
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) =>
-        $page->component('CuttingTests/Index')
-    );
+        $response = $this->get('/cutting-tests');
 
-    $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
-    expect($records->pluck('id'))->toContain($expectedTest->id);
-});
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Index')
+                ->has('cutting_tests')
+                ->has('pagination')
+                ->has('filters')
+        );
+    }
 
-it('can filter cutting tests by type', function () {
-    $bill = Bill::factory()->create(['bill_number' => 'TYPE-' . Str::random(6)]);
+    public function test_can_filter_cutting_tests_by_bill_number(): void
+    {
+        $targetBillNumber = 'FILTER-BILL-' . Str::random(5);
+        $targetBill = Bill::factory()->create(['bill_number' => $targetBillNumber]);
+        $otherBill = Bill::factory()->create(['bill_number' => 'OTHER-001']);
 
-    $finalSample = CuttingTest::factory()->create([
-        'bill_id' => $bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'container_id' => null,
-    ]);
+        $expectedTest = CuttingTest::factory()->create([
+            'bill_id' => $targetBill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+        ]);
 
-    CuttingTest::factory()->create([
-        'bill_id' => $bill->id,
-        'container_id' => $this->container->id,
-        'type' => CuttingTestType::ContainerCut->value,
-    ]);
+        CuttingTest::factory()->create([
+            'bill_id' => $otherBill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+        ]);
 
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests?bill_number=' . $bill->bill_number . '&test_type=final');
+        $response = $this->get('/cutting-tests?bill_number=' . $targetBillNumber);
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Index')
-    );
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Index')
+        );
 
-    $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
-    expect($records->pluck('id'))->toContain($finalSample->id);
-});
+        $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
+        $this->assertTrue($records->pluck('id')->contains($expectedTest->id));
+    }
 
-it('can filter cutting tests by moisture range', function () {
-    $bill = Bill::factory()->create(['bill_number' => 'MOIST-' . Str::random(6)]);
+    public function test_can_filter_cutting_tests_by_type(): void
+    {
+        $bill = Bill::factory()->create(['bill_number' => 'TYPE-' . Str::random(6)]);
 
-    $matchingTest = CuttingTest::factory()->create([
-        'bill_id' => $bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'moisture' => 10.5,
-    ]);
+        $finalSample = CuttingTest::factory()->create([
+            'bill_id' => $bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'container_id' => null,
+        ]);
 
-    CuttingTest::factory()->create([
-        'bill_id' => $bill->id,
-        'type' => CuttingTestType::FinalSecondCut->value,
-        'moisture' => 12.8,
-    ]);
+        CuttingTest::factory()->create([
+            'bill_id' => $bill->id,
+            'container_id' => $this->container->id,
+            'type' => CuttingTestType::ContainerCut->value,
+        ]);
 
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests?bill_number=' . $bill->bill_number . '&moisture_min=10&moisture_max=11');
+        $response = $this->get('/cutting-tests?bill_number=' . $bill->bill_number . '&test_type=final');
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Index')
-    );
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Index')
+        );
 
-    $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
-    expect($records->pluck('id'))->toContain($matchingTest->id);
-});
+        $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
+        $this->assertTrue($records->pluck('id')->contains($finalSample->id));
+    }
 
-it('displays create cutting test form', function () {
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests/create');
+    public function test_can_filter_cutting_tests_by_moisture_range(): void
+    {
+        $bill = Bill::factory()->create(['bill_number' => 'MOIST-' . Str::random(6)]);
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Create')
-    );
-});
+        $matchingTest = CuttingTest::factory()->create([
+            'bill_id' => $bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'moisture' => 10.5,
+        ]);
 
-it('displays create cutting test form with bill context', function () {
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests/create?bill_id=' . $this->bill->id);
+        CuttingTest::factory()->create([
+            'bill_id' => $bill->id,
+            'type' => CuttingTestType::FinalSecondCut->value,
+            'moisture' => 12.8,
+        ]);
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Create')
-             ->where('bill_id', (string) $this->bill->id)
-             ->has('bill')
-    );
-});
+        $response = $this->get('/cutting-tests?bill_number=' . $bill->bill_number . '&moisture_min=10&moisture_max=11');
 
-it('displays create cutting test form with container context', function () {
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests/create?bill_id=' . $this->bill->id . '&container_id=' . $this->container->id);
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Index')
+        );
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Create')
-             ->where('bill_id', (string) $this->bill->id)
-             ->where('container_id', (string) $this->container->id)
-             ->has('bill')
-             ->has('container')
-    );
-});
+        $records = collect(json_decode(json_encode($response->viewData('page')), true)['props']['cutting_tests'] ?? []);
+        $this->assertTrue($records->pluck('id')->contains($matchingTest->id));
+    }
 
-it('can create a final sample cutting test', function () {
-    $data = [
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'moisture' => 12.5,
-        'sample_weight' => 1000,
-        'nut_count' => 150,
-        'w_reject_nut' => 50,
-        'w_defective_nut' => 100,
-        'w_defective_kernel' => 30,
-        'w_good_kernel' => 250,
-        'w_sample_after_cut' => 995,
-        'note' => 'First final sample test',
-    ];
+    public function test_displays_create_cutting_test_form(): void
+    {
+        $response = $this->get('/cutting-tests/create');
 
-    $response = $this->actingAs($this->user)
-        ->post('/cutting-tests', $data);
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Create')
+        );
+    }
 
-    $response->assertRedirect();
-    $response->assertSessionHas('success');
+    public function test_displays_create_cutting_test_form_with_bill_context(): void
+    {
+        $response = $this->get('/cutting-tests/create?bill_id=' . $this->bill->id);
 
-    $this->assertDatabaseHas('cutting_tests', [
-        'bill_id' => $this->bill->id,
-        'container_id' => null,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'moisture' => 12.5,
-        'note' => 'First final sample test',
-    ]);
-});
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Create')
+                ->where('bill_id', (string) $this->bill->id)
+                ->has('bill')
+        );
+    }
 
-it('can create a container cutting test', function () {
-    $data = [
-        'bill_id' => $this->bill->id,
-        'container_id' => $this->container->id,
-        'type' => CuttingTestType::ContainerCut->value,
-        'moisture' => 11.8,
-        'sample_weight' => 1000,
-        'nut_count' => 120,
-        'w_reject_nut' => 40,
-        'w_defective_nut' => 80,
-        'w_defective_kernel' => 25,
-        'w_good_kernel' => 200,
-        'w_sample_after_cut' => 990,
-        'note' => 'Container test',
-    ];
+    public function test_displays_create_cutting_test_form_with_container_context(): void
+    {
+        $response = $this->get('/cutting-tests/create?bill_id=' . $this->bill->id . '&container_id=' . $this->container->id);
 
-    $response = $this->actingAs($this->user)
-        ->post('/cutting-tests', $data);
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Create')
+                ->where('bill_id', (string) $this->bill->id)
+                ->where('container_id', (string) $this->container->id)
+                ->has('bill')
+                ->has('container')
+        );
+    }
 
-    $response->assertRedirect();
-    $response->assertSessionHas('success');
+    public function test_can_create_final_sample_cutting_test(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'moisture' => 12.5,
+            'sample_weight' => 1000,
+            'nut_count' => 150,
+            'w_reject_nut' => 50,
+            'w_defective_nut' => 100,
+            'w_defective_kernel' => 30,
+            'w_good_kernel' => 250,
+            'w_sample_after_cut' => 995,
+            'note' => 'First final sample test',
+        ];
 
-    $this->assertDatabaseHas('cutting_tests', [
-        'bill_id' => $this->bill->id,
-        'container_id' => $this->container->id,
-        'type' => CuttingTestType::ContainerCut->value,
-        'moisture' => 11.8,
-        'note' => 'Container test',
-    ]);
-});
+        $response = $this->post('/cutting-tests', $data);
 
-it('calculates outturn rate automatically when creating cutting test', function () {
-    $data = [
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'sample_weight' => 1000,
-        'w_defective_kernel' => 40,
-        'w_good_kernel' => 200,
-    ];
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
 
-    $this->actingAs($this->user)
-        ->post('/cutting-tests', $data);
+        $this->assertDatabaseHas('cutting_tests', [
+            'bill_id' => $this->bill->id,
+            'container_id' => null,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'moisture' => 12.5,
+            'note' => 'First final sample test',
+        ]);
+    }
 
-    $cuttingTest = CuttingTest::where('bill_id', $this->bill->id)->first();
-    
-    // Expected: (40/2 + 200) * 80 / 453.6 = 38.67
-    expect($cuttingTest->outturn_rate)->toBe('38.80');
-});
+    public function test_can_create_container_cutting_test(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'container_id' => $this->container->id,
+            'type' => CuttingTestType::ContainerCut->value,
+            'moisture' => 11.8,
+            'sample_weight' => 1000,
+            'nut_count' => 120,
+            'w_reject_nut' => 40,
+            'w_defective_nut' => 80,
+            'w_defective_kernel' => 25,
+            'w_good_kernel' => 200,
+            'w_sample_after_cut' => 990,
+            'note' => 'Container test',
+        ];
 
-it('validates final sample tests cannot have container_id', function () {
-    $data = [
-        'bill_id' => $this->bill->id,
-        'container_id' => $this->container->id, // Should not be allowed for final sample
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'sample_weight' => 1000,
-    ];
+        $response = $this->post('/cutting-tests', $data);
 
-    $response = $this->actingAs($this->user)
-        ->post('/cutting-tests', $data);
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
 
-    $response->assertSessionHasErrors(['container_id']);
-});
+        $this->assertDatabaseHas('cutting_tests', [
+            'bill_id' => $this->bill->id,
+            'container_id' => $this->container->id,
+            'type' => CuttingTestType::ContainerCut->value,
+            'moisture' => 11.8,
+            'note' => 'Container test',
+        ]);
+    }
 
-it('validates container tests must have container_id', function () {
-    $data = [
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::ContainerCut->value,
-        'sample_weight' => 1000,
-        // Missing container_id
-    ];
+    public function test_calculates_outturn_rate_automatically_when_creating_cutting_test(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'sample_weight' => 1000,
+            'w_defective_kernel' => 40,
+            'w_good_kernel' => 200,
+        ];
 
-    $response = $this->actingAs($this->user)
-        ->post('/cutting-tests', $data);
+        $this->post('/cutting-tests', $data);
 
-    $response->assertSessionHasErrors(['container_id']);
-});
+        $cuttingTest = CuttingTest::where('bill_id', $this->bill->id)->first();
 
-it('validates moisture range', function () {
-    $data = [
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'sample_weight' => 1000,
-        'moisture' => 150, // Invalid - over 100%
-    ];
+        $this->assertNotNull($cuttingTest);
+        $this->assertSame('38.80', $cuttingTest->outturn_rate);
+    }
 
-    $response = $this->actingAs($this->user)
-        ->post('/cutting-tests', $data);
+    public function test_requires_bill_type_and_sample_weight_when_creating_cutting_test(): void
+    {
+        $response = $this->post('/cutting-tests', []);
 
-    $response->assertSessionHasErrors(['moisture']);
-});
+        $response->assertSessionHasErrors([
+            'bill_id',
+            'type',
+            'sample_weight',
+        ]);
+    }
 
-it('can display cutting test details', function () {
-    $cuttingTest = CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'moisture' => 12.5,
-        'note' => 'Test note',
-    ]);
+    public function test_rejects_invalid_cutting_test_types(): void
+    {
+        $response = $this->post('/cutting-tests', [
+            'bill_id' => $this->bill->id,
+            'type' => 99,
+            'sample_weight' => 1000,
+        ]);
 
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests/' . $cuttingTest->id);
+        $response->assertSessionHasErrors(['type']);
+    }
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Show')
-             ->where('cutting_test.id', $cuttingTest->id)
-             ->where('cutting_test.moisture', '12.5')
-             ->where('cutting_test.note', 'Test note')
-    );
-});
+    public function test_validates_sample_weight_boundaries(): void
+    {
+        $basePayload = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+        ];
 
-it('can display edit cutting test form', function () {
-    $cuttingTest = CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-    ]);
+        $this->post('/cutting-tests', $basePayload + ['sample_weight' => 1])
+            ->assertSessionDoesntHaveErrors();
 
-    $response = $this->actingAs($this->user)
-        ->get('/cutting-tests/' . $cuttingTest->id . '/edit');
+        $this->post('/cutting-tests', $basePayload + ['sample_weight' => 65_535])
+            ->assertSessionDoesntHaveErrors();
 
-    $response->assertStatus(200);
-    $response->assertInertia(fn ($page) => 
-        $page->component('CuttingTests/Edit')
-             ->where('cutting_test.id', $cuttingTest->id)
-    );
-});
+        $this->post('/cutting-tests', $basePayload + ['sample_weight' => 0])
+            ->assertSessionHasErrors(['sample_weight']);
 
-it('can update cutting test', function () {
-    $cuttingTest = CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'moisture' => 10.0,
-    ]);
+        $this->post('/cutting-tests', $basePayload + ['sample_weight' => 65_536])
+            ->assertSessionHasErrors(['sample_weight']);
+    }
 
-    $data = [
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-        'moisture' => 12.5,
-        'sample_weight' => 1000,
-        'note' => 'Updated note',
-    ];
+    public function test_validates_final_sample_tests_cannot_have_container_id(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'container_id' => $this->container->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'sample_weight' => 1000,
+        ];
 
-    $response = $this->actingAs($this->user)
-        ->put('/cutting-tests/' . $cuttingTest->id, $data);
+        $response = $this->post('/cutting-tests', $data);
 
-    $response->assertRedirect();
-    $response->assertSessionHas('success');
+        $response->assertSessionHasErrors(['container_id']);
+    }
 
-    $this->assertDatabaseHas('cutting_tests', [
-        'id' => $cuttingTest->id,
-        'moisture' => 12.5,
-        'note' => 'Updated note',
-    ]);
-});
+    public function test_validates_container_tests_must_have_container_id(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::ContainerCut->value,
+            'sample_weight' => 1000,
+        ];
 
-it('can delete cutting test', function () {
-    $cuttingTest = CuttingTest::factory()->create([
-        'bill_id' => $this->bill->id,
-        'type' => CuttingTestType::FinalFirstCut->value,
-    ]);
+        $response = $this->post('/cutting-tests', $data);
 
-    $response = $this->actingAs($this->user)
-        ->delete('/cutting-tests/' . $cuttingTest->id);
+        $response->assertSessionHasErrors(['container_id']);
+    }
 
-    $response->assertRedirect();
-    $response->assertSessionHas('success');
+    public function test_validates_moisture_range(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'sample_weight' => 1000,
+            'moisture' => 150,
+        ];
 
-    $this->assertSoftDeleted('cutting_tests', [
-        'id' => $cuttingTest->id,
-    ]);
-});
+        $response = $this->post('/cutting-tests', $data);
+
+        $response->assertSessionHasErrors(['moisture']);
+    }
+
+    public function test_rejects_negative_moisture_values(): void
+    {
+        $data = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'sample_weight' => 1000,
+            'moisture' => -0.01,
+        ];
+
+        $response = $this->post('/cutting-tests', $data);
+
+        $response->assertSessionHasErrors(['moisture']);
+    }
+
+    public function test_can_display_cutting_test_details(): void
+    {
+        $cuttingTest = CuttingTest::factory()->create([
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'moisture' => 12.5,
+            'note' => 'Test note',
+        ]);
+
+        $response = $this->get('/cutting-tests/' . $cuttingTest->id);
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Show')
+                ->where('cutting_test.id', $cuttingTest->id)
+                ->where('cutting_test.moisture', '12.5')
+                ->where('cutting_test.note', 'Test note')
+        );
+    }
+
+    public function test_can_display_edit_cutting_test_form(): void
+    {
+        $cuttingTest = CuttingTest::factory()->create([
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+        ]);
+
+        $response = $this->get('/cutting-tests/' . $cuttingTest->id . '/edit');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) =>
+            $page->component('CuttingTests/Edit')
+                ->where('cutting_test.id', $cuttingTest->id)
+        );
+    }
+
+    public function test_can_update_cutting_test(): void
+    {
+        $cuttingTest = CuttingTest::factory()->create([
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'moisture' => 10.0,
+        ]);
+
+        $data = [
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+            'moisture' => 12.5,
+            'sample_weight' => 1000,
+            'note' => 'Updated note',
+        ];
+
+        $response = $this->put('/cutting-tests/' . $cuttingTest->id, $data);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('cutting_tests', [
+            'id' => $cuttingTest->id,
+            'moisture' => 12.5,
+            'note' => 'Updated note',
+        ]);
+    }
+
+    public function test_can_delete_cutting_test(): void
+    {
+        $cuttingTest = CuttingTest::factory()->create([
+            'bill_id' => $this->bill->id,
+            'type' => CuttingTestType::FinalFirstCut->value,
+        ]);
+
+        $response = $this->delete('/cutting-tests/' . $cuttingTest->id);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertSoftDeleted('cutting_tests', [
+            'id' => $cuttingTest->id,
+        ]);
+    }
+}

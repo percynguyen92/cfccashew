@@ -115,15 +115,6 @@ class ContainerFormTest extends TestCase
         
         $this->assertNotNull($container, 'Container should be created');
         
-        // Debug all container data
-        dump('Container data:', $container->toArray());
-        dump('Expected vs Actual:', [
-            'w_tare_expected' => 150,
-            'w_tare_actual' => $container->w_tare,
-            'w_net_expected' => 7250,
-            'w_net_actual' => $container->w_net,
-        ]);
-        
         // Verify the basic data is saved
         $this->assertEquals($bill->id, $container->bill_id);
         $this->assertEquals(25000, $container->w_total);
@@ -134,5 +125,82 @@ class ContainerFormTest extends TestCase
         $this->assertEquals(7500, $container->w_gross);
         $this->assertEquals(150, $container->w_tare);
         $this->assertEquals(7250, $container->w_net);
+    }
+
+    public function test_container_creation_requires_valid_bill(): void
+    {
+        $this->actingAs(\App\Models\User::factory()->create());
+
+        $response = $this->post('/containers', [
+            'container_number' => 'ABCD1234567',
+        ]);
+
+        $response->assertSessionHasErrors(['bill_id']);
+
+        $response = $this->post('/containers', [
+            'bill_id' => 9_999,
+            'container_number' => 'ABCD1234567',
+        ]);
+
+        $response->assertSessionHasErrors(['bill_id']);
+    }
+
+    public function test_container_truck_identifier_cannot_exceed_twenty_characters(): void
+    {
+        $this->actingAs(\App\Models\User::factory()->create());
+        $bill = Bill::factory()->create();
+
+        $response = $this->post('/containers', [
+            'bill_id' => $bill->id,
+            'truck' => str_repeat('X', 21),
+        ]);
+
+        $response->assertSessionHasErrors(['truck']);
+    }
+
+    public function test_container_weight_fields_respect_boundaries(): void
+    {
+        $this->actingAs(\App\Models\User::factory()->create());
+        $bill = Bill::factory()->create();
+
+        $validPayload = [
+            'bill_id' => $bill->id,
+            'container_number' => 'ABCD1234567',
+            'quantity_of_bags' => 0,
+            'w_jute_bag' => 99.99,
+            'w_total' => 0,
+            'w_truck' => 0,
+            'w_container' => 0,
+            'w_dunnage_dribag' => 0,
+        ];
+
+        $this->post('/containers', $validPayload)->assertSessionDoesntHaveErrors();
+
+        $invalidPayload = [
+            'bill_id' => $bill->id,
+            'container_number' => 'ABCD1234567',
+            'w_total' => -1,
+            'w_truck' => -1,
+            'w_container' => -1,
+            'w_dunnage_dribag' => -1,
+            'w_jute_bag' => -0.01,
+        ];
+
+        $response = $this->post('/containers', $invalidPayload);
+        $response->assertSessionHasErrors([
+            'w_total',
+            'w_truck',
+            'w_container',
+            'w_dunnage_dribag',
+            'w_jute_bag',
+        ]);
+
+        $response = $this->post('/containers', [
+            'bill_id' => $bill->id,
+            'container_number' => 'ABCD1234567',
+            'w_jute_bag' => 100,
+        ]);
+
+        $response->assertSessionHasErrors(['w_jute_bag']);
     }
 }

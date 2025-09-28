@@ -112,7 +112,7 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
 </script>
 
 <template>
-    <Card class="w-full max-w-2xl">
+    <Card class="w-full">
         <CardHeader>
             <CardTitle>{{ formTitle }}</CardTitle>
         </CardHeader>
@@ -120,7 +120,15 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- Bill Number -->
                 <div class="space-y-2">
-                    <Label for="bill_number">Bill Number</Label>
+                    <div
+                        class="flex flex-wrap items-center justify-start gap-4"
+                    >
+                        <Label for="bill_number">Bill Number</Label>
+                        <InputError
+                            class="text-right"
+                            :message="form.errors.bill_number"
+                        />
+                    </div>
                     <Input
                         id="bill_number"
                         v-model="form.bill_number"
@@ -130,12 +138,19 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         :aria-invalid="!!form.errors.bill_number"
                         @input="clearError('bill_number')"
                     />
-                    <InputError :message="form.errors.bill_number" />
                 </div>
 
                 <!-- Seller -->
                 <div class="space-y-2">
-                    <Label for="seller">Seller</Label>
+                    <div
+                        class="flex flex-wrap items-center justify-start gap-4"
+                    >
+                        <Label for="seller">Seller</Label>
+                        <InputError
+                            class="text-right"
+                            :message="form.errors.seller"
+                        />
+                    </div>
                     <Input
                         id="seller"
                         v-model="form.seller"
@@ -145,12 +160,19 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         :aria-invalid="!!form.errors.seller"
                         @input="clearError('seller')"
                     />
-                    <InputError :message="form.errors.seller" />
                 </div>
 
                 <!-- Buyer -->
                 <div class="space-y-2">
-                    <Label for="buyer">Buyer</Label>
+                    <div
+                        class="flex flex-wrap items-center justify-start gap-4"
+                    >
+                        <Label for="buyer">Buyer</Label>
+                        <InputError
+                            class="text-right"
+                            :message="form.errors.buyer"
+                        />
+                    </div>
                     <Input
                         id="buyer"
                         v-model="form.buyer"
@@ -160,12 +182,19 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         :aria-invalid="!!form.errors.buyer"
                         @input="clearError('buyer')"
                     />
-                    <InputError :message="form.errors.buyer" />
                 </div>
 
                 <!-- Note -->
                 <div class="space-y-2">
-                    <Label for="note">Note</Label>
+                    <div
+                        class="flex flex-wrap items-center justify-start gap-4"
+                    >
+                        <Label for="note">Note</Label>
+                        <InputError
+                            class="text-right"
+                            :message="form.errors.note"
+                        />
+                    </div>
                     <Textarea
                         id="note"
                         v-model="form.note"
@@ -174,7 +203,6 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         :aria-invalid="!!form.errors.note"
                         @input="clearError('note')"
                     />
-                    <InputError :message="form.errors.note" />
                 </div>
 
                 <!-- Form Actions -->

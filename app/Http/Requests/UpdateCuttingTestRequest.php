@@ -54,7 +54,7 @@ class UpdateCuttingTestRequest extends FormRequest
                 ]),
             ],
             'moisture' => 'nullable|numeric|min:0|max:100',
-            'sample_weight' => 'integer|min:1|max:65535',
+            'sample_weight' => 'required|integer|min:1|max:65535',
             'nut_count' => 'nullable|integer|min:0|max:65535',
             'w_reject_nut' => 'nullable|integer|min:0|max:65535',
             'w_defective_nut' => 'nullable|integer|min:0|max:65535',
@@ -72,14 +72,19 @@ class UpdateCuttingTestRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bill_id.required' => 'Bill ID is required.',
+            'bill_id.required' => 'A valid bill is required.',
+            'bill_id.integer' => 'A valid bill is required.',
             'bill_id.exists' => 'The selected bill does not exist.',
             'container_id.exists' => 'The selected container does not exist.',
-            'type.required' => 'Cutting test type is required.',
-            'type.in' => 'Invalid cutting test type.',
+            'type.required' => 'Select a valid test type.',
+            'type.integer' => 'Select a valid test type.',
+            'type.in' => 'Select a valid test type.',
             'moisture.min' => 'Moisture cannot be negative.',
             'moisture.max' => 'Moisture cannot exceed 100%.',
-            'sample_weight.min' => 'Sample weight must be at least 1 gram.',
+            'sample_weight.required' => 'Sample weight must be between 1 and 65,535 grams.',
+            'sample_weight.integer' => 'Sample weight must be a whole number.',
+            'sample_weight.min' => 'Sample weight must be between 1 and 65,535 grams.',
+            'sample_weight.max' => 'Sample weight must be between 1 and 65,535 grams.',
             'outturn_rate.max' => 'Outturn rate cannot exceed 60 lbs/80kg.',
             '*.min' => 'Weight values cannot be negative.',
         ];
