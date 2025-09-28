@@ -292,10 +292,7 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div
-                        v-if="finalSamples.length > 0"
-                        class="overflow-hidden rounded-lg border"
-                    >
+                    <div v-if="finalSamples.length > 0">
                         <CuttingTestTable
                             :tests="finalSamples"
                             @edit="openEditCuttingTestDialog"

@@ -2,7 +2,7 @@
 import BillForm from '@/components/bills/BillForm.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -190,8 +190,8 @@ watch(isBillFormOpen, (isOpen) => {
             </div>
 
             <!-- Search and Filters -->
-            <Card class="p-4">
-                <div class="flex items-center gap-4">
+            <Card class="gap-1">
+                <CardContent class="flex flex-wrap items-center gap-4 px-4">
                     <div class="relative max-w-sm flex-1">
                         <Search
                             class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -206,12 +206,12 @@ watch(isBillFormOpen, (isOpen) => {
                     <div class="text-sm text-muted-foreground">
                         {{ paginationInfo.total }} total bills
                     </div>
-                </div>
+                </CardContent>
             </Card>
 
             <!-- Bills Table -->
             <Card class="flex-1">
-                <div class="relative">
+                <CardContent class="relative">
                     <div
                         v-if="isLoading"
                         class="absolute inset-0 z-10 flex items-center justify-center bg-background/50"
@@ -406,7 +406,7 @@ watch(isBillFormOpen, (isOpen) => {
                             </TableRow>
                         </TableBody>
                     </Table>
-                </div>
+                </CardContent>
             </Card>
 
             <!-- Pagination -->
@@ -464,7 +464,7 @@ watch(isBillFormOpen, (isOpen) => {
 
         <Dialog v-model:open="isBillFormOpen">
             <DialogContent
-                class="max-h-[90vh] w-full max-w-4xl sm:max-w-4xl lg:max-w-5xl overflow-y-auto"
+                class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl"
             >
                 <BillForm
                     v-if="isBillFormOpen"

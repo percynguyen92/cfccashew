@@ -22,9 +22,9 @@ class StoreBillRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'bill_number' => 'nullable|string|max:20|unique:bills,bill_number',
-            'seller' => 'nullable|string|max:255',
-            'buyer' => 'nullable|string|max:255',
+            'bill_number' => 'required|string|max:20',
+            'seller' => 'required|string|max:255',
+            'buyer' => 'required|string|max:255',
             'note' => 'nullable|string|max:65535',
         ];
     }
@@ -35,9 +35,11 @@ class StoreBillRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bill_number.unique' => 'This bill number already exists.',
+            'bill_number.required' => 'Bill number is required.',
             'bill_number.max' => 'Bill number cannot exceed 20 characters.',
+            'seller.required' => 'Seller is required.',
             'seller.max' => 'Seller name cannot exceed 255 characters.',
+            'buyer.required' => 'Buyer is required.',
             'buyer.max' => 'Buyer name cannot exceed 255 characters.',
         ];
     }

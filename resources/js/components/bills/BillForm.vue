@@ -41,8 +41,49 @@ const submitButtonText = computed(() =>
     props.isEditing ? 'Update Bill' : 'Create Bill',
 );
 
+const validateForm = (): boolean => {
+    form.clearErrors();
+
+    const trimmedBillNumber = form.bill_number.trim();
+    const trimmedSeller = form.seller.trim();
+    const trimmedBuyer = form.buyer.trim();
+    const trimmedNote = form.note.trim();
+
+    let hasErrors = false;
+
+    if (!trimmedBillNumber) {
+        form.setError('bill_number', 'Bill number is required.');
+        hasErrors = true;
+    }
+
+    if (!trimmedSeller) {
+        form.setError('seller', 'Seller is required.');
+        hasErrors = true;
+    }
+
+    if (!trimmedBuyer) {
+        form.setError('buyer', 'Buyer is required.');
+        hasErrors = true;
+    }
+
+    if (hasErrors) {
+        return false;
+    }
+
+    form.bill_number = trimmedBillNumber;
+    form.seller = trimmedSeller;
+    form.buyer = trimmedBuyer;
+    form.note = trimmedNote;
+
+    return true;
+};
+
 // Methods
 const handleSubmit = () => {
+    if (!validateForm()) {
+        return;
+    }
+
     if (props.isEditing && props.bill) {
         form.put(bills.update.url(props.bill.id), {
             onSuccess: () => {
@@ -84,7 +125,7 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         id="bill_number"
                         v-model="form.bill_number"
                         type="text"
-                        placeholder="Enter bill number (optional)"
+                        placeholder="Enter bill number (required)"
                         maxlength="20"
                         :aria-invalid="!!form.errors.bill_number"
                         @input="clearError('bill_number')"
@@ -99,7 +140,7 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         id="seller"
                         v-model="form.seller"
                         type="text"
-                        placeholder="Enter seller name (optional)"
+                        placeholder="Enter seller name (required)"
                         maxlength="255"
                         :aria-invalid="!!form.errors.seller"
                         @input="clearError('seller')"
@@ -114,7 +155,7 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         id="buyer"
                         v-model="form.buyer"
                         type="text"
-                        placeholder="Enter buyer name (optional)"
+                        placeholder="Enter buyer name (required)"
                         maxlength="255"
                         :aria-invalid="!!form.errors.buyer"
                         @input="clearError('buyer')"

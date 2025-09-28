@@ -1,17 +1,6 @@
 ﻿<script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -20,14 +9,29 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Pagination,
+    PaginationList,
+    PaginationListItem,
+} from '@/components/ui/pagination';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { usePagination } from '@/composables/usePagination';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as containerRoutes from '@/routes/containers';
 import type { Container } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { Pencil, Search, Trash2 } from 'lucide-vue-next';
 import { debounce } from 'lodash-es';
+import { Pencil, Search, Trash2 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 interface PaginationLink {
@@ -139,9 +143,12 @@ const formatWeight = (weight: number | string | null | undefined): string => {
     return numValue.toLocaleString();
 };
 
-const formatMoisture = (moisture: number | string | null | undefined): string => {
+const formatMoisture = (
+    moisture: number | string | null | undefined,
+): string => {
     if (moisture === null || moisture === undefined) return '-';
-    const numValue = typeof moisture === 'string' ? parseFloat(moisture) : moisture;
+    const numValue =
+        typeof moisture === 'string' ? parseFloat(moisture) : moisture;
     if (isNaN(numValue)) return '-';
     return `${numValue.toFixed(1)}%`;
 };
@@ -207,7 +214,9 @@ const previousLink = computed<PaginationLink>(() => {
 
 const nextLink = computed<PaginationLink>(() => {
     const links = pagination.value.links ?? [];
-    return links[links.length - 1] ?? { url: null, label: 'Next', active: false };
+    return (
+        links[links.length - 1] ?? { url: null, label: 'Next', active: false }
+    );
 });
 </script>
 
@@ -215,7 +224,9 @@ const nextLink = computed<PaginationLink>(() => {
     <Head title="Containers" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-semibold">Containers</h1>
@@ -228,8 +239,10 @@ const nextLink = computed<PaginationLink>(() => {
                 </div>
             </div>
 
-            <Card class="space-y-4 p-4">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <Card class="gap-1 space-y-4 p-4">
+                <div
+                    class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5"
+                >
                     <div class="space-y-2">
                         <Label for="container_number">Container Number</Label>
                         <Input
@@ -288,96 +301,148 @@ const nextLink = computed<PaginationLink>(() => {
             </Card>
 
             <Card class="flex-1">
-                <div class="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Container Number</TableHead>
-                                <TableHead>Truck</TableHead>
-                                <TableHead>Bill Info</TableHead>
-                                <TableHead class="text-right">Net Weight</TableHead>
-                                <TableHead class="text-right">Moisture</TableHead>
-                                <TableHead class="text-right">Outturn</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead class="w-[120px] text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow
-                                v-for="container in containers"
-                                :key="container.id"
-                                class="cursor-pointer hover:bg-muted/50"
-                                @click="viewContainer(container)"
-                            >
-                                <TableCell class="font-medium">
-                                    {{ container.container_number || '-' }}
-                                </TableCell>
-                                <TableCell>
-                                    {{ container.truck || '-' }}
-                                </TableCell>
-                                <TableCell>
-                                    <div v-if="container.bill" class="space-y-1">
-                                        <div class="font-medium">
-                                            {{ container.bill.bill_number || `Bill ${container.bill.id}` }}
+                <CardContent>
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Container Number</TableHead>
+                                    <TableHead>Truck</TableHead>
+                                    <TableHead>Bill Info</TableHead>
+                                    <TableHead class="text-right"
+                                        >Net Weight</TableHead
+                                    >
+                                    <TableHead class="text-right"
+                                        >Moisture</TableHead
+                                    >
+                                    <TableHead class="text-right"
+                                        >Outturn</TableHead
+                                    >
+                                    <TableHead>Created</TableHead>
+                                    <TableHead class="w-[120px] text-right"
+                                        >Actions</TableHead
+                                    >
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow
+                                    v-for="container in containers"
+                                    :key="container.id"
+                                    class="cursor-pointer hover:bg-muted/50"
+                                    @click="viewContainer(container)"
+                                >
+                                    <TableCell class="font-medium">
+                                        {{ container.container_number || '-' }}
+                                    </TableCell>
+                                    <TableCell>
+                                        {{ container.truck || '-' }}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div
+                                            v-if="container.bill"
+                                            class="space-y-1"
+                                        >
+                                            <div class="font-medium">
+                                                {{
+                                                    container.bill
+                                                        .bill_number ||
+                                                    `Bill ${container.bill.id}`
+                                                }}
+                                            </div>
+                                            <div
+                                                class="text-sm text-muted-foreground"
+                                            >
+                                                {{ container.bill.seller }} /
+                                                {{ container.bill.buyer }}
+                                            </div>
                                         </div>
-                                        <div class="text-sm text-muted-foreground">
-                                            {{ container.bill.seller }} / {{ container.bill.buyer }}
+                                        <div
+                                            v-else
+                                            class="text-muted-foreground"
+                                        >
+                                            -
                                         </div>
-                                    </div>
-                                    <div v-else class="text-muted-foreground">-</div>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">
-                                    {{ formatWeight(container.w_net) }}
-                                </TableCell>
-                                <TableCell class="text-right">
-                                    <span
-                                        :class="
-                                            container.average_moisture && container.average_moisture > 11
-                                                ? 'text-destructive font-medium'
-                                                : ''
-                                        "
+                                    </TableCell>
+                                    <TableCell class="text-right font-mono">
+                                        {{ formatWeight(container.w_net) }}
+                                    </TableCell>
+                                    <TableCell class="text-right">
+                                        <span
+                                            :class="
+                                                container.average_moisture &&
+                                                container.average_moisture > 11
+                                                    ? 'font-medium text-destructive'
+                                                    : ''
+                                            "
+                                        >
+                                            {{
+                                                formatMoisture(
+                                                    container.average_moisture,
+                                                )
+                                            }}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell class="text-right font-mono">
+                                        {{
+                                            formatOuturn(container.outturn_rate)
+                                        }}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div
+                                            class="text-sm text-muted-foreground"
+                                        >
+                                            {{
+                                                new Date(
+                                                    container.created_at,
+                                                ).toLocaleDateString()
+                                            }}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell
+                                        class="flex items-center justify-end gap-1"
                                     >
-                                        {{ formatMoisture(container.average_moisture) }}
-                                    </span>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">
-                                    {{ formatOuturn(container.outturn_rate) }}
-                                </TableCell>
-                                <TableCell>
-                                    <div class="text-sm text-muted-foreground">
-                                        {{ new Date(container.created_at).toLocaleDateString() }}
-                                    </div>
-                                </TableCell>
-                                <TableCell class="flex items-center justify-end gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        aria-label="Edit container"
-                                        @click.stop="editContainer(container)"
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Edit container"
+                                            @click.stop="
+                                                editContainer(container)
+                                            "
+                                        >
+                                            <Pencil class="h-4 w-4" />
+                                            <span class="sr-only"
+                                                >Edit container</span
+                                            >
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            class="text-destructive hover:text-destructive"
+                                            aria-label="Delete container"
+                                            @click.stop="
+                                                openDeleteDialog(container)
+                                            "
+                                        >
+                                            <Trash2 class="h-4 w-4" />
+                                            <span class="sr-only"
+                                                >Delete container</span
+                                            >
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow v-if="containers.length === 0">
+                                    <TableCell
+                                        colspan="8"
+                                        class="py-8 text-center text-muted-foreground"
                                     >
-                                        <Pencil class="h-4 w-4" />
-                                        <span class="sr-only">Edit container</span>
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        class="text-destructive hover:text-destructive"
-                                        aria-label="Delete container"
-                                        @click.stop="openDeleteDialog(container)"
-                                    >
-                                        <Trash2 class="h-4 w-4" />
-                                        <span class="sr-only">Delete container</span>
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                            <TableRow v-if="containers.length === 0">
-                                <TableCell colspan="8" class="py-8 text-center text-muted-foreground">
-                                    No containers found. Try adjusting your search filters.
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </div>
+                                        No containers found. Try adjusting your
+                                        search filters.
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
             </Card>
 
             <div
@@ -385,7 +450,8 @@ const nextLink = computed<PaginationLink>(() => {
                 class="flex items-center justify-between"
             >
                 <div class="text-sm text-muted-foreground">
-                    Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} containers
+                    Showing {{ pagination.from }} to {{ pagination.to }} of
+                    {{ pagination.total }} containers
                 </div>
                 <Pagination>
                     <PaginationList>
@@ -434,15 +500,24 @@ const nextLink = computed<PaginationLink>(() => {
                 <DialogHeader>
                     <DialogTitle>Delete container</DialogTitle>
                     <DialogDescription>
-                        This action permanently removes container {{ pendingContainerLabel }} and all related data.
-                        This cannot be undone.
+                        This action permanently removes container
+                        {{ pendingContainerLabel }} and all related data. This
+                        cannot be undone.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter class="gap-2">
-                    <Button variant="outline" @click="closeDeleteDialog" :disabled="isDeleting">
+                    <Button
+                        variant="outline"
+                        @click="closeDeleteDialog"
+                        :disabled="isDeleting"
+                    >
                         Cancel
                     </Button>
-                    <Button variant="destructive" @click="confirmDelete" :disabled="isDeleting">
+                    <Button
+                        variant="destructive"
+                        @click="confirmDelete"
+                        :disabled="isDeleting"
+                    >
                         {{ isDeleting ? 'Deleting...' : 'Delete' }}
                     </Button>
                 </DialogFooter>
@@ -450,4 +525,3 @@ const nextLink = computed<PaginationLink>(() => {
         </Dialog>
     </AppLayout>
 </template>
-

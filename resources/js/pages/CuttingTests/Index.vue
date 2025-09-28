@@ -1,9 +1,13 @@
 ﻿<script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination';
+import {
+    Pagination,
+    PaginationList,
+    PaginationListItem,
+} from '@/components/ui/pagination';
 import {
     Select,
     SelectContent,
@@ -23,8 +27,8 @@ import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { usePagination } from '@/composables/usePagination';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { Eye, Pencil, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { debounce } from 'lodash-es';
+import { Eye, Pencil, Plus, Search, Trash2 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, reactive } from 'vue';
 
 interface CuttingTest {
@@ -131,7 +135,9 @@ const previousLink = computed<PaginationLink>(() => {
 
 const nextLink = computed<PaginationLink>(() => {
     const links = pagination.value.links ?? [];
-    return links[links.length - 1] ?? { url: null, label: 'Next', active: false };
+    return (
+        links[links.length - 1] ?? { url: null, label: 'Next', active: false }
+    );
 });
 
 function cleanFilters(filterObj: typeof filters) {
@@ -241,7 +247,9 @@ function getContainerDisplay(test: CuttingTest) {
     <Head title="Cutting Tests" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-semibold">Cutting Tests</h1>
@@ -255,8 +263,10 @@ function getContainerDisplay(test: CuttingTest) {
                 </Button>
             </div>
 
-            <Card class="space-y-4 p-4">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card class="gap-1 space-y-4 p-4">
+                <div
+                    class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
                     <div class="space-y-2">
                         <Label for="bill_number">Bill Number</Label>
                         <Input
@@ -277,8 +287,12 @@ function getContainerDisplay(test: CuttingTest) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Tests</SelectItem>
-                                <SelectItem value="final">Final Tests</SelectItem>
-                                <SelectItem value="container">Container Tests</SelectItem>
+                                <SelectItem value="final"
+                                    >Final Tests</SelectItem
+                                >
+                                <SelectItem value="container"
+                                    >Container Tests</SelectItem
+                                >
                             </SelectContent>
                         </Select>
                     </div>
@@ -344,140 +358,230 @@ function getContainerDisplay(test: CuttingTest) {
             </Card>
 
             <Card class="flex-1">
-                <div class="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Bill</TableHead>
-                                <TableHead>Sample / Container</TableHead>
-                                <TableHead class="text-right">Moisture (%)</TableHead>
-                                <TableHead class="text-right">Defective Nut (g)</TableHead>
-                                <TableHead class="text-right">Good Kernel (g)</TableHead>
-                                <TableHead class="text-right">Outturn (lbs/80kg)</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead class="w-[140px] text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow v-if="cuttingTests.length === 0">
-                                <TableCell colspan="8" class="py-8 text-center text-muted-foreground">
-                                    No cutting tests found. Try adjusting your search filters.
-                                </TableCell>
-                            </TableRow>
-                            <TableRow
-                                v-for="test in cuttingTests"
-                                :key="test.id"
-                                class="cursor-pointer hover:bg-muted/50"
-                                @click="viewCuttingTest(test.id)"
-                            >
-                                <TableCell class="font-medium">
-                                    <button
-                                        type="button"
-                                        class="text-primary underline-offset-4 hover:underline"
-                                        @click.stop="router.visit(`/bills/${test.bill_id}`)"
+                <CardContent>
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Bill</TableHead>
+                                    <TableHead>Sample / Container</TableHead>
+                                    <TableHead class="text-right"
+                                        >Moisture (%)</TableHead
                                     >
-                                        {{ getBillDisplay(test) }}
-                                    </button>
-                                    <div
-                                        v-if="test.bill?.seller || test.bill?.buyer"
-                                        class="text-xs text-muted-foreground"
+                                    <TableHead class="text-right"
+                                        >Defective Nut (g)</TableHead
                                     >
-                                        {{ test.bill?.seller || '—' }} /
-                                        {{ test.bill?.buyer || '—' }}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div class="flex items-center gap-2 text-sm">
-                                        <template v-if="test.is_final_sample">
-                                            <span class="rounded-md bg-muted px-2 py-0.5 font-semibold text-muted-foreground">
-                                                {{ getFinalSampleLabel(test.type) }}
-                                            </span>
-                                        </template>
-                                        <template v-else>
-                                            <button
-                                                v-if="test.container"
-                                                type="button"
-                                                class="text-primary underline-offset-4 hover:underline"
-                                                @click.stop="
-                                                    router.visit(
-                                                        `/containers/${
-                                                            test.container?.container_number ||
-                                                            test.container_id
-                                                        }`,
-                                                    )
-                                                "
+                                    <TableHead class="text-right"
+                                        >Good Kernel (g)</TableHead
+                                    >
+                                    <TableHead class="text-right"
+                                        >Outturn (lbs/80kg)</TableHead
+                                    >
+                                    <TableHead>Created</TableHead>
+                                    <TableHead class="w-[140px] text-right"
+                                        >Actions</TableHead
+                                    >
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow v-if="cuttingTests.length === 0">
+                                    <TableCell
+                                        colspan="8"
+                                        class="py-8 text-center text-muted-foreground"
+                                    >
+                                        No cutting tests found. Try adjusting
+                                        your search filters.
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow
+                                    v-for="test in cuttingTests"
+                                    :key="test.id"
+                                    class="cursor-pointer hover:bg-muted/50"
+                                    @click="viewCuttingTest(test.id)"
+                                >
+                                    <TableCell class="font-medium">
+                                        <button
+                                            type="button"
+                                            class="text-primary underline-offset-4 hover:underline"
+                                            @click.stop="
+                                                router.visit(
+                                                    `/bills/${test.bill_id}`,
+                                                )
+                                            "
+                                        >
+                                            {{ getBillDisplay(test) }}
+                                        </button>
+                                        <div
+                                            v-if="
+                                                test.bill?.seller ||
+                                                test.bill?.buyer
+                                            "
+                                            class="text-xs text-muted-foreground"
+                                        >
+                                            {{ test.bill?.seller || '—' }} /
+                                            {{ test.bill?.buyer || '—' }}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div
+                                            class="flex items-center gap-2 text-sm"
+                                        >
+                                            <template
+                                                v-if="test.is_final_sample"
                                             >
-                                                {{ getContainerDisplay(test) }}
-                                            </button>
-                                            <span v-else class="text-muted-foreground">
-                                                {{ getContainerDisplay(test) }}
-                                            </span>
-                                        </template>
-                                    </div>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">
-                                    <span v-if="test.moisture_formatted">
-                                        {{ test.moisture_formatted }}
-                                    </span>
-                                    <span v-else class="text-muted-foreground">-</span>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">
-                                    <span v-if="test.defective_nut_formatted">
-                                        {{ test.defective_nut_formatted }}
-                                    </span>
-                                    <span v-else class="text-muted-foreground">-</span>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">
-                                    <span v-if="test.w_good_kernel !== null && test.w_good_kernel !== undefined">
-                                        {{ test.w_good_kernel }}
-                                    </span>
-                                    <span v-else class="text-muted-foreground">-</span>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">
-                                    <span v-if="test.outturn_rate_formatted">
-                                        {{ test.outturn_rate_formatted }}
-                                    </span>
-                                    <span v-else class="text-muted-foreground">-</span>
-                                </TableCell>
-                                <TableCell>
-                                    <div class="text-sm text-muted-foreground">
-                                        {{ new Date(test.created_at).toLocaleDateString() }}
-                                    </div>
-                                </TableCell>
-                                <TableCell class="flex items-center justify-end gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        aria-label="View cutting test"
-                                        @click.stop="viewCuttingTest(test.id)"
+                                                <span
+                                                    class="rounded-md bg-muted px-2 py-0.5 font-semibold text-muted-foreground"
+                                                >
+                                                    {{
+                                                        getFinalSampleLabel(
+                                                            test.type,
+                                                        )
+                                                    }}
+                                                </span>
+                                            </template>
+                                            <template v-else>
+                                                <button
+                                                    v-if="test.container"
+                                                    type="button"
+                                                    class="text-primary underline-offset-4 hover:underline"
+                                                    @click.stop="
+                                                        router.visit(
+                                                            `/containers/${
+                                                                test.container
+                                                                    ?.container_number ||
+                                                                test.container_id
+                                                            }`,
+                                                        )
+                                                    "
+                                                >
+                                                    {{
+                                                        getContainerDisplay(
+                                                            test,
+                                                        )
+                                                    }}
+                                                </button>
+                                                <span
+                                                    v-else
+                                                    class="text-muted-foreground"
+                                                >
+                                                    {{
+                                                        getContainerDisplay(
+                                                            test,
+                                                        )
+                                                    }}
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell class="text-right font-mono">
+                                        <span v-if="test.moisture_formatted">
+                                            {{ test.moisture_formatted }}
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                            >-</span
+                                        >
+                                    </TableCell>
+                                    <TableCell class="text-right font-mono">
+                                        <span
+                                            v-if="test.defective_nut_formatted"
+                                        >
+                                            {{ test.defective_nut_formatted }}
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                            >-</span
+                                        >
+                                    </TableCell>
+                                    <TableCell class="text-right font-mono">
+                                        <span
+                                            v-if="
+                                                test.w_good_kernel !== null &&
+                                                test.w_good_kernel !== undefined
+                                            "
+                                        >
+                                            {{ test.w_good_kernel }}
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                            >-</span
+                                        >
+                                    </TableCell>
+                                    <TableCell class="text-right font-mono">
+                                        <span
+                                            v-if="test.outturn_rate_formatted"
+                                        >
+                                            {{ test.outturn_rate_formatted }}
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                            >-</span
+                                        >
+                                    </TableCell>
+                                    <TableCell>
+                                        <div
+                                            class="text-sm text-muted-foreground"
+                                        >
+                                            {{
+                                                new Date(
+                                                    test.created_at,
+                                                ).toLocaleDateString()
+                                            }}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell
+                                        class="flex items-center justify-end gap-1"
                                     >
-                                        <Eye class="h-4 w-4" />
-                                        <span class="sr-only">View cutting test</span>
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        aria-label="Edit cutting test"
-                                        @click.stop="editCuttingTest(test.id)"
-                                    >
-                                        <Pencil class="h-4 w-4" />
-                                        <span class="sr-only">Edit cutting test</span>
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        class="text-destructive hover:text-destructive"
-                                        aria-label="Delete cutting test"
-                                        @click.stop="deleteCuttingTest(test.id)"
-                                    >
-                                        <Trash2 class="h-4 w-4" />
-                                        <span class="sr-only">Delete cutting test</span>
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="View cutting test"
+                                            @click.stop="
+                                                viewCuttingTest(test.id)
+                                            "
+                                        >
+                                            <Eye class="h-4 w-4" />
+                                            <span class="sr-only"
+                                                >View cutting test</span
+                                            >
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Edit cutting test"
+                                            @click.stop="
+                                                editCuttingTest(test.id)
+                                            "
+                                        >
+                                            <Pencil class="h-4 w-4" />
+                                            <span class="sr-only"
+                                                >Edit cutting test</span
+                                            >
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            class="text-destructive hover:text-destructive"
+                                            aria-label="Delete cutting test"
+                                            @click.stop="
+                                                deleteCuttingTest(test.id)
+                                            "
+                                        >
+                                            <Trash2 class="h-4 w-4" />
+                                            <span class="sr-only"
+                                                >Delete cutting test</span
+                                            >
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
             </Card>
 
             <div
@@ -485,7 +589,8 @@ function getContainerDisplay(test: CuttingTest) {
                 class="flex items-center justify-between"
             >
                 <div class="text-sm text-muted-foreground">
-                    Showing {{ currentFrom }} to {{ currentTo }} of {{ totalTests }} results
+                    Showing {{ currentFrom }} to {{ currentTo }} of
+                    {{ totalTests }} results
                 </div>
                 <Pagination>
                     <PaginationList>
@@ -530,4 +635,3 @@ function getContainerDisplay(test: CuttingTest) {
         </div>
     </AppLayout>
 </template>
-

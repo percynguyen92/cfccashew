@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateBillRequest extends FormRequest
 {
@@ -24,13 +23,12 @@ class UpdateBillRequest extends FormRequest
     {
         return [
             'bill_number' => [
-                'nullable',
+                'required',
                 'string',
                 'max:20',
-                Rule::unique('bills', 'bill_number')->ignore($this->route('bill')),
             ],
-            'seller' => 'nullable|string|max:255',
-            'buyer' => 'nullable|string|max:255',
+            'seller' => 'required|string|max:255',
+            'buyer' => 'required|string|max:255',
             'note' => 'nullable|string|max:65535',
         ];
     }
@@ -41,9 +39,11 @@ class UpdateBillRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bill_number.unique' => 'This bill number already exists.',
+            'bill_number.required' => 'Bill number is required.',
             'bill_number.max' => 'Bill number cannot exceed 20 characters.',
+            'seller.required' => 'Seller is required.',
             'seller.max' => 'Seller name cannot exceed 255 characters.',
+            'buyer.required' => 'Buyer is required.',
             'buyer.max' => 'Buyer name cannot exceed 255 characters.',
         ];
     }
