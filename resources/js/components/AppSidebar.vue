@@ -18,6 +18,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { FileText, LayoutGrid, Package, Scissors } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import DarkModeToggle from './DarkModeToggle.vue';
 
 const mainNavItems: NavItem[] = [
     {
@@ -46,15 +47,18 @@ const mainNavItems: NavItem[] = [
 <template>
     <Sidebar collapsible="icon" variant="inset">
         <SidebarHeader>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
-                            <AppLogo />
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
+            <div class="flex items-center justify-between gap-2">
+                <SidebarMenu class="flex-1 min-w-0">
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="lg" as-child>
+                            <Link :href="dashboard()">
+                                <AppLogo />
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                <DarkModeToggle />
+            </div>
         </SidebarHeader>
 
         <SidebarContent>
