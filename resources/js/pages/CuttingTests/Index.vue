@@ -1,4 +1,4 @@
-<script setup lang="ts">
+ï»¿<script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -382,8 +382,8 @@ function getContainerDisplay(test: CuttingTest) {
                                         v-if="test.bill?.seller || test.bill?.buyer"
                                         class="text-xs text-muted-foreground"
                                     >
-                                        {{ test.bill?.seller || '—' }} /
-                                        {{ test.bill?.buyer || '—' }}
+                                        {{ test.bill?.seller || 'â€”' }} /
+                                        {{ test.bill?.buyer || 'â€”' }}
                                     </div>
                                 </TableCell>
                                 <TableCell>
@@ -530,3 +530,4 @@ function getContainerDisplay(test: CuttingTest) {
         </div>
     </AppLayout>
 </template>
+

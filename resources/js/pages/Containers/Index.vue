@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -450,3 +450,4 @@ const nextLink = computed<PaginationLink>(() => {
         </Dialog>
     </AppLayout>
 </template>
+
