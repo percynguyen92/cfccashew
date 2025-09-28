@@ -1,5 +1,6 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Pagination, PaginationList, PaginationListItem } from '@/components/ui/pagination';
@@ -24,8 +25,8 @@ import { usePagination } from '@/composables/usePagination';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as containerRoutes from '@/routes/containers';
 import type { Container } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Package, Pencil, Search, Trash2 } from 'lucide-vue-next';
+import { Head, router } from '@inertiajs/vue3';
+import { Pencil, Search, Trash2 } from 'lucide-vue-next';
 import { debounce } from 'lodash-es';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
@@ -153,7 +154,6 @@ const formatOuturn = (outurn: number | string | null | undefined): string => {
 };
 
 const viewContainer = (container: Container) => {
-    // Use container number if available, otherwise fall back to ID
     const identifier = container.container_number || container.id;
     router.visit(containerRoutes.show.url(identifier.toString()));
 };
@@ -212,159 +212,215 @@ const nextLink = computed<PaginationLink>(() => {
 </script>
 
 <template>
-
     <Head title="Containers" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
-            <!-- Header -->
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <Package class="h-6 w-6" />
+                <div>
                     <h1 class="text-2xl font-semibold">Containers</h1>
+                    <p class="text-sm text-muted-foreground">
+                        Track container weights and related cutting tests.
+                    </p>
                 </div>
                 <div class="text-sm text-muted-foreground">
                     {{ pagination.total }} containers total
                 </div>
             </div>
 
-            <!-- Search and Filters -->
-            <div class="rounded-lg border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+            <Card class="space-y-4 p-4">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
                     <div class="space-y-2">
                         <Label for="container_number">Container Number</Label>
-                        <Input id="container_number" v-model="searchForm.container_number"
-                            placeholder="Search container number..." @input="debouncedHandleSearch()" />
+                        <Input
+                            id="container_number"
+                            v-model="searchForm.container_number"
+                            placeholder="Search container number..."
+                            @input="debouncedHandleSearch()"
+                        />
                     </div>
                     <div class="space-y-2">
                         <Label for="truck">Truck</Label>
-                        <Input id="truck" v-model="searchForm.truck" placeholder="Search truck..."
-                            @input="debouncedHandleSearch()" />
+                        <Input
+                            id="truck"
+                            v-model="searchForm.truck"
+                            placeholder="Search truck..."
+                            @input="debouncedHandleSearch()"
+                        />
                     </div>
                     <div class="space-y-2">
                         <Label for="bill_info">Bill Info</Label>
-                        <Input id="bill_info" v-model="searchForm.bill_info" placeholder="Bill number, seller, buyer..."
-                            @input="debouncedHandleSearch()" />
+                        <Input
+                            id="bill_info"
+                            v-model="searchForm.bill_info"
+                            placeholder="Bill number, seller, buyer..."
+                            @input="debouncedHandleSearch()"
+                        />
                     </div>
                     <div class="space-y-2">
                         <Label for="date_from">From Date</Label>
-                        <Input id="date_from" v-model="searchForm.date_from" type="date" @change="handleSearch" />
+                        <Input
+                            id="date_from"
+                            v-model="searchForm.date_from"
+                            type="date"
+                            @change="handleSearch"
+                        />
                     </div>
                     <div class="space-y-2">
                         <Label for="date_to">To Date</Label>
-                        <Input id="date_to" v-model="searchForm.date_to" type="date" @change="handleSearch" />
+                        <Input
+                            id="date_to"
+                            v-model="searchForm.date_to"
+                            type="date"
+                            @change="handleSearch"
+                        />
                     </div>
                 </div>
-                <div class="mt-4 flex gap-2">
-                    <Button @click="handleSearch" size="sm">
+                <div class="flex flex-wrap items-center gap-2">
+                    <Button size="sm" @click="handleSearch">
                         <Search class="mr-2 h-4 w-4" />
                         Search
                     </Button>
-                    <Button @click="clearFilters" variant="outline" size="sm">
+                    <Button variant="outline" size="sm" @click="clearFilters">
                         Clear Filters
                     </Button>
                 </div>
-            </div>
+            </Card>
 
-            <!-- Containers Table -->
-            <div class="rounded-lg border border-sidebar-border/70 dark:border-sidebar-border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Container Number</TableHead>
-                            <TableHead>Truck</TableHead>
-                            <TableHead>Bill Info</TableHead>
-                            <TableHead class="text-right">Net Weight</TableHead>
-                            <TableHead class="text-right">Moisture</TableHead>
-                            <TableHead class="text-right">Outurn</TableHead>
-                            <TableHead>Created</TableHead>
-                            <TableHead class="w-[100px]">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow v-for="container in containers" :key="container.id"
-                            class="cursor-pointer hover:bg-muted/50" @click="viewContainer(container)">
-                            <TableCell class="font-medium">
-                                {{ container.container_number || '-' }}
-                            </TableCell>
-                            <TableCell>
-                                {{ container.truck || '-' }}
-                            </TableCell>
-                            <TableCell>
-                                <div v-if="container.bill" class="space-y-1">
-                                    <div class="font-medium">
-                                        {{ container.bill.bill_number || `Bill ${container.bill.id}` }}
+            <Card class="flex-1">
+                <div class="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Container Number</TableHead>
+                                <TableHead>Truck</TableHead>
+                                <TableHead>Bill Info</TableHead>
+                                <TableHead class="text-right">Net Weight</TableHead>
+                                <TableHead class="text-right">Moisture</TableHead>
+                                <TableHead class="text-right">Outturn</TableHead>
+                                <TableHead>Created</TableHead>
+                                <TableHead class="w-[120px] text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow
+                                v-for="container in containers"
+                                :key="container.id"
+                                class="cursor-pointer hover:bg-muted/50"
+                                @click="viewContainer(container)"
+                            >
+                                <TableCell class="font-medium">
+                                    {{ container.container_number || '-' }}
+                                </TableCell>
+                                <TableCell>
+                                    {{ container.truck || '-' }}
+                                </TableCell>
+                                <TableCell>
+                                    <div v-if="container.bill" class="space-y-1">
+                                        <div class="font-medium">
+                                            {{ container.bill.bill_number || `Bill ${container.bill.id}` }}
+                                        </div>
+                                        <div class="text-sm text-muted-foreground">
+                                            {{ container.bill.seller }} / {{ container.bill.buyer }}
+                                        </div>
                                     </div>
+                                    <div v-else class="text-muted-foreground">-</div>
+                                </TableCell>
+                                <TableCell class="text-right font-mono">
+                                    {{ formatWeight(container.w_net) }}
+                                </TableCell>
+                                <TableCell class="text-right">
+                                    <span
+                                        :class="
+                                            container.average_moisture && container.average_moisture > 11
+                                                ? 'text-destructive font-medium'
+                                                : ''
+                                        "
+                                    >
+                                        {{ formatMoisture(container.average_moisture) }}
+                                    </span>
+                                </TableCell>
+                                <TableCell class="text-right font-mono">
+                                    {{ formatOuturn(container.outturn_rate) }}
+                                </TableCell>
+                                <TableCell>
                                     <div class="text-sm text-muted-foreground">
-                                        {{ container.bill.seller }} / {{ container.bill.buyer }}
+                                        {{ new Date(container.created_at).toLocaleDateString() }}
                                     </div>
-                                </div>
-                                <div v-else class="text-muted-foreground">-</div>
-                            </TableCell>
-                            <TableCell class="text-right">
-                                {{ formatWeight(container.w_net) }}
-                            </TableCell>
-                            <TableCell class="text-right">
-                                <span :class="container.average_moisture && container.average_moisture > 11
-                                    ? 'text-red-600 font-medium'
-                                    : ''">
-                                    {{ formatMoisture(container.average_moisture) }}
-                                </span>
-                            </TableCell>
-                            <TableCell class="text-right">
-                                {{ formatOuturn(container.outturn_rate) }}
-                            </TableCell>
-                            <TableCell>
-                                <div class="text-sm text-muted-foreground">
-                                    {{ new Date(container.created_at).toLocaleDateString() }}
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <Button variant="ghost" size="icon" aria-label="Edit container"
-                                    @click.stop="editContainer(container)">
-                                    <Pencil class="h-4 w-4" />
-                                    <span class="sr-only">Edit container</span>
-                                </Button>
-                                <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive"
-                                    aria-label="Delete container" @click.stop="openDeleteDialog(container)">
-                                    <Trash2 class="h-4 w-4" />
-                                    <span class="sr-only">Delete container</span>
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow v-if="containers.length === 0">
-                            <TableCell colspan="8" class="py-8 text-center text-muted-foreground">
-                                No containers found. Try adjusting your search filters.
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
+                                </TableCell>
+                                <TableCell class="flex items-center justify-end gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="Edit container"
+                                        @click.stop="editContainer(container)"
+                                    >
+                                        <Pencil class="h-4 w-4" />
+                                        <span class="sr-only">Edit container</span>
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        class="text-destructive hover:text-destructive"
+                                        aria-label="Delete container"
+                                        @click.stop="openDeleteDialog(container)"
+                                    >
+                                        <Trash2 class="h-4 w-4" />
+                                        <span class="sr-only">Delete container</span>
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow v-if="containers.length === 0">
+                                <TableCell colspan="8" class="py-8 text-center text-muted-foreground">
+                                    No containers found. Try adjusting your search filters.
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+            </Card>
 
-            <!-- Pagination -->
-            <div v-if="pagination.last_page > 1" class="flex items-center justify-between">
+            <div
+                v-if="pagination.last_page > 1"
+                class="flex items-center justify-between"
+            >
                 <div class="text-sm text-muted-foreground">
                     Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} containers
                 </div>
                 <Pagination>
                     <PaginationList>
                         <PaginationListItem>
-                            <Button variant="outline" size="sm" :disabled="!previousLink.url"
-                                @click="goToPage(previousLink.url)">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                :disabled="!previousLink.url"
+                                @click="goToPage(previousLink.url)"
+                            >
                                 Previous
                             </Button>
                         </PaginationListItem>
 
-                        <PaginationListItem v-for="link in paginationLinks" :key="link.label">
-                            <Button :variant="link.active ? 'default' : 'outline'" size="sm" :disabled="!link.url"
-                                @click="goToPage(link.url)">
+                        <PaginationListItem
+                            v-for="link in paginationLinks"
+                            :key="link.label"
+                        >
+                            <Button
+                                :variant="link.active ? 'default' : 'outline'"
+                                size="sm"
+                                :disabled="!link.url"
+                                @click="goToPage(link.url)"
+                            >
                                 <span v-html="link.label" />
                             </Button>
                         </PaginationListItem>
 
                         <PaginationListItem>
-                            <Button variant="outline" size="sm" :disabled="!nextLink.url"
-                                @click="goToPage(nextLink.url)">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                :disabled="!nextLink.url"
+                                @click="goToPage(nextLink.url)"
+                            >
                                 Next
                             </Button>
                         </PaginationListItem>
@@ -372,7 +428,7 @@ const nextLink = computed<PaginationLink>(() => {
                 </Pagination>
             </div>
         </div>
-        <!-- Confirm Delete Dialog -->
+
         <Dialog v-model:open="isConfirmOpen">
             <DialogContent>
                 <DialogHeader>
