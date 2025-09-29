@@ -81,7 +81,7 @@ class ContainerController extends Controller
         $container = $this->containerService->createContainer($request->validated());
 
         return redirect()->route('bills.show', $container->bill_id)
-            ->with('success', 'Container created successfully.');
+            ->with('success', __('messages.container_created'));
     }
 
     /**
@@ -117,7 +117,7 @@ class ContainerController extends Controller
         $this->containerService->updateContainer($container, $request->validated());
 
         return redirect()->route('bills.show', $container->bill_id)
-            ->with('success', 'Container updated successfully.');
+            ->with('success', __('messages.container_updated'));
     }
 
     /**
@@ -129,7 +129,7 @@ class ContainerController extends Controller
         $this->containerService->deleteContainer($container);
 
         return redirect()->route('bills.show', $billId)
-            ->with('success', 'Container deleted successfully.');
+            ->with('success', __('messages.container_deleted'));
     }
 }
 

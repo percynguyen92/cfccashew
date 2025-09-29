@@ -81,7 +81,7 @@ class CuttingTestController extends Controller
         $cuttingTest = $this->cuttingTestService->createCuttingTest($request->validated());
 
         return redirect()->route('bills.show', $cuttingTest->bill_id)
-            ->with('success', 'Cutting test created successfully.');
+            ->with('success', __('messages.cutting_test_created'));
     }
 
     /**
@@ -114,7 +114,7 @@ class CuttingTestController extends Controller
         $this->cuttingTestService->updateCuttingTest($cuttingTest, $request->validated());
 
         return redirect()->route('bills.show', $cuttingTest->bill_id)
-            ->with('success', 'Cutting test updated successfully.');
+            ->with('success', __('messages.cutting_test_updated'));
     }
 
     /**
@@ -126,6 +126,6 @@ class CuttingTestController extends Controller
         $this->cuttingTestService->deleteCuttingTest($cuttingTest);
 
         return redirect()->route('bills.show', $billId)
-            ->with('success', 'Cutting test deleted successfully.');
+            ->with('success', __('messages.cutting_test_deleted'));
     }
 }

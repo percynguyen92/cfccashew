@@ -34,12 +34,12 @@ class StoreCuttingTestRequest extends FormRequest
                     
                     // Final samples (1-3) should not have container_id
                     if (in_array($type, [1, 2, 3]) && !is_null($value)) {
-                        $fail('Final sample tests cannot be associated with a container.');
+                        $fail(__('validation.custom.container_id.final_sample_forbidden'));
                     }
-                    
+
                     // Container tests (4) must have container_id
                     if ($type == 4 && is_null($value)) {
-                        $fail('Container tests must be associated with a container.');
+                        $fail(__('validation.custom.container_id.container_required'));
                     }
                 },
             ],
@@ -72,21 +72,21 @@ class StoreCuttingTestRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bill_id.required' => 'A valid bill is required.',
-            'bill_id.integer' => 'A valid bill is required.',
-            'bill_id.exists' => 'The selected bill does not exist.',
-            'container_id.exists' => 'The selected container does not exist.',
-            'type.required' => 'Select a valid test type.',
-            'type.integer' => 'Select a valid test type.',
-            'type.in' => 'Select a valid test type.',
-            'moisture.min' => 'Moisture cannot be negative.',
-            'moisture.max' => 'Moisture cannot exceed 100%.',
-            'sample_weight.required' => 'Sample weight must be between 1 and 65,535 grams.',
-            'sample_weight.integer' => 'Sample weight must be a whole number.',
-            'sample_weight.min' => 'Sample weight must be between 1 and 65,535 grams.',
-            'sample_weight.max' => 'Sample weight must be between 1 and 65,535 grams.',
-            'outturn_rate.max' => 'Outturn rate cannot exceed 60 lbs/80kg.',
-            '*.min' => 'Weight values cannot be negative.',
+            'bill_id.required' => __('validation.custom.bill_id.required'),
+            'bill_id.integer' => __('validation.custom.bill_id.integer'),
+            'bill_id.exists' => __('validation.custom.bill_id.exists'),
+            'container_id.exists' => __('validation.custom.container_id.exists'),
+            'type.required' => __('validation.custom.type.required'),
+            'type.integer' => __('validation.custom.type.integer'),
+            'type.in' => __('validation.custom.type.in'),
+            'moisture.min' => __('validation.custom.moisture.min'),
+            'moisture.max' => __('validation.custom.moisture.max'),
+            'sample_weight.required' => __('validation.custom.sample_weight.required'),
+            'sample_weight.integer' => __('validation.custom.sample_weight.integer'),
+            'sample_weight.min' => __('validation.custom.sample_weight.min'),
+            'sample_weight.max' => __('validation.custom.sample_weight.max'),
+            'outturn_rate.max' => __('validation.custom.outturn_rate.max'),
+            '*.min' => __('validation.custom.weights.min'),
         ];
     }
 }

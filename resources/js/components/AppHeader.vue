@@ -36,6 +36,8 @@ import type { BreadcrumbItem, NavItem } from '@/types';
 import { InertiaLinkProps, Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
 import { computed } from 'vue';
+import LanguageSwitcher from './LanguageSwitcher.vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     breadcrumbs?: BreadcrumbItem[];
@@ -60,26 +62,28 @@ const activeItemStyles = computed(
             : '',
 );
 
-const mainNavItems: NavItem[] = [
+const { t } = useI18n();
+
+const mainNavItems = computed<NavItem[]>(() => [
     {
-        title: 'Dashboard',
+        title: t('navigation.dashboard'),
         href: dashboard(),
         icon: LayoutGrid,
     },
-];
+]);
 
-const rightNavItems: NavItem[] = [
+const rightNavItems = computed<NavItem[]>(() => [
     {
-        title: 'Repository',
+        title: t('navigation.repository'),
         href: 'https://github.com/laravel/vue-starter-kit',
         icon: Folder,
     },
     {
-        title: 'Documentation',
+        title: t('navigation.documentation'),
         href: 'https://laravel.com/docs/starter-kits#vue',
         icon: BookOpen,
     },
-];
+]);
 </script>
 
 <template>
@@ -99,9 +103,9 @@ const rightNavItems: NavItem[] = [
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" class="w-[300px] p-6">
-                            <SheetTitle class="sr-only"
-                                >Navigation Menu</SheetTitle
-                            >
+                            <SheetTitle class="sr-only">
+                                {{ t('header.navigationMenu') }}
+                            </SheetTitle>
                             <SheetHeader class="flex justify-start text-left">
                                 <AppLogoIcon
                                     class="size-6 fill-current text-black dark:text-white"
@@ -142,6 +146,7 @@ const rightNavItems: NavItem[] = [
                                         />
                                         <span>{{ item.title }}</span>
                                     </a>
+                                    <LanguageSwitcher full-width />
                                 </div>
                             </div>
                         </SheetContent>
@@ -188,6 +193,9 @@ const rightNavItems: NavItem[] = [
                 </div>
 
                 <div class="ml-auto flex items-center space-x-2">
+                    <div class="hidden lg:block">
+                        <LanguageSwitcher />
+                    </div>
                     <div class="relative flex items-center space-x-1">
                         <Button
                             variant="ghost"
