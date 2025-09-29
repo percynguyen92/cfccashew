@@ -10,6 +10,7 @@ import InputError from '@/components/InputError.vue';
 import { Calculator, Save, X } from 'lucide-vue-next';
 import { type Container, type Bill } from '@/types';
 import * as containerRoutes from '@/routes/containers';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     container?: Container;
@@ -68,6 +69,8 @@ const form = useForm<FormFields>({
 const asNumber = (value: number | null | undefined): number | null =>
     typeof value === 'number' && Number.isFinite(value) ? value : null;
 
+const { t } = useI18n();
+
 const grossWeight = computed(() => {
     const total = asNumber(form.w_total);
     const truck = asNumber(form.w_truck);
@@ -122,18 +125,18 @@ const calculationIssues = computed(() => {
 
     if (total !== null && truck !== null && container !== null) {
         if (total <= truck + container) {
-            issues.push('Total weight should be greater than truck + container weight.');
+            issues.push(t('containers.form.calculated.gross.warning'));
         }
     }
 
     if (gross !== null && tare !== null && dunnage !== null) {
         if (gross <= dunnage + tare) {
-            issues.push('Gross weight is insufficient for dunnage and tare weights.');
+            issues.push(t('containers.form.calculated.insufficient'));
         }
     }
 
     if (net !== null && net <= 0) {
-        issues.push('Net weight calculation results in zero or negative value. Please check your inputs.');
+        issues.push(t('containers.form.calculated.net.warning'));
     }
 
     return {
@@ -164,7 +167,7 @@ const validateForm = (): boolean => {
 
     const billId = asNumber(form.bill_id);
     if (billId === null || !Number.isInteger(billId) || billId <= 0) {
-        form.setError('bill_id', 'A valid bill is required.');
+        form.setError('bill_id', t('containers.form.fields.bill.invalid'));
         hasErrors = true;
     } else {
         form.bill_id = billId;
@@ -172,7 +175,10 @@ const validateForm = (): boolean => {
 
     const trimmedTruck = form.truck.trim();
     if (trimmedTruck.length > 20) {
-        form.setError('truck', 'Truck identifier cannot exceed 20 characters.');
+        form.setError(
+            'truck',
+            t('containers.form.fields.truck.tooLong'),
+        );
         hasErrors = true;
     }
     form.truck = trimmedTruck;
@@ -180,12 +186,15 @@ const validateForm = (): boolean => {
     const trimmedContainerNumber = form.container_number.trim().toUpperCase();
     if (trimmedContainerNumber.length > 0) {
         if (trimmedContainerNumber.length !== 11) {
-            form.setError('container_number', 'Container number must be exactly 11 characters.');
+            form.setError(
+                'container_number',
+                t('containers.form.fields.containerNumber.length'),
+            );
             hasErrors = true;
         } else if (!/^[A-Z]{4}\d{7}$/.test(trimmedContainerNumber)) {
             form.setError(
                 'container_number',
-                'Container number must match the ISO format (4 letters + 7 digits).',
+                t('containers.form.fields.containerNumber.format'),
             );
             hasErrors = true;
         }
@@ -195,22 +204,35 @@ const validateForm = (): boolean => {
     const ensureInteger = (
         value: number | null,
         field: keyof FormFields,
-        label: string,
+        labelKey: string,
         min: number,
     ): number | null => {
         if (value === null) {
             return null;
         }
 
+        const label = t(labelKey);
+
         if (!Number.isInteger(value)) {
-            form.setError(field, `${label} must be a whole number.`);
+            form.setError(
+                field,
+                t('containers.form.validation.integer', {
+                    label,
+                }),
+            );
             hasErrors = true;
 
             return null;
         }
 
         if (value < min) {
-            form.setError(field, `${label} cannot be less than ${min}.`);
+            form.setError(
+                field,
+                t('containers.form.validation.min', {
+                    label,
+                    min,
+                }),
+            );
             hasErrors = true;
 
             return null;
@@ -222,32 +244,48 @@ const validateForm = (): boolean => {
     form.quantity_of_bags = ensureInteger(
         asNumber(form.quantity_of_bags),
         'quantity_of_bags',
-        'Quantity of bags',
+        'containers.form.fields.quantityOfBags.label',
         0,
     );
 
-    form.w_total = ensureInteger(asNumber(form.w_total), 'w_total', 'Total weight', 0);
-    form.w_truck = ensureInteger(asNumber(form.w_truck), 'w_truck', 'Truck weight', 0);
+    form.w_total = ensureInteger(
+        asNumber(form.w_total),
+        'w_total',
+        'containers.form.fields.totalWeight.label',
+        0,
+    );
+    form.w_truck = ensureInteger(
+        asNumber(form.w_truck),
+        'w_truck',
+        'containers.form.fields.truckWeight.label',
+        0,
+    );
     form.w_container = ensureInteger(
         asNumber(form.w_container),
         'w_container',
-        'Container weight',
+        'containers.form.fields.containerWeight.label',
         0,
     );
     form.w_dunnage_dribag = ensureInteger(
         asNumber(form.w_dunnage_dribag),
         'w_dunnage_dribag',
-        'Dunnage weight',
+        'containers.form.fields.dunnageWeight.label',
         0,
     );
 
     const juteWeight = asNumber(form.w_jute_bag);
     if (juteWeight !== null) {
         if (juteWeight < 0) {
-            form.setError('w_jute_bag', 'Jute bag weight cannot be negative.');
+            form.setError(
+                'w_jute_bag',
+                t('containers.form.fields.juteBagWeight.negative'),
+            );
             hasErrors = true;
         } else if (juteWeight > 99.99) {
-            form.setError('w_jute_bag', 'Jute bag weight cannot exceed 99.99 kg.');
+            form.setError(
+                'w_jute_bag',
+                t('containers.form.fields.juteBagWeight.max'),
+            );
             hasErrors = true;
         } else {
             form.w_jute_bag = Number.parseFloat(juteWeight.toFixed(2));
@@ -256,7 +294,7 @@ const validateForm = (): boolean => {
 
     const trimmedNote = form.note.trim();
     if (trimmedNote.length > 65535) {
-        form.setError('note', 'Note is too long.');
+        form.setError('note', t('containers.form.fields.note.tooLong'));
         hasErrors = true;
     }
     form.note = trimmedNote;
@@ -300,10 +338,16 @@ const handleCancel = () => emit('cancel');
     <Card>
         <CardHeader>
             <CardTitle class="flex items-center justify-between">
-                <span>Container Information</span>
+                <span>{{ t('containers.form.title') }}</span>
                 <div v-if="isEditing && container" class="space-y-1 text-sm text-muted-foreground">
-                    <div>Created: {{ formatDate(container.created_at) }}</div>
-                    <div>Updated: {{ formatDate(container.updated_at) }}</div>
+                    <div>
+                        {{ t('containers.form.meta.created') }}:
+                        {{ formatDate(container.created_at) }}
+                    </div>
+                    <div>
+                        {{ t('containers.form.meta.updated') }}:
+                        {{ formatDate(container.updated_at) }}
+                    </div>
                 </div>
             </CardTitle>
         </CardHeader>
@@ -317,26 +361,34 @@ const handleCancel = () => emit('cancel');
                 <!-- Container Details -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <Label for="truck">Truck</Label>
+                        <Label for="truck">
+                            {{ t('containers.form.fields.truck.label') }}
+                        </Label>
                         <Input
                             id="truck"
                             v-model="form.truck"
                             type="text"
-                            placeholder="TRK-001"
+                            :placeholder="
+                                t('containers.form.fields.truck.placeholder')
+                            "
                             :aria-invalid="Boolean(form.errors.truck)"
                             :class="{ 'border-red-500': form.errors.truck }"
                             @input="clearError('truck')"
                         />
                         <InputError :message="form.errors.truck" />
                     </div>
-                    
+
                     <div class="space-y-2">
-                        <Label for="container_number">Container Number</Label>
+                        <Label for="container_number">
+                            {{ t('containers.form.fields.containerNumber.label') }}
+                        </Label>
                         <Input
                             id="container_number"
                             v-model="form.container_number"
                             type="text"
-                            placeholder="CONT1234567"
+                            :placeholder="
+                                t('containers.form.fields.containerNumber.placeholder')
+                            "
                             maxlength="11"
                             :aria-invalid="Boolean(form.errors.container_number)"
                             :class="{ 'border-red-500': form.errors.container_number }"
@@ -348,27 +400,43 @@ const handleCancel = () => emit('cancel');
                 
                 <!-- Weight Inputs - Ordered according to design spec -->
                 <div class="space-y-4">
-                    <h3 class="text-lg font-medium">Weight Information</h3>
+                    <h3 class="text-lg font-medium">
+                        {{ t('containers.form.sections.weightInformation') }}
+                    </h3>
                     
                     <!-- Row 1: Quantity of Bags & Jute Bag Weight -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-2">
-                            <Label for="quantity_of_bags">Quantity of Bags</Label>
+                            <Label for="quantity_of_bags">
+                                {{
+                                    t(
+                                        'containers.form.fields.quantityOfBags.label',
+                                    )
+                                }}
+                            </Label>
                             <Input
                                 id="quantity_of_bags"
                                 v-model.number="form.quantity_of_bags"
                                 type="number"
                                 min="0"
-                                placeholder="150"
+                                :placeholder="
+                                    t(
+                                        'containers.form.fields.quantityOfBags.placeholder',
+                                    )
+                                "
                                 :aria-invalid="Boolean(form.errors.quantity_of_bags)"
                                 :class="{ 'border-red-500': form.errors.quantity_of_bags }"
                                 @input="clearError('quantity_of_bags')"
                             />
                             <InputError :message="form.errors.quantity_of_bags" />
                         </div>
-                        
+
                         <div class="space-y-2">
-                            <Label for="w_jute_bag">Jute Bag Weight (kg)</Label>
+                            <Label for="w_jute_bag">
+                                {{
+                                    t('containers.form.fields.juteBagWeight.label')
+                                }}
+                            </Label>
                             <Input
                                 id="w_jute_bag"
                                 v-model.number="form.w_jute_bag"
@@ -376,7 +444,9 @@ const handleCancel = () => emit('cancel');
                                 step="0.01"
                                 min="0"
                                 max="99.99"
-                                placeholder="1.50"
+                                :placeholder="
+                                    t('containers.form.fields.juteBagWeight.placeholder')
+                                "
                                 :aria-invalid="Boolean(form.errors.w_jute_bag)"
                                 :class="{ 'border-red-500': form.errors.w_jute_bag }"
                                 @input="clearError('w_jute_bag')"
@@ -388,43 +458,55 @@ const handleCancel = () => emit('cancel');
                     <!-- Row 2: Total, Truck, Container Weight -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2">
-                            <Label for="w_total">Total Weight (kg)</Label>
+                            <Label for="w_total">
+                                {{ t('containers.form.fields.totalWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_total"
                                 v-model.number="form.w_total"
                                 type="number"
                                 min="1"
-                                placeholder="25000"
+                                :placeholder="
+                                    t('containers.form.fields.totalWeight.placeholder')
+                                "
                                 :aria-invalid="Boolean(form.errors.w_total)"
                                 :class="{ 'border-red-500': form.errors.w_total }"
                                 @input="clearError('w_total')"
                             />
                             <InputError :message="form.errors.w_total" />
                         </div>
-                        
+
                         <div class="space-y-2">
-                            <Label for="w_truck">Truck Weight (kg)</Label>
+                            <Label for="w_truck">
+                                {{ t('containers.form.fields.truckWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_truck"
                                 v-model.number="form.w_truck"
                                 type="number"
                                 min="1"
-                                placeholder="10000"
+                                :placeholder="
+                                    t('containers.form.fields.truckWeight.placeholder')
+                                "
                                 :aria-invalid="Boolean(form.errors.w_truck)"
                                 :class="{ 'border-red-500': form.errors.w_truck }"
                                 @input="clearError('w_truck')"
                             />
                             <InputError :message="form.errors.w_truck" />
                         </div>
-                        
+
                         <div class="space-y-2">
-                            <Label for="w_container">Container Weight (kg)</Label>
+                            <Label for="w_container">
+                                {{ t('containers.form.fields.containerWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_container"
                                 v-model.number="form.w_container"
                                 type="number"
                                 min="1"
-                                placeholder="2500"
+                                :placeholder="
+                                    t('containers.form.fields.containerWeight.placeholder')
+                                "
                                 :aria-invalid="Boolean(form.errors.w_container)"
                                 :class="{ 'border-red-500': form.errors.w_container }"
                                 @input="clearError('w_container')"
@@ -436,13 +518,19 @@ const handleCancel = () => emit('cancel');
                     <!-- Row 3: Dunnage Weight -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2">
-                            <Label for="w_dunnage_dribag">Dunnage Weight (kg)</Label>
+                            <Label for="w_dunnage_dribag">
+                                {{
+                                    t('containers.form.fields.dunnageWeight.label')
+                                }}
+                            </Label>
                             <Input
                                 id="w_dunnage_dribag"
                                 v-model.number="form.w_dunnage_dribag"
                                 type="number"
                                 min="0"
-                                placeholder="200"
+                                :placeholder="
+                                    t('containers.form.fields.dunnageWeight.placeholder')
+                                "
                                 :aria-invalid="Boolean(form.errors.w_dunnage_dribag)"
                                 :class="{ 'border-red-500': form.errors.w_dunnage_dribag }"
                                 @input="clearError('w_dunnage_dribag')"
@@ -456,13 +544,15 @@ const handleCancel = () => emit('cancel');
                 <div class="space-y-4">
                     <h3 class="text-lg font-medium flex items-center gap-2">
                         <Calculator class="h-5 w-5" />
-                        Calculated Weights
+                        {{ t('containers.form.calculated.heading') }}
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Gross Weight -->
                         <div class="space-y-2">
-                            <Label>Gross Weight (kg)</Label>
+                            <Label>
+                                {{ t('containers.form.calculated.gross.label') }}
+                            </Label>
                             <div class="relative">
                                 <Input
                                     :value="formatWeight(grossWeight)"
@@ -477,13 +567,15 @@ const handleCancel = () => emit('cancel');
                                 </div>
                             </div>
                             <p class="text-xs text-muted-foreground">
-                                Formula: Total - Truck - Container
+                                {{ t('containers.form.calculated.gross.formula') }}
                             </p>
                         </div>
-                        
+
                         <!-- Tare Weight -->
                         <div class="space-y-2">
-                            <Label>Tare Weight (kg)</Label>
+                            <Label>
+                                {{ t('containers.form.calculated.tare.label') }}
+                            </Label>
                             <div class="relative">
                                 <Input
                                     :value="formatWeight(tareWeight)"
@@ -498,13 +590,15 @@ const handleCancel = () => emit('cancel');
                                 </div>
                             </div>
                             <p class="text-xs text-muted-foreground">
-                                Formula: Quantity × Jute Bag Weight
+                                {{ t('containers.form.calculated.tare.formula') }}
                             </p>
                         </div>
-                        
+
                         <!-- Net Weight -->
                         <div class="space-y-2">
-                            <Label>Net Weight (kg)</Label>
+                            <Label>
+                                {{ t('containers.form.calculated.net.label') }}
+                            </Label>
                             <div class="relative">
                                 <Input
                                     :value="formatWeight(netWeight)"
@@ -519,11 +613,11 @@ const handleCancel = () => emit('cancel');
                                 </div>
                             </div>
                             <p class="text-xs text-muted-foreground">
-                                Formula: Gross - Dunnage - Tare
+                                {{ t('containers.form.calculated.net.formula') }}
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Calculation Status Messages -->
                     <div
                         v-if="calculationStatus.gross === 'pending' || calculationStatus.tare === 'pending' || calculationStatus.net === 'pending'"
@@ -531,16 +625,18 @@ const handleCancel = () => emit('cancel');
                     >
                         <p class="text-sm text-blue-700">
                             <Calculator class="h-4 w-4 inline mr-1" />
-                            Please fill in all required fields to see calculated weights
+                            {{ t('containers.form.calculated.fillAll') }}
                         </p>
                     </div>
-                    
+
                     <!-- Validation Errors -->
                     <div
                         v-if="!calculationIssues.isValid"
                         class="p-3 bg-red-50 border border-red-200 rounded-md"
                     >
-                        <p class="text-sm font-medium text-red-700 mb-2">Calculation Issues:</p>
+                        <p class="text-sm font-medium text-red-700 mb-2">
+                            {{ t('containers.form.calculated.issues') }}
+                        </p>
                         <ul class="text-sm text-red-600 space-y-1">
                             <li
                                 v-for="issue in calculationIssues.issues"
@@ -556,11 +652,15 @@ const handleCancel = () => emit('cancel');
                 
                 <!-- Note -->
                 <div class="space-y-2">
-                    <Label for="note">Note</Label>
+                    <Label for="note">
+                        {{ t('containers.form.fields.note.label') }}
+                    </Label>
                     <Textarea
                         id="note"
                         v-model="form.note"
-                        placeholder="Additional notes..."
+                        :placeholder="
+                            t('containers.form.fields.note.placeholder')
+                        "
                         rows="3"
                         :aria-invalid="Boolean(form.errors.note)"
                         :class="{ 'border-red-500': form.errors.note }"
@@ -573,15 +673,21 @@ const handleCancel = () => emit('cancel');
                 <div class="flex items-center justify-end gap-3 pt-4 border-t">
                     <Button type="button" variant="outline" @click="handleCancel">
                         <X class="h-4 w-4 mr-2" />
-                        Cancel
+                        {{ t('containers.form.actions.cancel') }}
                     </Button>
-                    <Button 
-                        type="submit" 
+                    <Button
+                        type="submit"
                         :disabled="form.processing || !calculationIssues.isValid"
                         class="min-w-[120px]"
                     >
                         <Save class="h-4 w-4 mr-2" />
-                        {{ form.processing ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+                        {{
+                            form.processing
+                                ? t('containers.form.actions.saving')
+                                : isEditing
+                                  ? t('containers.form.actions.update')
+                                  : t('containers.form.actions.create')
+                        }}
                     </Button>
                 </div>
             </form>

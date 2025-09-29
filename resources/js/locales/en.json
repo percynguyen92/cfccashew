@@ -1,0 +1,212 @@
+{
+    "language": {
+        "label": "Language",
+        "english": "English",
+        "vietnamese": "Vietnamese"
+    },
+    "navigation": {
+        "dashboard": "Dashboard",
+        "bills": "Bills",
+        "containers": "Containers",
+        "cuttingTests": "Cutting Tests",
+        "repository": "Repository",
+        "documentation": "Documentation"
+    },
+    "header": {
+        "navigationMenu": "Navigation Menu"
+    },
+    "common": {
+        "actions": {
+            "cancel": "Cancel",
+            "create": "Create",
+            "update": "Update",
+            "save": "Save",
+            "delete": "Delete",
+            "edit": "Edit",
+            "view": "View",
+            "close": "Close"
+        },
+        "states": {
+            "creating": "Creating...",
+            "updating": "Updating...",
+            "saving": "Saving..."
+        },
+        "messages": {
+            "loading": "Loading...",
+            "noData": "No data available"
+        }
+    },
+    "userMenu": {
+        "settings": "Settings",
+        "logout": "Log out"
+    },
+    "bills": {
+        "form": {
+            "title": {
+                "create": "Create New Bill",
+                "edit": "Edit Bill"
+            },
+            "submit": {
+                "create": "Create Bill",
+                "update": "Update Bill",
+                "creating": "Creating...",
+                "updating": "Updating..."
+            },
+            "fields": {
+                "billNumber": {
+                    "label": "Bill Number",
+                    "placeholder": "Enter bill number (required)"
+                },
+                "seller": {
+                    "label": "Seller",
+                    "placeholder": "Enter seller name (required)"
+                },
+                "buyer": {
+                    "label": "Buyer",
+                    "placeholder": "Enter buyer name (required)"
+                },
+                "note": {
+                    "label": "Note",
+                    "placeholder": "Enter additional notes (optional)"
+                }
+            }
+        }
+    },
+    "containers": {
+        "form": {
+            "title": "Container Information",
+            "meta": {
+                "created": "Created",
+                "updated": "Updated"
+            },
+            "sections": {
+                "weightInformation": "Weight Information"
+            },
+            "fields": {
+                "bill": {
+                    "invalid": "A valid bill is required."
+                },
+                "truck": {
+                    "label": "Truck",
+                    "placeholder": "TRK-001",
+                    "tooLong": "Truck identifier cannot exceed 20 characters."
+                },
+                "containerNumber": {
+                    "label": "Container Number",
+                    "placeholder": "CONT1234567",
+                    "length": "Container number must be exactly 11 characters.",
+                    "format": "Container number must match the ISO format (4 letters + 7 digits)."
+                },
+                "quantityOfBags": {
+                    "label": "Quantity of Bags",
+                    "placeholder": "150",
+                    "integer": "Quantity of bags must be a whole number.",
+                    "min": "Quantity of bags cannot be less than {min}."
+                },
+                "juteBagWeight": {
+                    "label": "Jute Bag Weight (kg)",
+                    "placeholder": "1.50",
+                    "negative": "Jute bag weight cannot be negative.",
+                    "max": "Jute bag weight cannot exceed 99.99 kg."
+                },
+                "totalWeight": {
+                    "label": "Total Weight (kg)",
+                    "placeholder": "25000",
+                    "integer": "Total weight must be a whole number.",
+                    "min": "Total weight cannot be less than {min}."
+                },
+                "truckWeight": {
+                    "label": "Truck Weight (kg)",
+                    "placeholder": "10000",
+                    "integer": "Truck weight must be a whole number.",
+                    "min": "Truck weight cannot be less than {min}."
+                },
+                "containerWeight": {
+                    "label": "Container Weight (kg)",
+                    "placeholder": "2500",
+                    "integer": "Container weight must be a whole number.",
+                    "min": "Container weight cannot be less than {min}."
+                },
+                "dunnageWeight": {
+                    "label": "Dunnage Weight (kg)",
+                    "placeholder": "200",
+                    "integer": "Dunnage weight must be a whole number.",
+                    "min": "Dunnage weight cannot be less than {min}."
+                },
+                "note": {
+                    "label": "Note",
+                    "placeholder": "Additional notes...",
+                    "tooLong": "Note is too long."
+                }
+            },
+            "calculated": {
+                "heading": "Calculated Weights",
+                "gross": {
+                    "label": "Gross Weight (kg)",
+                    "formula": "Formula: Total - Truck - Container",
+                    "warning": "Total weight should be greater than truck + container weight."
+                },
+                "tare": {
+                    "label": "Tare Weight (kg)",
+                    "formula": "Formula: Quantity × Jute Bag Weight"
+                },
+                "net": {
+                    "label": "Net Weight (kg)",
+                    "formula": "Formula: Gross - Dunnage - Tare",
+                    "warning": "Net weight calculation results in zero or negative value. Please check your inputs."
+                },
+                "insufficient": "Gross weight is insufficient for dunnage and tare weights.",
+                "fillAll": "Please fill in all required fields to see calculated weights",
+                "issues": "Calculation Issues:"
+            },
+            "validation": {
+                "integer": "{label} must be a whole number.",
+                "min": "{label} cannot be less than {min}."
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "create": "Create",
+                "update": "Update",
+                "saving": "Saving..."
+            }
+        }
+    },
+    "validation": {
+        "custom": {
+            "bill_number": {
+                "required": "Bill number is required.",
+                "max": "Bill number cannot exceed 20 characters."
+            },
+            "seller": {
+                "required": "Seller is required.",
+                "max": "Seller name cannot exceed 255 characters."
+            },
+            "buyer": {
+                "required": "Buyer is required.",
+                "max": "Buyer name cannot exceed 255 characters."
+            }
+        }
+    },
+    "messages": {
+        "billCreated": "Bill created successfully.",
+        "billUpdated": "Bill updated successfully.",
+        "billDeleted": "Bill deleted successfully.",
+        "containerCreated": "Container created successfully.",
+        "containerUpdated": "Container updated successfully.",
+        "containerDeleted": "Container deleted successfully.",
+        "cuttingTestCreated": "Cutting test created successfully.",
+        "cuttingTestUpdated": "Cutting test updated successfully.",
+        "cuttingTestDeleted": "Cutting test deleted successfully."
+    },
+    "breadcrumbs": {
+        "bills": {
+            "create": "Create Bill",
+            "show": "Bill #{id}",
+            "showWithNumber": "Bill #{id} - {number}"
+        },
+        "containers": {
+            "showId": "Container #{id}",
+            "showNumber": "Container {number}"
+        }
+    }
+}

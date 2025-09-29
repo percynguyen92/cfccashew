@@ -62,12 +62,12 @@ class BillController extends Controller
 
         if (is_string($redirectUrl) && str_starts_with($redirectUrl, '/')) {
             return redirect()->to($redirectUrl)
-                ->with('success', 'Bill created successfully.')
+                ->with('success', __('messages.bill_created'))
                 ->with('createdBill', (new BillResource($bill))->resolve());
         }
 
         return redirect()->route('bills.index')
-            ->with('success', 'Bill created successfully.')
+            ->with('success', __('messages.bill_created'))
             ->with('createdBill', (new BillResource($bill))->resolve());
     }
 
@@ -101,7 +101,7 @@ class BillController extends Controller
         $this->billService->updateBill($bill, $request->validated());
 
         return redirect()->route('bills.show', $bill->fresh())
-            ->with('success', 'Bill updated successfully.');
+            ->with('success', __('messages.bill_updated'));
     }
 
     /**
@@ -112,6 +112,6 @@ class BillController extends Controller
         $this->billService->deleteBill($bill);
 
         return redirect()->route('bills.index')
-            ->with('success', 'Bill deleted successfully.');
+            ->with('success', __('messages.bill_deleted'));
     }
 }

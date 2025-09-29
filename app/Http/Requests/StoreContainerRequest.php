@@ -46,13 +46,13 @@ class StoreContainerRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bill_id.required' => 'A valid bill is required.',
-            'bill_id.integer' => 'A valid bill is required.',
-            'bill_id.exists' => 'The selected bill does not exist.',
-            'container_number.size' => 'Container number must be exactly 11 characters.',
-            'container_number.regex' => 'Container number must match the ISO format (4 letters + 7 digits).',
-            'w_jute_bag.max' => 'Jute bag weight cannot exceed 99.99 kg.',
-            '*.min' => 'Weight values cannot be negative.',
+            'bill_id.required' => __('validation.custom.bill_id.required'),
+            'bill_id.integer' => __('validation.custom.bill_id.integer'),
+            'bill_id.exists' => __('validation.custom.bill_id.exists'),
+            'container_number.size' => __('validation.custom.container_number.size'),
+            'container_number.regex' => __('validation.custom.container_number.regex'),
+            'w_jute_bag.max' => __('validation.custom.w_jute_bag.max'),
+            '*.min' => __('validation.custom.weights.min'),
         ];
     }
 }

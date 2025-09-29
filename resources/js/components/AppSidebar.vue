@@ -19,29 +19,33 @@ import { Link } from '@inertiajs/vue3';
 import { FileText, LayoutGrid, Package, Scissors } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import DarkModeToggle from './DarkModeToggle.vue';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-const mainNavItems: NavItem[] = [
+const { t } = useI18n();
+
+const mainNavItems = computed<NavItem[]>(() => [
     {
-        title: 'Dashboard',
+        title: t('navigation.dashboard'),
         href: dashboard(),
         icon: LayoutGrid,
     },
     {
-        title: 'Bills',
+        title: t('navigation.bills'),
         href: bills.index(),
         icon: FileText,
     },
     {
-        title: 'Containers',
+        title: t('navigation.containers'),
         href: containers.index(),
         icon: Package,
     },
     {
-        title: 'Cutting Tests',
+        title: t('navigation.cuttingTests'),
         href: cuttingTests.index(),
         icon: Scissors,
     },
-];
+]);
 </script>
 
 <template>

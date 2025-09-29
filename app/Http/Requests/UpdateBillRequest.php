@@ -39,12 +39,12 @@ class UpdateBillRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bill_number.required' => 'Bill number is required.',
-            'bill_number.max' => 'Bill number cannot exceed 20 characters.',
-            'seller.required' => 'Seller is required.',
-            'seller.max' => 'Seller name cannot exceed 255 characters.',
-            'buyer.required' => 'Buyer is required.',
-            'buyer.max' => 'Buyer name cannot exceed 255 characters.',
+            'bill_number.required' => __('validation.custom.bill_number.required'),
+            'bill_number.max' => __('validation.custom.bill_number.max'),
+            'seller.required' => __('validation.custom.seller.required'),
+            'seller.max' => __('validation.custom.seller.max'),
+            'buyer.required' => __('validation.custom.buyer.required'),
+            'buyer.max' => __('validation.custom.buyer.max'),
         ];
     }
 }

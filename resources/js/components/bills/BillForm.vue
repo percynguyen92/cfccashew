@@ -9,6 +9,7 @@ import * as bills from '@/routes/bills';
 import type { Bill } from '@/types';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     bill?: Bill;
@@ -36,14 +37,24 @@ const form = useForm({
 });
 
 const page = usePage();
+const { t } = useI18n();
 
 // Computed properties
 const isSubmitting = computed(() => form.processing);
 const formTitle = computed(() =>
-    props.isEditing ? 'Edit Bill' : 'Create New Bill',
+    props.isEditing
+        ? t('bills.form.title.edit')
+        : t('bills.form.title.create'),
 );
 const submitButtonText = computed(() =>
-    props.isEditing ? 'Update Bill' : 'Create Bill',
+    props.isEditing
+        ? t('bills.form.submit.update')
+        : t('bills.form.submit.create'),
+);
+const submittingText = computed(() =>
+    props.isEditing
+        ? t('bills.form.submit.updating')
+        : t('bills.form.submit.creating'),
 );
 
 const validateForm = (): boolean => {
@@ -57,17 +68,20 @@ const validateForm = (): boolean => {
     let hasErrors = false;
 
     if (!trimmedBillNumber) {
-        form.setError('bill_number', 'Bill number is required.');
+        form.setError(
+            'bill_number',
+            t('validation.custom.bill_number.required'),
+        );
         hasErrors = true;
     }
 
     if (!trimmedSeller) {
-        form.setError('seller', 'Seller is required.');
+        form.setError('seller', t('validation.custom.seller.required'));
         hasErrors = true;
     }
 
     if (!trimmedBuyer) {
-        form.setError('buyer', 'Buyer is required.');
+        form.setError('buyer', t('validation.custom.buyer.required'));
         hasErrors = true;
     }
 
@@ -135,7 +149,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                     <div
                         class="flex flex-wrap items-center justify-start gap-4"
                     >
-                        <Label for="bill_number">Bill Number</Label>
+                        <Label for="bill_number">
+                            {{ t('bills.form.fields.billNumber.label') }}
+                        </Label>
                         <InputError
                             class="text-right"
                             :message="form.errors.bill_number"
@@ -145,7 +161,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         id="bill_number"
                         v-model="form.bill_number"
                         type="text"
-                        placeholder="Enter bill number (required)"
+                        :placeholder="
+                            t('bills.form.fields.billNumber.placeholder')
+                        "
                         maxlength="20"
                         :aria-invalid="!!form.errors.bill_number"
                         @input="clearError('bill_number')"
@@ -157,7 +175,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                     <div
                         class="flex flex-wrap items-center justify-start gap-4"
                     >
-                        <Label for="seller">Seller</Label>
+                        <Label for="seller">
+                            {{ t('bills.form.fields.seller.label') }}
+                        </Label>
                         <InputError
                             class="text-right"
                             :message="form.errors.seller"
@@ -167,7 +187,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         id="seller"
                         v-model="form.seller"
                         type="text"
-                        placeholder="Enter seller name (required)"
+                        :placeholder="
+                            t('bills.form.fields.seller.placeholder')
+                        "
                         maxlength="255"
                         :aria-invalid="!!form.errors.seller"
                         @input="clearError('seller')"
@@ -179,7 +201,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                     <div
                         class="flex flex-wrap items-center justify-start gap-4"
                     >
-                        <Label for="buyer">Buyer</Label>
+                        <Label for="buyer">
+                            {{ t('bills.form.fields.buyer.label') }}
+                        </Label>
                         <InputError
                             class="text-right"
                             :message="form.errors.buyer"
@@ -189,7 +213,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         id="buyer"
                         v-model="form.buyer"
                         type="text"
-                        placeholder="Enter buyer name (required)"
+                        :placeholder="
+                            t('bills.form.fields.buyer.placeholder')
+                        "
                         maxlength="255"
                         :aria-invalid="!!form.errors.buyer"
                         @input="clearError('buyer')"
@@ -201,7 +227,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                     <div
                         class="flex flex-wrap items-center justify-start gap-4"
                     >
-                        <Label for="note">Note</Label>
+                        <Label for="note">
+                            {{ t('bills.form.fields.note.label') }}
+                        </Label>
                         <InputError
                             class="text-right"
                             :message="form.errors.note"
@@ -210,7 +238,9 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                     <Textarea
                         id="note"
                         v-model="form.note"
-                        placeholder="Enter additional notes (optional)"
+                        :placeholder="
+                            t('bills.form.fields.note.placeholder')
+                        "
                         rows="4"
                         :aria-invalid="!!form.errors.note"
                         @input="clearError('note')"
@@ -225,11 +255,11 @@ const clearError = (field: 'bill_number' | 'seller' | 'buyer' | 'note') => {
                         @click="handleCancel"
                         :disabled="isSubmitting"
                     >
-                        Cancel
+                        {{ t('common.actions.cancel') }}
                     </Button>
                     <Button type="submit" :disabled="isSubmitting">
                         <span v-if="isSubmitting">
-                            {{ isEditing ? 'Updating...' : 'Creating...' }}
+                            {{ submittingText }}
                         </span>
                         <span v-else>
                             {{ submitButtonText }}

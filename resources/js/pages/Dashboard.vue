@@ -2,13 +2,15 @@
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
 const { breadcrumbs } = useBreadcrumbs();
+const { t } = useI18n();
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head :title="t('navigation.dashboard')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div

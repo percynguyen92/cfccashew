@@ -1,0 +1,212 @@
+{
+    "language": {
+        "label": "Ngôn ngữ",
+        "english": "Tiếng Anh",
+        "vietnamese": "Tiếng Việt"
+    },
+    "navigation": {
+        "dashboard": "Bảng điều khiển",
+        "bills": "Vận đơn",
+        "containers": "Container",
+        "cuttingTests": "Kiểm tra cắt",
+        "repository": "Kho mã nguồn",
+        "documentation": "Tài liệu"
+    },
+    "header": {
+        "navigationMenu": "Trình đơn điều hướng"
+    },
+    "common": {
+        "actions": {
+            "cancel": "Hủy",
+            "create": "Tạo",
+            "update": "Cập nhật",
+            "save": "Lưu",
+            "delete": "Xóa",
+            "edit": "Chỉnh sửa",
+            "view": "Xem",
+            "close": "Đóng"
+        },
+        "states": {
+            "creating": "Đang tạo...",
+            "updating": "Đang cập nhật...",
+            "saving": "Đang lưu..."
+        },
+        "messages": {
+            "loading": "Đang tải...",
+            "noData": "Không có dữ liệu"
+        }
+    },
+    "userMenu": {
+        "settings": "Cài đặt",
+        "logout": "Đăng xuất"
+    },
+    "bills": {
+        "form": {
+            "title": {
+                "create": "Tạo vận đơn mới",
+                "edit": "Chỉnh sửa vận đơn"
+            },
+            "submit": {
+                "create": "Tạo vận đơn",
+                "update": "Cập nhật vận đơn",
+                "creating": "Đang tạo...",
+                "updating": "Đang cập nhật..."
+            },
+            "fields": {
+                "billNumber": {
+                    "label": "Số vận đơn",
+                    "placeholder": "Nhập số vận đơn (bắt buộc)"
+                },
+                "seller": {
+                    "label": "Người bán",
+                    "placeholder": "Nhập tên người bán (bắt buộc)"
+                },
+                "buyer": {
+                    "label": "Người mua",
+                    "placeholder": "Nhập tên người mua (bắt buộc)"
+                },
+                "note": {
+                    "label": "Ghi chú",
+                    "placeholder": "Nhập ghi chú bổ sung (không bắt buộc)"
+                }
+            }
+        }
+    },
+    "containers": {
+        "form": {
+            "title": "Thông tin container",
+            "meta": {
+                "created": "Tạo lúc",
+                "updated": "Cập nhật lúc"
+            },
+            "sections": {
+                "weightInformation": "Thông tin khối lượng"
+            },
+            "fields": {
+                "bill": {
+                    "invalid": "Vui lòng chọn vận đơn hợp lệ."
+                },
+                "truck": {
+                    "label": "Xe tải",
+                    "placeholder": "TRK-001",
+                    "tooLong": "Mã xe tải không được dài quá 20 ký tự."
+                },
+                "containerNumber": {
+                    "label": "Số container",
+                    "placeholder": "CONT1234567",
+                    "length": "Số container phải đúng 11 ký tự.",
+                    "format": "Số container phải đúng định dạng ISO (4 chữ cái + 7 chữ số)."
+                },
+                "quantityOfBags": {
+                    "label": "Số bao",
+                    "placeholder": "150",
+                    "integer": "Số bao phải là số nguyên.",
+                    "min": "Số bao không được nhỏ hơn {min}."
+                },
+                "juteBagWeight": {
+                    "label": "Khối lượng bao (kg)",
+                    "placeholder": "1.50",
+                    "negative": "Khối lượng bao không được âm.",
+                    "max": "Khối lượng bao không được vượt quá 99.99 kg."
+                },
+                "totalWeight": {
+                    "label": "Tổng khối lượng (kg)",
+                    "placeholder": "25000",
+                    "integer": "Tổng khối lượng phải là số nguyên.",
+                    "min": "Tổng khối lượng không được nhỏ hơn {min}."
+                },
+                "truckWeight": {
+                    "label": "Khối lượng xe tải (kg)",
+                    "placeholder": "10000",
+                    "integer": "Khối lượng xe tải phải là số nguyên.",
+                    "min": "Khối lượng xe tải không được nhỏ hơn {min}."
+                },
+                "containerWeight": {
+                    "label": "Khối lượng container (kg)",
+                    "placeholder": "2500",
+                    "integer": "Khối lượng container phải là số nguyên.",
+                    "min": "Khối lượng container không được nhỏ hơn {min}."
+                },
+                "dunnageWeight": {
+                    "label": "Khối lượng lót (kg)",
+                    "placeholder": "200",
+                    "integer": "Khối lượng lót phải là số nguyên.",
+                    "min": "Khối lượng lót không được nhỏ hơn {min}."
+                },
+                "note": {
+                    "label": "Ghi chú",
+                    "placeholder": "Ghi chú bổ sung...",
+                    "tooLong": "Ghi chú quá dài."
+                }
+            },
+            "calculated": {
+                "heading": "Khối lượng tính toán",
+                "gross": {
+                    "label": "Khối lượng tổng (kg)",
+                    "formula": "Công thức: Tổng - Xe tải - Container",
+                    "warning": "Tổng khối lượng phải lớn hơn tổng khối lượng xe tải và container."
+                },
+                "tare": {
+                    "label": "Khối lượng bao bì (kg)",
+                    "formula": "Công thức: Số lượng × Khối lượng bao"
+                },
+                "net": {
+                    "label": "Khối lượng tịnh (kg)",
+                    "formula": "Công thức: Tổng - Lót - Bao bì",
+                    "warning": "Kết quả khối lượng tịnh bằng 0 hoặc âm. Vui lòng kiểm tra lại dữ liệu."
+                },
+                "insufficient": "Khối lượng tổng không đủ để trừ khối lượng lót và bao bì.",
+                "fillAll": "Vui lòng nhập đầy đủ thông tin để hiển thị kết quả tính toán",
+                "issues": "Vấn đề tính toán:"
+            },
+            "validation": {
+                "integer": "{label} phải là số nguyên.",
+                "min": "{label} không được nhỏ hơn {min}."
+            },
+            "actions": {
+                "cancel": "Hủy",
+                "create": "Tạo",
+                "update": "Cập nhật",
+                "saving": "Đang lưu..."
+            }
+        }
+    },
+    "validation": {
+        "custom": {
+            "bill_number": {
+                "required": "Số vận đơn là bắt buộc.",
+                "max": "Số vận đơn không được vượt quá 20 ký tự."
+            },
+            "seller": {
+                "required": "Tên người bán là bắt buộc.",
+                "max": "Tên người bán không được vượt quá 255 ký tự."
+            },
+            "buyer": {
+                "required": "Tên người mua là bắt buộc.",
+                "max": "Tên người mua không được vượt quá 255 ký tự."
+            }
+        }
+    },
+    "messages": {
+        "billCreated": "Tạo vận đơn thành công.",
+        "billUpdated": "Cập nhật vận đơn thành công.",
+        "billDeleted": "Xóa vận đơn thành công.",
+        "containerCreated": "Tạo container thành công.",
+        "containerUpdated": "Cập nhật container thành công.",
+        "containerDeleted": "Xóa container thành công.",
+        "cuttingTestCreated": "Tạo phiếu kiểm tra cắt thành công.",
+        "cuttingTestUpdated": "Cập nhật phiếu kiểm tra cắt thành công.",
+        "cuttingTestDeleted": "Xóa phiếu kiểm tra cắt thành công."
+    },
+    "breadcrumbs": {
+        "bills": {
+            "create": "Tạo vận đơn",
+            "show": "Vận đơn #{id}",
+            "showWithNumber": "Vận đơn #{id} - {number}"
+        },
+        "containers": {
+            "showId": "Container #{id}",
+            "showNumber": "Container {number}"
+        }
+    }
+}
