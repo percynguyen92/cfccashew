@@ -27,12 +27,16 @@ const rows = computed(() =>
     (props.tests ?? []).filter((test): test is CuttingTest => Boolean(test)),
 );
 
-const formatNumber = (value: number | string | null | undefined, fractionDigits = 0): string => {
+const formatNumber = (
+    value: number | string | null | undefined,
+    fractionDigits = 0,
+): string => {
     if (value === null || value === undefined) {
         return '-';
     }
 
-    const numeric = typeof value === 'number' ? value : Number.parseFloat(value as string);
+    const numeric =
+        typeof value === 'number' ? value : Number.parseFloat(value as string);
 
     if (Number.isNaN(numeric)) {
         return '-';

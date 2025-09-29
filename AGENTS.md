@@ -152,6 +152,29 @@ tests/
     - Constructor injection mandatory.
     - Small, testable classes.
 
+- **SSR Bootstrapping**
+    - Register browser-only plugins or event listeners (e.g., Inertia router hooks) from the client entrypoint and guard shared utilities against SSR execution to prevent leaking listeners on the Node server.
+
+- **Type Casting Rules**
+    - Do not use `as unknown as ...` for type casting. This hides type errors and makes refactoring unsafe.
+    - Always prefer:
+    - Declaring explicit types or interfaces.
+    - Using type guards (`if ('prop' in obj) { ... }`) when structure may vary.
+    - Defining union types instead of escaping with `unknown`.
+
+    Avoid:
+
+    ```ts
+    const props = data as unknown as { page?: { props?: { locale?: string } } };
+    ```
+
+    Prefer:
+
+    ```ts
+    type PageProps = { page?: { props?: { locale?: string } } };
+    const props = data as PageProps;
+    ```
+
 ---
 
 ## Build, Test, and Development Commands

@@ -3,8 +3,8 @@
 return [
     'custom' => [
         'bill_number' => [
-            'required' => 'Số vận đơn là bắt buộc.',
-            'max' => 'Số vận đơn không được vượt quá 20 ký tự.',
+            'required' => 'Số bill là bắt buộc.',
+            'max' => 'Số bill không được vượt quá 20 ký tự.',
         ],
         'seller' => [
             'required' => 'Tên người bán là bắt buộc.',
@@ -15,9 +15,9 @@ return [
             'max' => 'Tên người mua không được vượt quá 255 ký tự.',
         ],
         'bill_id' => [
-            'required' => 'Vui lòng chọn vận đơn hợp lệ.',
-            'integer' => 'Vui lòng chọn vận đơn hợp lệ.',
-            'exists' => 'Vận đơn đã chọn không tồn tại.',
+            'required' => 'Vui lòng chọn bill hợp lệ.',
+            'integer' => 'Vui lòng chọn bill hợp lệ.',
+            'exists' => 'bill đã chọn không tồn tại.',
         ],
         'container_id' => [
             'exists' => 'Container đã chọn không tồn tại.',

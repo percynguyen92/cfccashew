@@ -1,7 +1,7 @@
 <template>
     <th :class="cn(
         'h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
-        $attrs.class
+        $attrs.class as ClassValue | undefined
     )">
         <slot />
     </th>
@@ -9,4 +9,5 @@
 
 <script setup lang="ts">
 import { cn } from '@/lib/utils'
+import type { ClassValue } from 'clsx'
 </script>

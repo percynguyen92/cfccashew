@@ -147,7 +147,7 @@ const calculationIssues = computed(() => {
 
 const formatWeight = (weight: number | null): string => {
     if (weight === null) {
-        return '-';
+        return t('common.placeholders.notAvailable');
     }
 
     return weight.toLocaleString();

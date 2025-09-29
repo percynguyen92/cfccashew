@@ -17,6 +17,7 @@ import type { Bill, CuttingTest } from '@/types';
 import { useForm } from '@inertiajs/vue3';
 import { AlertTriangle } from 'lucide-vue-next';
 import { computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     billId: number;
@@ -35,6 +36,8 @@ const emit = defineEmits<{
     success: [];
     cancel: [];
 }>();
+
+const { t } = useI18n();
 
 const normalizeType = (type: number | null | undefined): 1 | 2 | 3 => {
     if (type === 2 || type === 3) {
@@ -97,11 +100,11 @@ const form = useForm<FormFields>({
 const isEditing = computed(() => Boolean(props.cuttingTest));
 const isSubmitting = computed(() => form.processing);
 
-const typeOptions = [
-    { value: 1, label: 'Final Sample 1st Cut' },
-    { value: 2, label: 'Final Sample 2nd Cut' },
-    { value: 3, label: 'Final Sample 3rd Cut' },
-] as const;
+const typeOptions = computed(() => [
+    { value: 1, label: t('cuttingTests.form.types.finalFirst') },
+    { value: 2, label: t('cuttingTests.form.types.finalSecond') },
+    { value: 3, label: t('cuttingTests.form.types.finalThird') },
+]);
 
 const weightDifference = computed(() => {
     const original = Number(form.sample_weight) || 0;
@@ -135,28 +138,32 @@ const calculatedOutturnRate = computed(() => {
 });
 
 const formTitle = computed(() =>
-    isEditing.value ? 'Edit Final Sample' : 'Add Final Sample',
+    isEditing.value
+        ? t('cuttingTests.form.title.edit')
+        : t('cuttingTests.form.title.create'),
 );
 
 const submitLabel = computed(() =>
-    isEditing.value ? 'Update Cutting Test' : 'Create Cutting Test',
+    isEditing.value
+        ? t('cuttingTests.form.actions.update')
+        : t('cuttingTests.form.actions.create'),
 );
 
 const billLabel = computed(() => {
     if (!props.bill) {
-        return `Bill #${props.billId}`;
+        return t('cuttingTests.form.billLabel', { id: props.billId });
     }
 
     return props.bill.bill_number
-        ? `Bill #${props.bill.bill_number}`
-        : `Bill #${props.bill.id}`;
+        ? t('cuttingTests.form.billLabel', { id: props.bill.bill_number })
+        : t('cuttingTests.form.billLabel', { id: props.bill.id });
 });
 
 const getTypeLabel = (type: number | string) => {
     const numeric = Number(type);
     return (
-        typeOptions.find((option) => option.value === numeric)?.label ||
-        `Type ${numeric}`
+        typeOptions.value.find((option) => option.value === numeric)?.label ||
+        t('cuttingTests.form.types.generic', { type: numeric })
     );
 };
 
@@ -198,7 +205,7 @@ const validateForm = (): NormalizedPayload | null => {
 
     const billId = Number(form.bill_id);
     if (!Number.isInteger(billId) || billId <= 0) {
-        form.setError('bill_id', 'A valid bill is required.');
+        form.setError('bill_id', t('cuttingTests.form.errors.billInvalid'));
         hasErrors = true;
     } else {
         normalized.bill_id = billId;
@@ -206,14 +213,14 @@ const validateForm = (): NormalizedPayload | null => {
 
     const type = Number(form.type);
     if (![1, 2, 3].includes(type)) {
-        form.setError('type', 'Select a valid test type.');
+        form.setError('type', t('cuttingTests.form.errors.typeInvalid'));
         hasErrors = true;
     } else {
         normalized.type = type;
     }
 
     if (form.container_id !== null && form.container_id !== undefined) {
-        form.setError('type', 'Final sample tests cannot reference a container.');
+        form.setError('type', t('cuttingTests.form.errors.containerNotAllowed'));
         hasErrors = true;
     }
 
@@ -221,10 +228,23 @@ const validateForm = (): NormalizedPayload | null => {
 
     const sampleWeight = toOptionalNumber(form.sample_weight);
     if (sampleWeight === null || !Number.isInteger(sampleWeight)) {
-        form.setError('sample_weight', 'Sample weight must be a whole number.');
+        form.setError(
+            'sample_weight',
+            t('cuttingTests.form.errors.integer', {
+                label: t('cuttingTests.form.fields.sampleWeight.label'),
+            }),
+        );
         hasErrors = true;
     } else if (sampleWeight < 1 || sampleWeight > 65535) {
-        form.setError('sample_weight', 'Sample weight must be between 1 and 65,535 grams.');
+        form.setError(
+            'sample_weight',
+            t('cuttingTests.form.errors.range', {
+                label: t('cuttingTests.form.fields.sampleWeight.label'),
+                min: 1,
+                max: 65535,
+                unit: t('cuttingTests.form.units.grams'),
+            }),
+        );
         hasErrors = true;
     } else {
         normalized.sample_weight = sampleWeight;
@@ -233,7 +253,10 @@ const validateForm = (): NormalizedPayload | null => {
     const moisture = toOptionalNumber(form.moisture);
     if (moisture !== null) {
         if (moisture < 0 || moisture > 100) {
-            form.setError('moisture', 'Moisture must be between 0 and 100%.');
+            form.setError(
+                'moisture',
+                t('cuttingTests.form.errors.moistureRange'),
+            );
             hasErrors = true;
         } else {
             normalized.moisture = Number.parseFloat(moisture.toFixed(2));
@@ -254,15 +277,27 @@ const validateForm = (): NormalizedPayload | null => {
         }
 
         if (!Number.isInteger(value)) {
-            form.setError(field, `${label} must be a whole number.`);
+            form.setError(
+                field,
+                t('cuttingTests.form.errors.integer', {
+                    label,
+                }),
+            );
             hasErrors = true;
 
             return null;
         }
 
         if (value < 0 || value > max) {
-            const suffix = unit ? ` ${unit}` : '';
-            form.setError(field, `${label} must be between 0 and ${max}${suffix}.`);
+            form.setError(
+                field,
+                t('cuttingTests.form.errors.range', {
+                    label,
+                    min: 0,
+                    max,
+                    unit,
+                }),
+            );
             hasErrors = true;
 
             return null;
@@ -271,46 +306,51 @@ const validateForm = (): NormalizedPayload | null => {
         return value;
     };
 
-    normalized.nut_count = ensureOptionalInteger(form.nut_count, 'nut_count', 'Nut count', 65535);
+    normalized.nut_count = ensureOptionalInteger(
+        form.nut_count,
+        'nut_count',
+        t('cuttingTests.form.fields.nutCount.label'),
+        65535,
+    );
     normalized.w_reject_nut = ensureOptionalInteger(
         form.w_reject_nut,
         'w_reject_nut',
-        'Reject nut weight',
+        t('cuttingTests.form.fields.rejectNutWeight.label'),
         65535,
-        'grams',
+        t('cuttingTests.form.units.grams'),
     );
     normalized.w_defective_nut = ensureOptionalInteger(
         form.w_defective_nut,
         'w_defective_nut',
-        'Defective nut weight',
+        t('cuttingTests.form.fields.defectiveNutWeight.label'),
         65535,
-        'grams',
+        t('cuttingTests.form.units.grams'),
     );
     normalized.w_defective_kernel = ensureOptionalInteger(
         form.w_defective_kernel,
         'w_defective_kernel',
-        'Defective kernel weight',
+        t('cuttingTests.form.fields.defectiveKernelWeight.label'),
         65535,
-        'grams',
+        t('cuttingTests.form.units.grams'),
     );
     normalized.w_good_kernel = ensureOptionalInteger(
         form.w_good_kernel,
         'w_good_kernel',
-        'Good kernel weight',
+        t('cuttingTests.form.fields.goodKernelWeight.label'),
         65535,
-        'grams',
+        t('cuttingTests.form.units.grams'),
     );
     normalized.w_sample_after_cut = ensureOptionalInteger(
         form.w_sample_after_cut,
         'w_sample_after_cut',
-        'Sample weight after cut',
+        t('cuttingTests.form.fields.sampleAfterCut.label'),
         65535,
-        'grams',
+        t('cuttingTests.form.units.grams'),
     );
 
     const trimmedNote = form.note.trim();
     if (trimmedNote.length > 65535) {
-        form.setError('note', 'Note is too long.');
+        form.setError('note', t('cuttingTests.form.errors.noteTooLong'));
         hasErrors = true;
     }
     form.note = trimmedNote;
@@ -383,7 +423,9 @@ const handleCancel = () => {
         <form @submit.prevent="handleSubmit" class="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Test Details</CardTitle>
+                    <CardTitle>
+                        {{ t('cuttingTests.form.sections.details.title') }}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-4">
                     <InputError
@@ -393,7 +435,9 @@ const handleCancel = () => {
 
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
-                            <Label for="type">Test Type *</Label>
+                            <Label for="type">
+                                {{ t('cuttingTests.form.fields.type.label') }}
+                            </Label>
                             <Select
                                 :model-value="form.type"
                                 @update:model-value="(value) => {
@@ -420,9 +464,9 @@ const handleCancel = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="sample_weight"
-                                >Sample Weight (grams) *</Label
-                            >
+                            <Label for="sample_weight">
+                                {{ t('cuttingTests.form.fields.sampleWeight.label') }}
+                            </Label>
                             <Input
                                 id="sample_weight"
                                 v-model="form.sample_weight"
@@ -438,7 +482,9 @@ const handleCancel = () => {
 
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
-                            <Label for="moisture">Moisture (%)</Label>
+                            <Label for="moisture">
+                                {{ t('cuttingTests.form.fields.moisture.label') }}
+                            </Label>
                             <Input
                                 id="moisture"
                                 v-model="form.moisture"
@@ -452,7 +498,9 @@ const handleCancel = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="nut_count">Nut Count</Label>
+                            <Label for="nut_count">
+                                {{ t('cuttingTests.form.fields.nutCount.label') }}
+                            </Label>
                             <Input
                                 id="nut_count"
                                 v-model="form.nut_count"
@@ -469,12 +517,16 @@ const handleCancel = () => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Weight Measurements (grams)</CardTitle>
+                    <CardTitle>
+                        {{ t('cuttingTests.form.sections.weights.title') }}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-4">
                     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         <div class="space-y-2">
-                            <Label for="w_reject_nut">Reject Nut Weight</Label>
+                            <Label for="w_reject_nut">
+                                {{ t('cuttingTests.form.fields.rejectNutWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_reject_nut"
                                 v-model="form.w_reject_nut"
@@ -489,9 +541,9 @@ const handleCancel = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="w_defective_nut"
-                                >Defective Nut Weight</Label
-                            >
+                            <Label for="w_defective_nut">
+                                {{ t('cuttingTests.form.fields.defectiveNutWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_defective_nut"
                                 v-model="form.w_defective_nut"
@@ -506,9 +558,9 @@ const handleCancel = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="w_defective_kernel"
-                                >Defective Kernel Weight</Label
-                            >
+                            <Label for="w_defective_kernel">
+                                {{ t('cuttingTests.form.fields.defectiveKernelWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_defective_kernel"
                                 v-model="form.w_defective_kernel"
@@ -523,9 +575,9 @@ const handleCancel = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="w_good_kernel"
-                                >Good Kernel Weight</Label
-                            >
+                            <Label for="w_good_kernel">
+                                {{ t('cuttingTests.form.fields.goodKernelWeight.label') }}
+                            </Label>
                             <Input
                                 id="w_good_kernel"
                                 v-model="form.w_good_kernel"
@@ -538,9 +590,9 @@ const handleCancel = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="w_sample_after_cut"
-                                >Sample Weight After Cut</Label
-                            >
+                            <Label for="w_sample_after_cut">
+                                {{ t('cuttingTests.form.fields.sampleAfterCut.label') }}
+                            </Label>
                             <Input
                                 id="w_sample_after_cut"
                                 v-model="form.w_sample_after_cut"
@@ -556,12 +608,16 @@ const handleCancel = () => {
                     </div>
 
                     <div class="space-y-2">
-                        <Label>Calculated Outturn Rate</Label>
+                        <Label>
+                            {{ t('cuttingTests.form.sections.weights.outturnCalculated') }}
+                        </Label>
                         <div class="rounded-md bg-muted px-3 py-2 font-mono text-sm">
                             {{
                                 calculatedOutturnRate
-                                    ? `${calculatedOutturnRate} lbs/80kg`
-                                    : 'Not calculated'
+                                    ? t('cuttingTests.form.units.outturnRate', {
+                                        value: calculatedOutturnRate,
+                                    })
+                                    : t('cuttingTests.form.status.notCalculated')
                             }}
                         </div>
                     </div>
@@ -582,9 +638,11 @@ const handleCancel = () => {
                 >
                     <AlertTriangle class="mt-0.5 h-4 w-4" />
                     <span>
-                        Weight difference alert: Sample weight decreased by
-                        {{ weightDifference.toFixed(1) }}g after cutting
-                        (threshold: 5g)
+                        {{
+                            t('cuttingTests.form.alerts.weight', {
+                                difference: weightDifference.toFixed(1),
+                            })
+                        }}
                     </span>
                 </div>
 
@@ -594,9 +652,11 @@ const handleCancel = () => {
                 >
                     <AlertTriangle class="mt-0.5 h-4 w-4" />
                     <span>
-                        Defective nut/kernel ratio alert: Difference of
-                        {{ defectiveNutKernelDifference.toFixed(1) }}g
-                        (threshold: 5g)
+                        {{
+                            t('cuttingTests.form.alerts.defectiveRatio', {
+                                difference: defectiveNutKernelDifference.toFixed(1),
+                            })
+                        }}
                     </span>
                 </div>
 
@@ -606,24 +666,31 @@ const handleCancel = () => {
                 >
                     <AlertTriangle class="mt-0.5 h-4 w-4" />
                     <span>
-                        Good kernel weight alert: Difference of
-                        {{ goodKernelDifference.toFixed(1) }}g (threshold: 10g)
+                        {{
+                            t('cuttingTests.form.alerts.goodKernel', {
+                                difference: goodKernelDifference.toFixed(1),
+                            })
+                        }}
                     </span>
                 </div>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Notes</CardTitle>
+                    <CardTitle>
+                        {{ t('cuttingTests.form.sections.notes.title') }}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div class="space-y-2">
-                        <Label for="note">Observation Notes</Label>
+                        <Label for="note">
+                            {{ t('cuttingTests.form.fields.note.label') }}
+                        </Label>
                         <Textarea
                             id="note"
                             v-model="form.note"
                             rows="3"
-                            placeholder="Additional observations or comments"
+                            :placeholder="t('cuttingTests.form.fields.note.placeholder')"
                             @input="clearError('note')"
                         />
                         <InputError :message="form.errors.note" />
@@ -638,11 +705,15 @@ const handleCancel = () => {
                     @click="handleCancel"
                     :disabled="isSubmitting"
                 >
-                    Cancel
+                    {{ t('common.actions.cancel') }}
                 </Button>
                 <Button type="submit" :disabled="isSubmitting">
                     <span v-if="isSubmitting">
-                        {{ isEditing ? 'Saving...' : 'Creating...' }}
+                        {{
+                            isEditing
+                                ? t('common.states.updating')
+                                : t('common.states.creating')
+                        }}
                     </span>
                     <span v-else>
                         {{ submitLabel }}

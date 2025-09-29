@@ -29,6 +29,8 @@ import {
     ArrowLeft,
     Edit
 } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     container: Container;
@@ -36,56 +38,71 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
+const placeholder = computed(() => t('common.placeholders.notAvailable'));
+
 const { breadcrumbs } = useBreadcrumbs();
+
+const containerIdentifier = computed(
+    () => props.container.container_number || `#${props.container.id}`,
+);
 
 // Format weight display
 const formatWeight = (weight: number | string | null): string => {
-    if (weight === null || weight === undefined) return '-';
+    if (weight === null || weight === undefined) return placeholder.value;
     const numWeight = typeof weight === 'string' ? parseFloat(weight) : weight;
-    if (isNaN(numWeight)) return '-';
+    if (isNaN(numWeight)) return placeholder.value;
     return numWeight.toLocaleString();
 };
 
 // Format decimal weight display
 const formatDecimalWeight = (weight: number | string | null): string => {
-    if (weight === null || weight === undefined) return '-';
+    if (weight === null || weight === undefined) return placeholder.value;
     const numWeight = typeof weight === 'string' ? parseFloat(weight) : weight;
-    if (isNaN(numWeight)) return '-';
+    if (isNaN(numWeight)) return placeholder.value;
     return numWeight.toFixed(2);
 };
 
 // Format moisture display
 const formatMoisture = (moisture: number | string | null | undefined): string => {
-    if (moisture === null || moisture === undefined) return '-';
+    if (moisture === null || moisture === undefined) return placeholder.value;
     const numMoisture = typeof moisture === 'string' ? parseFloat(moisture) : moisture;
-    if (isNaN(numMoisture)) return '-';
-    return `${numMoisture.toFixed(1)}%`;
+    if (isNaN(numMoisture)) return placeholder.value;
+    return t('containers.show.moistureValue', {
+        value: numMoisture.toFixed(1),
+    });
 };
 
 // Format outurn display
 const formatOuturn = (outurn: number | string | null | undefined): string => {
-    if (outurn === null || outurn === undefined) return '-';
+    if (outurn === null || outurn === undefined) return placeholder.value;
     const numOuturn = typeof outurn === 'string' ? parseFloat(outurn) : outurn;
-    if (isNaN(numOuturn)) return '-';
-    return `${numOuturn.toFixed(2)} lbs/80kg`;
+    if (isNaN(numOuturn)) return placeholder.value;
+    return t('containers.index.table.outturnValue', {
+        value: numOuturn.toFixed(2),
+    });
 };
 
 // Format defective ratio
 const formatDefectiveRatio = (test: CuttingTest): string => {
-    if (!test.w_defective_nut || !test.w_defective_kernel) return '-';
+    if (!test.w_defective_nut || !test.w_defective_kernel)
+        return placeholder.value;
     const ratio = test.w_defective_nut / 2;
-    return `${test.w_defective_nut}/${ratio.toFixed(1)}`;
+    return t('containers.show.defectiveRatio', {
+        nut: test.w_defective_nut,
+        kernel: ratio.toFixed(1),
+    });
 };
 
 // Get cutting test type label
 const getTestTypeLabel = (type: number): string => {
-    const labels = {
-        1: 'Final Sample 1st Cut',
-        2: 'Final Sample 2nd Cut',
-        3: 'Final Sample 3rd Cut',
-        4: 'Container Cut'
+    const labels: Record<number, string> = {
+        1: t('containers.show.cuttingTests.types.finalFirst'),
+        2: t('containers.show.cuttingTests.types.finalSecond'),
+        3: t('containers.show.cuttingTests.types.finalThird'),
+        4: t('containers.show.cuttingTests.types.container'),
     };
-    return labels[type as keyof typeof labels] || `Type ${type}`;
+    return labels[type] ?? t('containers.show.cuttingTests.types.generic', { type });
 };
 
 // Get cutting test type badge variant
@@ -117,8 +134,7 @@ const addCuttingTest = () => {
 </script>
 
 <template>
-
-    <Head :title="`Container ${container.container_number || `#${container.id}`}`" />
+    <Head :title="t('containers.show.title', { identifier: containerIdentifier })" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
@@ -131,18 +147,22 @@ const addCuttingTest = () => {
                     <div class="flex items-center gap-2">
                         <Package class="h-6 w-6" />
                         <h1 class="text-2xl font-semibold">
-                            Container {{ container.container_number || `#${container.id}` }}
+                            {{
+                                t('containers.show.heading', {
+                                    identifier: containerIdentifier,
+                                })
+                            }}
                         </h1>
                     </div>
                 </div>
                 <div class="flex gap-2">
                     <Button variant="outline" @click="editContainer">
                         <Edit class="h-4 w-4 mr-2" />
-                        Edit Container
+                        {{ t('containers.show.actions.edit') }}
                     </Button>
                     <Button @click="addCuttingTest">
                         <Plus class="h-4 w-4 mr-2" />
-                        Add Cutting Test
+                        {{ t('containers.show.actions.addCuttingTest') }}
                     </Button>
                 </div>
             </div>
@@ -155,29 +175,57 @@ const addCuttingTest = () => {
                         <CardHeader>
                             <CardTitle class="flex items-center gap-2">
                                 <Package class="h-5 w-5" />
-                                Container Information
+                                {{ t('containers.show.sections.containerInfo.title') }}
                             </CardTitle>
                         </CardHeader>
                         <CardContent class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="text-sm font-medium text-muted-foreground">Container Number</label>
-                                    <p class="text-lg font-medium">{{ container.container_number || '-' }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-muted-foreground">Truck</label>
-                                    <p class="text-lg font-medium flex items-center gap-2">
-                                        <Truck class="h-4 w-4" />
-                                        {{ container.truck || '-' }}
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{ t('containers.form.fields.containerNumber.label') }}
+                                    </label>
+                                    <p class="text-lg font-medium">
+                                        {{
+                                            container.container_number ||
+                                            placeholder
+                                        }}
                                     </p>
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-muted-foreground">Quantity of Bags</label>
-                                    <p class="text-lg font-medium">{{ container.quantity_of_bags || '-' }}</p>
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{ t('containers.form.fields.truck.label') }}
+                                    </label>
+                                    <p class="text-lg font-medium flex items-center gap-2">
+                                        <Truck class="h-4 w-4" />
+                                        {{ container.truck || placeholder }}
+                                    </p>
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-muted-foreground">Jute Bag Weight</label>
-                                    <p class="text-lg font-medium">{{ formatDecimalWeight(container.w_jute_bag) }} kg
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{
+                                            t(
+                                                'containers.form.fields.quantityOfBags.label',
+                                            )
+                                        }}
+                                    </label>
+                                    <p class="text-lg font-medium">
+                                        {{
+                                            container.quantity_of_bags ||
+                                            placeholder
+                                        }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{
+                                            t(
+                                                'containers.form.fields.juteBagWeight.label',
+                                            )
+                                        }}
+                                    </label>
+                                    <p class="text-lg font-medium">
+                                        {{ formatDecimalWeight(container.w_jute_bag) }}
+                                        {{ t('containers.show.units.kilogram') }}
                                     </p>
                                 </div>
                             </div>
@@ -188,38 +236,71 @@ const addCuttingTest = () => {
                             <div>
                                 <h4 class="font-medium mb-3 flex items-center gap-2">
                                     <Scale class="h-4 w-4" />
-                                    Weight Information
+                                    {{ t('containers.show.sections.weightInfo.title') }}
                                 </h4>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label class="text-sm font-medium text-muted-foreground">Total Weight</label>
-                                        <p class="font-medium">{{ formatWeight(container.w_total) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.form.fields.totalWeight.label') }}
+                                        </label>
+                                        <p class="font-medium">
+                                            {{ formatWeight(container.w_total) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                     <div>
-                                        <label class="text-sm font-medium text-muted-foreground">Truck Weight</label>
-                                        <p class="font-medium">{{ formatWeight(container.w_truck) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.form.fields.truckWeight.label') }}
+                                        </label>
+                                        <p class="font-medium">
+                                            {{ formatWeight(container.w_truck) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                     <div>
-                                        <label class="text-sm font-medium text-muted-foreground">Container
-                                            Weight</label>
-                                        <p class="font-medium">{{ formatWeight(container.w_container) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.form.fields.containerWeight.label') }}
+                                        </label>
+                                        <p class="font-medium">
+                                            {{ formatWeight(container.w_container) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                     <div>
-                                        <label class="text-sm font-medium text-muted-foreground">Gross Weight</label>
-                                        <p class="font-medium">{{ formatWeight(container.w_gross) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.show.fields.grossWeight') }}
+                                        </label>
+                                        <p class="font-medium">
+                                            {{ formatWeight(container.w_gross) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                     <div>
-                                        <label class="text-sm font-medium text-muted-foreground">Dunnage/Dribag</label>
-                                        <p class="font-medium">{{ formatWeight(container.w_dunnage_dribag) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.form.fields.dunnageWeight.label') }}
+                                        </label>
+                                        <p class="font-medium">
+                                            {{ formatWeight(container.w_dunnage_dribag) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                     <div>
-                                        <label class="text-sm font-medium text-muted-foreground">Tare Weight</label>
-                                        <p class="font-medium">{{ formatDecimalWeight(container.w_tare) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.show.fields.tareWeight') }}
+                                        </label>
+                                        <p class="font-medium">
+                                            {{ formatDecimalWeight(container.w_tare) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="text-sm font-medium text-muted-foreground">Net Weight</label>
-                                        <p class="text-lg font-semibold text-green-600">{{
-                                            formatDecimalWeight(container.w_net) }} kg</p>
+                                        <label class="text-sm font-medium text-muted-foreground">
+                                            {{ t('containers.show.fields.netWeight') }}
+                                        </label>
+                                        <p class="text-lg font-semibold text-green-600">
+                                            {{ formatDecimalWeight(container.w_net) }}
+                                            {{ t('containers.show.units.kilogram') }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -227,7 +308,9 @@ const addCuttingTest = () => {
                             <div v-if="container.note">
                                 <Separator />
                                 <div>
-                                    <label class="text-sm font-medium text-muted-foreground">Notes</label>
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{ t('containers.show.fields.notes') }}
+                                    </label>
                                     <p class="mt-1">{{ container.note }}</p>
                                 </div>
                             </div>
@@ -240,11 +323,11 @@ const addCuttingTest = () => {
                             <CardTitle class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <Target class="h-5 w-5" />
-                                    Cutting Tests
+                                    {{ t('containers.show.cuttingTests.title') }}
                                 </div>
                                 <Button size="sm" @click="addCuttingTest">
                                     <Plus class="h-4 w-4 mr-2" />
-                                    Add Test
+                                    {{ t('containers.show.cuttingTests.add') }}
                                 </Button>
                             </CardTitle>
                         </CardHeader>
@@ -253,13 +336,27 @@ const addCuttingTest = () => {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Type</TableHead>
-                                            <TableHead>Moisture</TableHead>
-                                            <TableHead>Sample Weight</TableHead>
-                                            <TableHead>Nut Count</TableHead>
-                                            <TableHead>Defective Ratio</TableHead>
-                                            <TableHead>Outurn Rate</TableHead>
-                                            <TableHead>Date</TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.type') }}
+                                            </TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.moisture') }}
+                                            </TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.sampleWeight') }}
+                                            </TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.nutCount') }}
+                                            </TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.defectiveRatio') }}
+                                            </TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.outturn') }}
+                                            </TableHead>
+                                            <TableHead>
+                                                {{ t('containers.show.cuttingTests.headers.date') }}
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -276,10 +373,25 @@ const addCuttingTest = () => {
                                                     {{ formatMoisture(test.moisture) }}
                                                 </span>
                                             </TableCell>
-                                            <TableCell>{{ test.sample_weight }}g</TableCell>
-                                            <TableCell>{{ test.nut_count || '-' }}</TableCell>
-                                            <TableCell>{{ formatDefectiveRatio(test) }}</TableCell>
-                                            <TableCell>{{ formatOuturn(test.outturn_rate) }}</TableCell>
+                                            <TableCell>
+                                                {{
+                                                    t(
+                                                        'containers.show.cuttingTests.sampleWeightValue',
+                                                        {
+                                                            value: test.sample_weight,
+                                                        },
+                                                    )
+                                                }}
+                                            </TableCell>
+                                            <TableCell>
+                                                {{ test.nut_count || placeholder }}
+                                            </TableCell>
+                                            <TableCell>
+                                                {{ formatDefectiveRatio(test) }}
+                                            </TableCell>
+                                            <TableCell>
+                                                {{ formatOuturn(test.outturn_rate) }}
+                                            </TableCell>
                                             <TableCell>
                                                 <div class="text-sm text-muted-foreground">
                                                     {{ new Date(test.created_at).toLocaleDateString() }}
@@ -289,13 +401,17 @@ const addCuttingTest = () => {
                                     </TableBody>
                                 </Table>
                             </div>
-                            <div v-else class="text-center py-8 text-muted-foreground">
+                            <div class="text-center py-8 text-muted-foreground" v-else>
                                 <Target class="h-12 w-12 mx-auto mb-4 opacity-50" />
-                                <p class="text-lg font-medium mb-2">No cutting tests yet</p>
-                                <p class="mb-4">Add cutting tests to track quality metrics for this container.</p>
+                                <p class="text-lg font-medium mb-2">
+                                    {{ t('containers.show.cuttingTests.empty.title') }}
+                                </p>
+                                <p class="mb-4">
+                                    {{ t('containers.show.cuttingTests.empty.subtitle') }}
+                                </p>
                                 <Button @click="addCuttingTest">
                                     <Plus class="h-4 w-4 mr-2" />
-                                    Add First Test
+                                    {{ t('containers.show.cuttingTests.empty.action') }}
                                 </Button>
                             </div>
                         </CardContent>
@@ -309,27 +425,42 @@ const addCuttingTest = () => {
                         <CardHeader>
                             <CardTitle class="flex items-center gap-2">
                                 <FileText class="h-5 w-5" />
-                                Bill Information
+                                {{ t('containers.show.billInfo.title') }}
                             </CardTitle>
                         </CardHeader>
                         <CardContent class="space-y-4">
                             <div>
-                                <label class="text-sm font-medium text-muted-foreground">Bill Number</label>
+                                <label class="text-sm font-medium text-muted-foreground">
+                                    {{ t('bills.form.fields.billNumber.label') }}
+                                </label>
                                 <p class="text-lg font-medium">
-                                    {{ container.bill.bill_number || `Bill #${container.bill.id}` }}
+                                    {{
+                                        container.bill.bill_number ||
+                                        t('containers.index.table.billNumberFallback', {
+                                            id: container.bill.id,
+                                        })
+                                    }}
                                 </p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-muted-foreground">Seller</label>
-                                <p class="font-medium">{{ container.bill.seller || '-' }}</p>
+                                <label class="text-sm font-medium text-muted-foreground">
+                                    {{ t('bills.form.fields.seller.label') }}
+                                </label>
+                                <p class="font-medium">
+                                    {{ container.bill.seller || placeholder }}
+                                </p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-muted-foreground">Buyer</label>
-                                <p class="font-medium">{{ container.bill.buyer || '-' }}</p>
+                                <label class="text-sm font-medium text-muted-foreground">
+                                    {{ t('bills.form.fields.buyer.label') }}
+                                </label>
+                                <p class="font-medium">
+                                    {{ container.bill.buyer || placeholder }}
+                                </p>
                             </div>
                             <Button variant="outline" class="w-full" @click="viewBill">
                                 <FileText class="h-4 w-4 mr-2" />
-                                View Bill Details
+                                {{ t('containers.show.billInfo.view') }}
                             </Button>
                         </CardContent>
                     </Card>
@@ -339,12 +470,14 @@ const addCuttingTest = () => {
                         <CardHeader>
                             <CardTitle class="flex items-center gap-2">
                                 <Droplets class="h-5 w-5" />
-                                Quality Summary
+                                {{ t('containers.show.quality.title') }}
                             </CardTitle>
                         </CardHeader>
                         <CardContent class="space-y-4">
                             <div>
-                                <label class="text-sm font-medium text-muted-foreground">Average Moisture</label>
+                                <label class="text-sm font-medium text-muted-foreground">
+                                    {{ t('containers.show.quality.averageMoisture') }}
+                                </label>
                                 <p class="text-lg font-medium">
                                     <span :class="container.average_moisture && container.average_moisture > 11
                                         ? 'text-red-600'
@@ -354,19 +487,27 @@ const addCuttingTest = () => {
                                 </p>
                                 <p v-if="container.average_moisture && container.average_moisture > 11"
                                     class="text-sm text-red-600 mt-1">
-                                    Warning: High moisture content
+                                    {{ t('containers.show.quality.moistureWarning') }}
                                 </p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-muted-foreground">Outurn Rate</label>
+                                <label class="text-sm font-medium text-muted-foreground">
+                                    {{ t('containers.show.quality.outturn') }}
+                                </label>
                                 <p class="text-lg font-medium text-blue-600">
                                     {{ formatOuturn(container.outturn_rate) }}
                                 </p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-muted-foreground">Tests Count</label>
+                                <label class="text-sm font-medium text-muted-foreground">
+                                    {{ t('containers.show.quality.testsCount') }}
+                                </label>
                                 <p class="text-lg font-medium">
-                                    {{ container.cutting_tests?.length || 0 }} tests
+                                    {{
+                                        t('containers.show.quality.testsCountValue', {
+                                            count: container.cutting_tests?.length || 0,
+                                        })
+                                    }}
                                 </p>
                             </div>
                         </CardContent>

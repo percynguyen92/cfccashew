@@ -1,0 +1,279 @@
+resources/js/pages\Welcome.vue:50:                    <h1 class="mb-1 font-medium">Let's get started</h1>
+resources/js/pages\Welcome.vue:77:                                    <span>Documentation</span>
+resources/js/pages\Welcome.vue:116:                                    <span>Laracasts</span>
+resources/js/components\AppearanceTabs.vue:30:            <span class="ml-1.5 text-sm">{{ label }}</span>
+resources/js/components\AppLogo.vue:13:            >CFC Cashew</span
+resources/js/components\ContainerTable.vue:64:                <TableHead>Container Number</TableHead>
+resources/js/components\ContainerTable.vue:65:                <TableHead>Truck</TableHead>
+resources/js/components\ContainerTable.vue:66:                <TableHead>Quantity of Bags</TableHead>
+resources/js/components\ContainerTable.vue:67:                <TableHead>Net</TableHead>
+resources/js/components\ContainerTable.vue:68:                <TableHead>Moisture</TableHead>
+resources/js/components\ContainerTable.vue:69:                <TableHead>Outturn</TableHead>
+resources/js/components\ContainerTable.vue:70:                <TableHead class="w-24 text-right">Actions</TableHead>
+resources/js/components\ContainerTable.vue:78:                <TableCell>{{ container.truck || '-' }}</TableCell>
+resources/js/components\ContainerTable.vue:79:                <TableCell>{{ formatNumber(container.quantity_of_bags) }}</TableCell>
+resources/js/components\ContainerTable.vue:80:                <TableCell>{{ formatWeight(container.w_net) }}</TableCell>
+resources/js/components\ContainerTable.vue:81:                <TableCell>{{ formatMoisture(container.average_moisture) }}</TableCell>
+resources/js/components\ContainerTable.vue:82:                <TableCell>{{ formatOutturn(container.outturn_rate) }}</TableCell>
+resources/js/components\ContainerTable.vue:90:                        <Link :href="`/containers/${container.id}/edit`">Edit</Link>
+resources/js/components\Breadcrumbs.vue:28:                        <BreadcrumbPage>{{ item.title }}</BreadcrumbPage>
+resources/js/components\AppHeader.vue:53:    () => (url: NonNullable<InertiaLinkProps['href']>) =>
+resources/js/components\AppHeader.vue:58:    () => (url: NonNullable<InertiaLinkProps['href']>) =>
+resources/js/components\AppHeader.vue:146:                                        <span>{{ item.title }}</span>
+resources/js/components\AppHeader.vue:235:                                            <p>{{ item.title }}</p>
+resources/js/pages\settings\TwoFactor.vue:55:                    <Badge variant="destructive">Disabled</Badge>
+resources/js/pages\settings\TwoFactor.vue:78:                                <ShieldCheck />Enable 2FA</Button
+resources/js/pages\settings\TwoFactor.vue:88:                    <Badge variant="default">Enabled</Badge>
+resources/js/pages\Containers\Show.vue:164:                                    <label class="text-sm font-medium text-muted-foreground">Container Number</label>
+resources/js/pages\Containers\Show.vue:165:                                    <p class="text-lg font-medium">{{ container.container_number || '-' }}</p>
+resources/js/pages\Containers\Show.vue:168:                                    <label class="text-sm font-medium text-muted-foreground">Truck</label>
+resources/js/pages\Containers\Show.vue:175:                                    <label class="text-sm font-medium text-muted-foreground">Quantity of Bags</label>
+resources/js/pages\Containers\Show.vue:176:                                    <p class="text-lg font-medium">{{ container.quantity_of_bags || '-' }}</p>
+resources/js/pages\Containers\Show.vue:179:                                    <label class="text-sm font-medium text-muted-foreground">Jute Bag Weight</label>
+resources/js/pages\Containers\Show.vue:195:                                        <label class="text-sm font-medium text-muted-foreground">Total Weight</label>
+resources/js/pages\Containers\Show.vue:196:                                        <p class="font-medium">{{ formatWeight(container.w_total) }} kg</p>
+resources/js/pages\Containers\Show.vue:199:                                        <label class="text-sm font-medium text-muted-foreground">Truck Weight</label>
+resources/js/pages\Containers\Show.vue:200:                                        <p class="font-medium">{{ formatWeight(container.w_truck) }} kg</p>
+resources/js/pages\Containers\Show.vue:205:                                        <p class="font-medium">{{ formatWeight(container.w_container) }} kg</p>
+resources/js/pages\Containers\Show.vue:208:                                        <label class="text-sm font-medium text-muted-foreground">Gross Weight</label>
+resources/js/pages\Containers\Show.vue:209:                                        <p class="font-medium">{{ formatWeight(container.w_gross) }} kg</p>
+resources/js/pages\Containers\Show.vue:212:                                        <label class="text-sm font-medium text-muted-foreground">Dunnage/Dribag</label>
+resources/js/pages\Containers\Show.vue:213:                                        <p class="font-medium">{{ formatWeight(container.w_dunnage_dribag) }} kg</p>
+resources/js/pages\Containers\Show.vue:216:                                        <label class="text-sm font-medium text-muted-foreground">Tare Weight</label>
+resources/js/pages\Containers\Show.vue:217:                                        <p class="font-medium">{{ formatDecimalWeight(container.w_tare) }} kg</p>
+resources/js/pages\Containers\Show.vue:220:                                        <label class="text-sm font-medium text-muted-foreground">Net Weight</label>
+resources/js/pages\Containers\Show.vue:230:                                    <label class="text-sm font-medium text-muted-foreground">Notes</label>
+resources/js/pages\Containers\Show.vue:231:                                    <p class="mt-1">{{ container.note }}</p>
+resources/js/pages\Containers\Show.vue:256:                                            <TableHead>Type</TableHead>
+resources/js/pages\Containers\Show.vue:257:                                            <TableHead>Moisture</TableHead>
+resources/js/pages\Containers\Show.vue:258:                                            <TableHead>Sample Weight</TableHead>
+resources/js/pages\Containers\Show.vue:259:                                            <TableHead>Nut Count</TableHead>
+resources/js/pages\Containers\Show.vue:260:                                            <TableHead>Defective Ratio</TableHead>
+resources/js/pages\Containers\Show.vue:261:                                            <TableHead>Outurn Rate</TableHead>
+resources/js/pages\Containers\Show.vue:262:                                            <TableHead>Date</TableHead>
+resources/js/pages\Containers\Show.vue:279:                                            <TableCell>{{ test.sample_weight }}g</TableCell>
+resources/js/pages\Containers\Show.vue:280:                                            <TableCell>{{ test.nut_count || '-' }}</TableCell>
+resources/js/pages\Containers\Show.vue:281:                                            <TableCell>{{ formatDefectiveRatio(test) }}</TableCell>
+resources/js/pages\Containers\Show.vue:282:                                            <TableCell>{{ formatOuturn(test.outturn_rate) }}</TableCell>
+resources/js/pages\Containers\Show.vue:294:                                <p class="text-lg font-medium mb-2">No cutting tests yet</p>
+resources/js/pages\Containers\Show.vue:295:                                <p class="mb-4">Add cutting tests to track quality metrics for this container.</p>
+resources/js/pages\Containers\Show.vue:317:                                <label class="text-sm font-medium text-muted-foreground">Bill Number</label>
+resources/js/pages\Containers\Show.vue:323:                                <label class="text-sm font-medium text-muted-foreground">Seller</label>
+resources/js/pages\Containers\Show.vue:324:                                <p class="font-medium">{{ container.bill.seller || '-' }}</p>
+resources/js/pages\Containers\Show.vue:327:                                <label class="text-sm font-medium text-muted-foreground">Buyer</label>
+resources/js/pages\Containers\Show.vue:328:                                <p class="font-medium">{{ container.bill.buyer || '-' }}</p>
+resources/js/pages\Containers\Show.vue:347:                                <label class="text-sm font-medium text-muted-foreground">Average Moisture</label>
+resources/js/pages\Containers\Show.vue:361:                                <label class="text-sm font-medium text-muted-foreground">Outurn Rate</label>
+resources/js/pages\Containers\Show.vue:367:                                <label class="text-sm font-medium text-muted-foreground">Tests Count</label>
+resources/js/components\DeleteUser.vue:36:                <p class="font-medium">Warning</p>
+resources/js/components\DeleteUser.vue:44:                        >Delete account</Button
+resources/js/components\DeleteUser.vue:74:                                >Password</Label
+resources/js/pages\CuttingTests\Show.vue:136:                        <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
+resources/js/pages\CuttingTests\Show.vue:201:                        <CardTitle>Test Context</CardTitle>
+resources/js/pages\CuttingTests\Show.vue:206:                            <h4 class="text-sm font-medium text-muted-foreground mb-2">Associated Bill</h4>
+resources/js/pages\CuttingTests\Show.vue:216:                                <span v-if="cutting_test.bill.seller">Seller: {{ cutting_test.bill.seller }}</span>
+resources/js/pages\CuttingTests\Show.vue:217:                                <span v-if="cutting_test.bill.buyer" class="ml-4">Buyer: {{ cutting_test.bill.buyer }}</span>
+resources/js/pages\CuttingTests\Show.vue:225:                            <h4 class="text-sm font-medium text-muted-foreground mb-2">Container Association</h4>
+resources/js/pages\CuttingTests\Show.vue:251:                            <h4 class="text-sm font-medium text-muted-foreground mb-2">Test Type</h4>
+resources/js/pages\CuttingTests\Show.vue:262:                        <CardTitle>Basic Measurements</CardTitle>
+resources/js/pages\CuttingTests\Show.vue:267:                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Sample Weight</h4>
+resources/js/pages\CuttingTests\Show.vue:268:                                <p class="text-lg font-semibold">{{ cutting_test.sample_weight }}g</p>
+resources/js/pages\CuttingTests\Show.vue:272:                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Moisture</h4>
+resources/js/pages\CuttingTests\Show.vue:279:                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Nut Count</h4>
+resources/js/pages\CuttingTests\Show.vue:286:                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Outturn Rate</h4>
+resources/js/pages\CuttingTests\Show.vue:298:                        <CardTitle>Weight Breakdown</CardTitle>
+resources/js/pages\CuttingTests\Show.vue:304:                                <h4 class="text-sm font-medium text-muted-foreground">Rejected Material</h4>
+resources/js/pages\CuttingTests\Show.vue:307:                                        <span class="text-sm">Reject Nut Weight:</span>
+resources/js/pages\CuttingTests\Show.vue:317:                                <h4 class="text-sm font-medium text-muted-foreground">Defective Material</h4>
+resources/js/pages\CuttingTests\Show.vue:320:                                        <span class="text-sm">Defective Nut:</span>
+resources/js/pages\CuttingTests\Show.vue:326:                                        <span class="text-sm">Defective Kernel:</span>
+resources/js/pages\CuttingTests\Show.vue:332:                                        <span class="text-sm">Ratio (nut/kernel):</span>
+resources/js/pages\CuttingTests\Show.vue:342:                                <h4 class="text-sm font-medium text-muted-foreground">Good Material</h4>
+resources/js/pages\CuttingTests\Show.vue:345:                                        <span class="text-sm">Good Kernel Weight:</span>
+resources/js/pages\CuttingTests\Show.vue:351:                                        <span class="text-sm">Sample After Cut:</span>
+resources/js/pages\CuttingTests\Show.vue:365:                        <CardTitle>Notes</CardTitle>
+resources/js/pages\CuttingTests\Show.vue:369:                            <p class="text-sm whitespace-pre-wrap">{{ cutting_test.note }}</p>
+resources/js/pages\CuttingTests\Show.vue:387:                                    <p><strong>Outturn Rate Formula:</strong> (Defective Kernel Weight ÷ 2 + Good Kernel Weight) × 80 ÷ 453.6</p>
+resources/js/pages\CuttingTests\Show.vue:388:                                    <p><strong>Defective Ratio:</strong> Defective Nut Weight ÷ Defective Kernel Weight × 2</p>
+resources/js/pages\CuttingTests\Show.vue:389:                                    <p><strong>Alert Thresholds:</strong> Sample weight difference > 5g, Defective ratio difference > 5g, Good kernel difference > 10g</p>
+resources/js/components\UserInfo.vue:33:        <span class="truncate font-medium">{{ user.name }}</span>
+resources/js/components\CuttingTestTable.vue:67:                <TableHead>Moisture</TableHead>
+resources/js/components\CuttingTestTable.vue:68:                <TableHead>Reject Nut</TableHead>
+resources/js/components\CuttingTestTable.vue:69:                <TableHead>Defect Nut</TableHead>
+resources/js/components\CuttingTestTable.vue:70:                <TableHead>Good Kernel</TableHead>
+resources/js/components\CuttingTestTable.vue:71:                <TableHead>Outturn</TableHead>
+resources/js/components\CuttingTestTable.vue:72:                <TableHead class="w-24 text-right">Actions</TableHead>
+resources/js/components\CuttingTestTable.vue:77:                <TableCell>{{ formatMoisture(test.moisture) }}</TableCell>
+resources/js/components\CuttingTestTable.vue:78:                <TableCell>{{ formatWeight(test.w_reject_nut) }}</TableCell>
+resources/js/components\CuttingTestTable.vue:79:                <TableCell>{{ formatWeight(test.w_defective_nut) }}</TableCell>
+resources/js/components\CuttingTestTable.vue:80:                <TableCell>{{ formatWeight(test.w_good_kernel) }}</TableCell>
+resources/js/components\CuttingTestTable.vue:81:                <TableCell>{{ formatOutturn(test.outturn_rate) }}</TableCell>
+resources/js/pages\Containers\Index.vue:232:                    <h1 class="text-2xl font-semibold">Containers</h1>
+resources/js/pages\Containers\Index.vue:247:                        <Label for="container_number">Container Number</Label>
+resources/js/pages\Containers\Index.vue:256:                        <Label for="truck">Truck</Label>
+resources/js/pages\Containers\Index.vue:265:                        <Label for="bill_info">Bill Info</Label>
+resources/js/pages\Containers\Index.vue:274:                        <Label for="date_from">From Date</Label>
+resources/js/pages\Containers\Index.vue:283:                        <Label for="date_to">To Date</Label>
+resources/js/pages\Containers\Index.vue:309:                                    <TableHead>Container Number</TableHead>
+resources/js/pages\Containers\Index.vue:310:                                    <TableHead>Truck</TableHead>
+resources/js/pages\Containers\Index.vue:311:                                    <TableHead>Bill Info</TableHead>
+resources/js/pages\Containers\Index.vue:313:                                        >Net Weight</TableHead
+resources/js/pages\Containers\Index.vue:316:                                        >Moisture</TableHead
+resources/js/pages\Containers\Index.vue:319:                                        >Outturn</TableHead
+resources/js/pages\Containers\Index.vue:321:                                    <TableHead>Created</TableHead>
+resources/js/pages\Containers\Index.vue:323:                                        >Actions</TableHead
+resources/js/pages\Containers\Index.vue:414:                                                >Edit container</span
+resources/js/pages\Containers\Index.vue:428:                                                >Delete container</span
+resources/js/pages\Containers\Index.vue:501:                    <DialogTitle>Delete container</DialogTitle>
+resources/js/components\containers\ContainerForm.vue:341:                <span>{{ t('containers.form.title') }}</span>
+resources/js/components\containers\ContainerForm.vue:647:                                <span>{{ issue }}</span>
+resources/js/components\NavMain.vue:32:                        <span>{{ item.title }}</span>
+resources/js/pages\settings\Profile.vue:52:                        <Label for="name">Name</Label>
+resources/js/pages\settings\Profile.vue:66:                        <Label for="email">Email address</Label>
+resources/js/pages\settings\Profile.vue:105:                            >Save</Button
+resources/js/pages\CuttingTests\Index.vue:255:                    <h1 class="text-2xl font-semibold">Cutting Tests</h1>
+resources/js/pages\CuttingTests\Index.vue:271:                        <Label for="bill_number">Bill Number</Label>
+resources/js/pages\CuttingTests\Index.vue:280:                        <Label for="test_type">Test Type</Label>
+resources/js/pages\CuttingTests\Index.vue:289:                                <SelectItem value="all">All Tests</SelectItem>
+resources/js/pages\CuttingTests\Index.vue:291:                                    >Final Tests</SelectItem
+resources/js/pages\CuttingTests\Index.vue:294:                                    >Container Tests</SelectItem
+resources/js/pages\CuttingTests\Index.vue:300:                        <Label for="container_id">Container</Label>
+resources/js/pages\CuttingTests\Index.vue:309:                        <Label>Moisture Range (%)</Label>
+resources/js/pages\CuttingTests\Index.vue:328:                        <Label for="date_from">Date From</Label>
+resources/js/pages\CuttingTests\Index.vue:337:                        <Label for="date_to">Date To</Label>
+resources/js/pages\CuttingTests\Index.vue:366:                                    <TableHead>Bill</TableHead>
+resources/js/pages\CuttingTests\Index.vue:367:                                    <TableHead>Sample / Container</TableHead>
+resources/js/pages\CuttingTests\Index.vue:369:                                        >Moisture (%)</TableHead
+resources/js/pages\CuttingTests\Index.vue:372:                                        >Defective Nut (g)</TableHead
+resources/js/pages\CuttingTests\Index.vue:375:                                        >Good Kernel (g)</TableHead
+resources/js/pages\CuttingTests\Index.vue:378:                                        >Outturn (lbs/80kg)</TableHead
+resources/js/pages\CuttingTests\Index.vue:380:                                    <TableHead>Created</TableHead>
+resources/js/pages\CuttingTests\Index.vue:382:                                        >Actions</TableHead
+resources/js/pages\CuttingTests\Index.vue:549:                                                >View cutting test</span
+resources/js/pages\CuttingTests\Index.vue:562:                                                >Edit cutting test</span
+resources/js/pages\CuttingTests\Index.vue:576:                                                >Delete cutting test</span
+resources/js/components\bills\BillForm.vue:143:            <CardTitle>{{ formTitle }}</CardTitle>
+resources/js/pages\Containers\Edit.vue:82:                            <CardTitle>Bill Information</CardTitle>
+resources/js/pages\Containers\Edit.vue:88:                                    >Bill Number</Label
+resources/js/pages\Containers\Edit.vue:100:                                    >Seller</Label
+resources/js/pages\Containers\Edit.vue:102:                                <p>{{ container.bill.seller || '-' }}</p>
+resources/js/pages\Containers\Edit.vue:107:                                    >Buyer</Label
+resources/js/pages\Containers\Edit.vue:109:                                <p>{{ container.bill.buyer || '-' }}</p>
+resources/js/pages\Containers\Edit.vue:117:                            <CardTitle>Container Details</CardTitle>
+resources/js/pages\Containers\Edit.vue:123:                                    >Created</Label
+resources/js/pages\Containers\Edit.vue:136:                                    >Last Updated</Label
+resources/js/components\NavFooter.vue:37:                            <span>{{ item.title }}</span>
+resources/js/components\HeadingSmall.vue:12:        <h3 class="mb-0.5 text-base font-medium">{{ title }}</h3>
+resources/js/pages\settings\Password.vue:53:                        <Label for="current_password">Current password</Label>
+resources/js/pages\settings\Password.vue:67:                        <Label for="password">New password</Label>
+resources/js/pages\settings\Password.vue:82:                            >Confirm password</Label
+resources/js/pages\settings\Password.vue:99:                            >Save password</Button
+resources/js/components\Heading.vue:12:        <h2 class="text-xl font-semibold tracking-tight">{{ title }}</h2>
+resources/js/components\cutting-tests\CuttingTestForm.vue:379:            <h2 class="text-xl font-semibold">{{ formTitle }}</h2>
+resources/js/components\cutting-tests\CuttingTestForm.vue:380:            <p class="text-sm text-muted-foreground">{{ billLabel }}</p>
+resources/js/components\cutting-tests\CuttingTestForm.vue:386:                    <CardTitle>Test Details</CardTitle>
+resources/js/components\cutting-tests\CuttingTestForm.vue:396:                            <Label for="type">Test Type *</Label>
+resources/js/components\cutting-tests\CuttingTestForm.vue:424:                                >Sample Weight (grams) *</Label
+resources/js/components\cutting-tests\CuttingTestForm.vue:441:                            <Label for="moisture">Moisture (%)</Label>
+resources/js/components\cutting-tests\CuttingTestForm.vue:455:                            <Label for="nut_count">Nut Count</Label>
+resources/js/components\cutting-tests\CuttingTestForm.vue:472:                    <CardTitle>Weight Measurements (grams)</CardTitle>
+resources/js/components\cutting-tests\CuttingTestForm.vue:477:                            <Label for="w_reject_nut">Reject Nut Weight</Label>
+resources/js/components\cutting-tests\CuttingTestForm.vue:493:                                >Defective Nut Weight</Label
+resources/js/components\cutting-tests\CuttingTestForm.vue:510:                                >Defective Kernel Weight</Label
+resources/js/components\cutting-tests\CuttingTestForm.vue:527:                                >Good Kernel Weight</Label
+resources/js/components\cutting-tests\CuttingTestForm.vue:542:                                >Sample Weight After Cut</Label
+resources/js/components\cutting-tests\CuttingTestForm.vue:559:                        <Label>Calculated Outturn Rate</Label>
+resources/js/components\cutting-tests\CuttingTestForm.vue:617:                    <CardTitle>Notes</CardTitle>
+resources/js/components\cutting-tests\CuttingTestForm.vue:621:                        <Label for="note">Observation Notes</Label>
+resources/js/pages\Containers\Create.vue:57:                        <h1 class="text-2xl font-semibold">Create Container</h1>
+resources/js/pages\Containers\Create.vue:73:                            <CardTitle>Bill Information</CardTitle>
+resources/js/pages\Containers\Create.vue:77:                                <Label class="text-sm font-medium text-muted-foreground">Bill Number</Label>
+resources/js/pages\Containers\Create.vue:78:                                <p class="font-medium">{{ bill.bill_number || `Bill #${bill.id}` }}</p>
+resources/js/pages\Containers\Create.vue:81:                                <Label class="text-sm font-medium text-muted-foreground">Seller</Label>
+resources/js/pages\Containers\Create.vue:82:                                <p>{{ bill.seller || '-' }}</p>
+resources/js/pages\Containers\Create.vue:85:                                <Label class="text-sm font-medium text-muted-foreground">Buyer</Label>
+resources/js/pages\Containers\Create.vue:86:                                <p>{{ bill.buyer || '-' }}</p>
+resources/js/components\TwoFactorRecoveryCodes.vue:113:                        <span class="font-bold">Regenerate Codes</span> above.
+resources/js/pages\CuttingTests\Edit.vue:172:                    <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
+resources/js/pages\CuttingTests\Edit.vue:201:                        <CardTitle>Test Information</CardTitle>
+resources/js/pages\CuttingTests\Edit.vue:207:                                <Label for="type">Test Type *</Label>
+resources/js/pages\CuttingTests\Edit.vue:237:                                    >Sample Weight (grams) *</Label
+resources/js/pages\CuttingTests\Edit.vue:262:                                <strong>Final Sample Test:</strong> This test
+resources/js/pages\CuttingTests\Edit.vue:275:                                <strong>Container Test:</strong>
+resources/js/pages\CuttingTests\Edit.vue:293:                        <CardTitle>Basic Measurements</CardTitle>
+resources/js/pages\CuttingTests\Edit.vue:299:                                <Label for="moisture">Moisture (%)</Label>
+resources/js/pages\CuttingTests\Edit.vue:319:                                <Label for="nut_count">Nut Count</Label>
+resources/js/pages\CuttingTests\Edit.vue:342:                        <CardTitle>Weight Measurements (grams)</CardTitle>
+resources/js/pages\CuttingTests\Edit.vue:349:                                    >Reject Nut Weight</Label
+resources/js/pages\CuttingTests\Edit.vue:369:                                    >Defective Nut Weight</Label
+resources/js/pages\CuttingTests\Edit.vue:389:                                    >Defective Kernel Weight</Label
+resources/js/pages\CuttingTests\Edit.vue:409:                                    >Good Kernel Weight</Label
+resources/js/pages\CuttingTests\Edit.vue:429:                                    >Sample Weight After Cut</Label
+resources/js/pages\CuttingTests\Edit.vue:448:                                <Label>Outturn Rate (calculated)</Label>
+resources/js/pages\CuttingTests\Edit.vue:512:                        <CardTitle>Additional Notes</CardTitle>
+resources/js/pages\CuttingTests\Edit.vue:516:                            <Label for="note">Notes</Label>
+resources/js/components\TwoFactorSetupModal.vue:143:                <DialogTitle>{{ modalConfig.title }}</DialogTitle>
+resources/js/components\TwoFactorSetupModal.vue:190:                            >or, enter the code manually</span
+resources/js/components\Toast.vue:72:            <p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
+resources/js/pages\CuttingTests\Create.vue:163:                    <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
+resources/js/pages\CuttingTests\Create.vue:189:                        <CardTitle>Test Information</CardTitle>
+resources/js/pages\CuttingTests\Create.vue:195:                                <Label for="type">Test Type *</Label>
+resources/js/pages\CuttingTests\Create.vue:225:                                    >Sample Weight (grams) *</Label
+resources/js/pages\CuttingTests\Create.vue:250:                                <strong>Final Sample Test:</strong> This test
+resources/js/pages\CuttingTests\Create.vue:263:                                <strong>Container Test:</strong>
+resources/js/pages\CuttingTests\Create.vue:280:                        <CardTitle>Basic Measurements</CardTitle>
+resources/js/pages\CuttingTests\Create.vue:286:                                <Label for="moisture">Moisture (%)</Label>
+resources/js/pages\CuttingTests\Create.vue:306:                                <Label for="nut_count">Nut Count</Label>
+resources/js/pages\CuttingTests\Create.vue:329:                        <CardTitle>Weight Measurements (grams)</CardTitle>
+resources/js/pages\CuttingTests\Create.vue:336:                                    >Reject Nut Weight</Label
+resources/js/pages\CuttingTests\Create.vue:356:                                    >Defective Nut Weight</Label
+resources/js/pages\CuttingTests\Create.vue:376:                                    >Defective Kernel Weight</Label
+resources/js/pages\CuttingTests\Create.vue:396:                                    >Good Kernel Weight</Label
+resources/js/pages\CuttingTests\Create.vue:416:                                    >Sample Weight After Cut</Label
+resources/js/pages\CuttingTests\Create.vue:435:                                <Label>Outturn Rate (calculated)</Label>
+resources/js/pages\CuttingTests\Create.vue:496:                        <CardTitle>Additional Notes</CardTitle>
+resources/js/pages\CuttingTests\Create.vue:500:                            <Label for="note">Notes</Label>
+resources/js/components\ui\breadcrumb\BreadcrumbEllipsis.vue:21:    <span class="sr-only">More</span>
+resources/js/pages\Bills\Show.vue:228:                                >Bill Number</label
+resources/js/pages\Bills\Show.vue:237:                                >Seller</label
+resources/js/pages\Bills\Show.vue:246:                                >Buyer</label
+resources/js/pages\Bills\Show.vue:255:                                >Average Outturn</label
+resources/js/pages\Bills\Show.vue:264:                            >Note</label
+resources/js/pages\Bills\Show.vue:266:                        <p class="mt-1 text-sm">{{ bill.note }}</p>
+resources/js/pages\Bills\Show.vue:304:                        <p>No final samples recorded yet</p>
+resources/js/pages\Bills\Show.vue:352:                        <p>No containers added yet</p>
+resources/js/pages\Bills\Index.vue:255:                    <h1 class="text-2xl font-semibold">Bills</h1>
+resources/js/pages\Bills\Index.vue:359:                                <TableHead>Final Samples</TableHead>
+resources/js/pages\Bills\Index.vue:360:                                <TableHead>Avg. Outurn</TableHead>
+resources/js/pages\Bills\Index.vue:376:                                    >Actions</TableHead
+resources/js/pages\Bills\Index.vue:432:                                        >N/A</span
+resources/js/pages\Bills\Index.vue:448:                                        <span class="sr-only">Edit bill</span>
+resources/js/pages\Bills\Index.vue:458:                                        <span class="sr-only">Delete bill</span>
+resources/js/pages\Bills\Index.vue:563:                    <DialogTitle>Delete bill</DialogTitle>
+resources/js/pages\Bills\Edit.vue:37:                <h1 class="text-2xl font-semibold">Edit Bill</h1>
+resources/js/pages\Bills\Create.vue:36:                <h1 class="text-2xl font-semibold">Create Bill</h1>
+resources/js/components\ui\dialog\DialogScrollContent.vue:54:          <span class="sr-only">Close</span>
+resources/js/pages\auth\TwoFactorChallenge.vue:93:                        >Continue</Button
+resources/js/pages\auth\TwoFactorChallenge.vue:96:                        <span>or you can </span>
+resources/js/pages\auth\TwoFactorChallenge.vue:124:                        >Continue</Button
+resources/js/pages\auth\TwoFactorChallenge.vue:128:                        <span>or you can </span>
+resources/js/pages\auth\ResetPassword.vue:35:                    <Label for="email">Email</Label>
+resources/js/pages\auth\ResetPassword.vue:49:                    <Label for="password">Password</Label>
+resources/js/components\ui\dialog\DialogContent.vue:45:        <span class="sr-only">Close</span>
+resources/js/pages\auth\Register.vue:29:                    <Label for="name">Name</Label>
+resources/js/pages\auth\Register.vue:44:                    <Label for="email">Email address</Label>
+resources/js/pages\auth\Register.vue:58:                    <Label for="password">Password</Label>
+resources/js/pages\auth\Register.vue:72:                    <Label for="password_confirmation">Confirm password</Label>
+resources/js/pages\auth\Register.vue:106:                    >Log in</TextLink
+resources/js/pages\auth\Login.vue:43:                    <Label for="email">Email address</Label>
+resources/js/pages\auth\Login.vue:59:                        <Label for="password">Password</Label>
+resources/js/pages\auth\Login.vue:84:                        <span>Remember me</span>
+resources/js/pages\auth\Login.vue:105:                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+resources/js/pages\auth\ForgotPassword.vue:38:                    <Label for="email">Email address</Label>
+resources/js/pages\auth\ForgotPassword.vue:66:                <span>Or, return to</span>
+resources/js/pages\auth\ForgotPassword.vue:67:                <TextLink :href="login()">log in</TextLink>
+resources/js/pages\auth\ConfirmPassword.vue:26:                    <Label htmlFor="password">Password</Label>
+resources/js/components\ui\sheet\SheetContent.vue:59:        <span class="sr-only">Close</span>
+resources/js/components\ui\sidebar\Sidebar.vue:45:        <SheetTitle>Sidebar</SheetTitle>
+resources/js/components\ui\sidebar\Sidebar.vue:46:        <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+resources/js/components\ui\sidebar\SidebarTrigger.vue:25:    <span class="sr-only">Toggle Sidebar</span>

@@ -1,5 +1,6 @@
 import { InertiaLinkProps } from '@inertiajs/vue3';
 import type { LucideIcon } from 'lucide-vue-next';
+import type { MaybeLocale } from '@/lib/i18n';
 
 export interface Auth {
     user: User;
@@ -24,6 +25,7 @@ export type AppPageProps<
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    locale?: MaybeLocale;
 };
 
 export interface User {

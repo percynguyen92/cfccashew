@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Edit, Trash2, AlertTriangle, Info } from 'lucide-vue-next';
+import { useI18n } from 'vue-i18n';
 
 interface CuttingTest {
     id: number;
@@ -56,7 +57,22 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 const { breadcrumbs } = useBreadcrumbs();
+const placeholder = computed(() => t('common.placeholders.notAvailable'));
+
+const typeLabel = computed(() => {
+    const map: Record<number, string> = {
+        1: t('cuttingTests.show.types.finalFirst'),
+        2: t('cuttingTests.show.types.finalSecond'),
+        3: t('cuttingTests.show.types.finalThird'),
+        4: t('cuttingTests.show.types.container'),
+    };
+
+    return map[props.cutting_test.type] ?? t('cuttingTests.show.types.generic', {
+        type: props.cutting_test.type,
+    });
+});
 
 // Computed values for validation alerts
 const weightDifference = computed(() => {
@@ -89,7 +105,7 @@ function editCuttingTest() {
 }
 
 function deleteCuttingTest() {
-    if (confirm('Are you sure you want to delete this cutting test? This action cannot be undone.')) {
+    if (confirm(t('cuttingTests.show.dialog.delete.confirm'))) {
         router.delete(`/cutting-tests/${props.cutting_test.id}`);
     }
 }
@@ -119,9 +135,12 @@ function getTestTypeBadgeVariant(type: number) {
     }
 }
 
-const pageTitle = computed(() => {
-    return `${props.cutting_test.type_label} - Test #${props.cutting_test.id}`;
-});
+const pageTitle = computed(() =>
+    t('cuttingTests.show.pageTitle', {
+        type: typeLabel.value,
+        id: props.cutting_test.id,
+    }),
+);
 </script>
 
 <template>
@@ -135,28 +154,39 @@ const pageTitle = computed(() => {
                     <div class="flex items-center gap-3 mb-2">
                         <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
                         <Badge :variant="getTestTypeBadgeVariant(cutting_test.type)">
-                            {{ cutting_test.type_label }}
+                            {{ typeLabel }}
                         </Badge>
                     </div>
                     <p class="text-sm text-muted-foreground">
-                        Created: {{ new Date(cutting_test.created_at).toLocaleString() }}
-                        <span v-if="cutting_test.created_at !== cutting_test.updated_at" class="ml-4">
-                            Updated: {{ new Date(cutting_test.updated_at).toLocaleString() }}
+                        {{
+                            t('cuttingTests.show.meta.created', {
+                                date: new Date(cutting_test.created_at).toLocaleString(),
+                            })
+                        }}
+                        <span
+                            v-if="cutting_test.created_at !== cutting_test.updated_at"
+                            class="ml-4"
+                        >
+                            {{
+                                t('cuttingTests.show.meta.updated', {
+                                    date: new Date(cutting_test.updated_at).toLocaleString(),
+                                })
+                            }}
                         </span>
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
                     <Button variant="outline" @click="goBack" class="flex items-center gap-2">
                         <ArrowLeft class="h-4 w-4" />
-                        Back to Bill
+                        {{ t('cuttingTests.show.actions.back') }}
                     </Button>
                     <Button variant="outline" @click="editCuttingTest" class="flex items-center gap-2">
                         <Edit class="h-4 w-4" />
-                        Edit
+                        {{ t('cuttingTests.show.actions.edit') }}
                     </Button>
                     <Button variant="destructive" @click="deleteCuttingTest" class="flex items-center gap-2">
                         <Trash2 class="h-4 w-4" />
-                        Delete
+                        {{ t('cuttingTests.show.actions.delete') }}
                     </Button>
                 </div>
             </div>
@@ -169,7 +199,11 @@ const pageTitle = computed(() => {
                 >
                     <AlertTriangle class="mt-0.5 h-4 w-4" />
                     <span>
-                        Weight Alert: Sample weight decreased by {{ weightDifference.toFixed(1) }}g after cutting (threshold: 5g)
+                        {{
+                            t('cuttingTests.show.alerts.weight', {
+                                difference: weightDifference.toFixed(1),
+                            })
+                        }}
                     </span>
                 </div>
 
@@ -179,7 +213,11 @@ const pageTitle = computed(() => {
                 >
                     <AlertTriangle class="mt-0.5 h-4 w-4" />
                     <span>
-                        Defective Ratio Alert: Difference of {{ defectiveNutKernelDifference.toFixed(1) }}g between expected and actual defective kernel weight (threshold: 5g)
+                        {{
+                            t('cuttingTests.show.alerts.defectiveRatio', {
+                                difference: defectiveNutKernelDifference.toFixed(1),
+                            })
+                        }}
                     </span>
                 </div>
 
@@ -189,7 +227,11 @@ const pageTitle = computed(() => {
                 >
                     <AlertTriangle class="mt-0.5 h-4 w-4" />
                     <span>
-                        Good Kernel Alert: Difference of {{ goodKernelDifference.toFixed(1) }}g between expected and actual good kernel weight (threshold: 10g)
+                        {{
+                            t('cuttingTests.show.alerts.goodKernel', {
+                                difference: goodKernelDifference.toFixed(1),
+                            })
+                        }}
                     </span>
                 </div>
             </div>
@@ -198,23 +240,39 @@ const pageTitle = computed(() => {
                 <!-- Test Context -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Test Context</CardTitle>
+                        <CardTitle>
+                            {{ t('cuttingTests.show.sections.context.title') }}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent class="space-y-4">
                         <!-- Bill Information -->
                         <div>
-                            <h4 class="text-sm font-medium text-muted-foreground mb-2">Associated Bill</h4>
+                            <h4 class="text-sm font-medium text-muted-foreground mb-2">
+                                {{ t('cuttingTests.show.sections.context.bill.title') }}
+                            </h4>
                             <button
                                 @click="goToBill"
                                 class="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline"
                             >
                                 <span class="font-medium">
-                                    {{ cutting_test.bill?.bill_number || `Bill #${cutting_test.bill_id}` }}
+                                    {{ cutting_test.bill?.bill_number || t('cuttingTests.index.table.billFallback', { id: cutting_test.bill_id }) }}
                                 </span>
                             </button>
                             <div v-if="cutting_test.bill" class="text-sm text-muted-foreground mt-1">
-                                <span v-if="cutting_test.bill.seller">Seller: {{ cutting_test.bill.seller }}</span>
-                                <span v-if="cutting_test.bill.buyer" class="ml-4">Buyer: {{ cutting_test.bill.buyer }}</span>
+                                <span v-if="cutting_test.bill.seller">
+                                    {{
+                                        t('cuttingTests.show.sections.context.bill.seller', {
+                                            value: cutting_test.bill.seller,
+                                        })
+                                    }}
+                                </span>
+                                <span v-if="cutting_test.bill.buyer" class="ml-4">
+                                    {{
+                                        t('cuttingTests.show.sections.context.bill.buyer', {
+                                            value: cutting_test.bill.buyer,
+                                        })
+                                    }}
+                                </span>
                             </div>
                         </div>
 
@@ -222,9 +280,11 @@ const pageTitle = computed(() => {
 
                         <!-- Container Information -->
                         <div>
-                            <h4 class="text-sm font-medium text-muted-foreground mb-2">Container Association</h4>
+                            <h4 class="text-sm font-medium text-muted-foreground mb-2">
+                                {{ t('cuttingTests.show.sections.context.container.title') }}
+                            </h4>
                             <div v-if="cutting_test.is_final_sample" class="text-sm text-muted-foreground italic">
-                                Final Sample (not associated with specific container)
+                                {{ t('cuttingTests.show.sections.context.container.finalSample') }}
                             </div>
                             <div v-else-if="cutting_test.container">
                                 <button
@@ -232,15 +292,23 @@ const pageTitle = computed(() => {
                                     class="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline"
                                 >
                                     <span class="font-medium">
-                                        {{ cutting_test.container.container_number || `Container #${cutting_test.container.id}` }}
+                                        {{ cutting_test.container.container_number || t('cuttingTests.index.table.containerFallback', { id: cutting_test.container.id }) }}
                                     </span>
                                 </button>
                                 <div v-if="cutting_test.container.truck" class="text-sm text-muted-foreground mt-1">
-                                    Truck: {{ cutting_test.container.truck }}
+                                    {{
+                                        t('cuttingTests.show.sections.context.container.truck', {
+                                            value: cutting_test.container.truck,
+                                        })
+                                    }}
                                 </div>
                             </div>
                             <div v-else class="text-sm text-muted-foreground">
-                                Container #{{ cutting_test.container_id }}
+                                {{
+                                    t('cuttingTests.show.sections.context.container.fallback', {
+                                        id: cutting_test.container_id,
+                                    })
+                                }}
                             </div>
                         </div>
 
@@ -248,9 +316,11 @@ const pageTitle = computed(() => {
 
                         <!-- Test Type -->
                         <div>
-                            <h4 class="text-sm font-medium text-muted-foreground mb-2">Test Type</h4>
+                            <h4 class="text-sm font-medium text-muted-foreground mb-2">
+                                {{ t('cuttingTests.show.sections.context.testType') }}
+                            </h4>
                             <Badge :variant="getTestTypeBadgeVariant(cutting_test.type)" class="text-sm">
-                                {{ cutting_test.type_label }}
+                                {{ typeLabel }}
                             </Badge>
                         </div>
                     </CardContent>
@@ -259,33 +329,45 @@ const pageTitle = computed(() => {
                 <!-- Basic Measurements -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Basic Measurements</CardTitle>
+                        <CardTitle>
+                            {{ t('cuttingTests.show.sections.measurements.title') }}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent class="space-y-4">
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div>
-                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Sample Weight</h4>
-                                <p class="text-lg font-semibold">{{ cutting_test.sample_weight }}g</p>
-                            </div>
-
-                            <div>
-                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Moisture</h4>
-                                <p class="text-lg font-semibold font-mono">
-                                    {{ cutting_test.moisture_formatted || 'Not measured' }}
-                                </p>
-                            </div>
-
-                            <div>
-                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Nut Count</h4>
+                                <h4 class="text-sm font-medium text-muted-foreground mb-1">
+                                    {{ t('cuttingTests.show.sections.measurements.sampleWeight') }}
+                                </h4>
                                 <p class="text-lg font-semibold">
-                                    {{ cutting_test.nut_count || 'Not counted' }}
+                                    {{ t('cuttingTests.show.units.grams', { value: cutting_test.sample_weight }) }}
                                 </p>
                             </div>
 
                             <div>
-                                <h4 class="text-sm font-medium text-muted-foreground mb-1">Outturn Rate</h4>
+                                <h4 class="text-sm font-medium text-muted-foreground mb-1">
+                                    {{ t('cuttingTests.show.sections.measurements.moisture') }}
+                                </h4>
                                 <p class="text-lg font-semibold font-mono">
-                                    {{ cutting_test.outturn_rate_formatted || 'Not calculated' }}
+                                    {{ cutting_test.moisture_formatted || t('cuttingTests.show.sections.measurements.notMeasured') }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-medium text-muted-foreground mb-1">
+                                    {{ t('cuttingTests.show.sections.measurements.nutCount') }}
+                                </h4>
+                                <p class="text-lg font-semibold">
+                                    {{ cutting_test.nut_count || t('cuttingTests.show.sections.measurements.notCounted') }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-medium text-muted-foreground mb-1">
+                                    {{ t('cuttingTests.show.sections.measurements.outturn') }}
+                                </h4>
+                                <p class="text-lg font-semibold font-mono">
+                                    {{ cutting_test.outturn_rate_formatted || t('cuttingTests.show.sections.measurements.notCalculated') }}
                                 </p>
                             </div>
                         </div>
@@ -295,18 +377,24 @@ const pageTitle = computed(() => {
                 <!-- Weight Breakdown -->
                 <Card class="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle>Weight Breakdown</CardTitle>
+                        <CardTitle>
+                            {{ t('cuttingTests.show.sections.weights.title') }}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             <!-- Reject Weights -->
                             <div class="space-y-3">
-                                <h4 class="text-sm font-medium text-muted-foreground">Rejected Material</h4>
+                                <h4 class="text-sm font-medium text-muted-foreground">
+                                    {{ t('cuttingTests.show.sections.weights.reject.title') }}
+                                </h4>
                                 <div class="space-y-2">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm">Reject Nut Weight:</span>
+                                        <span class="text-sm">
+                                            {{ t('cuttingTests.show.sections.weights.reject.nut') }}
+                                        </span>
                                         <span class="font-semibold font-mono">
-                                            {{ cutting_test.w_reject_nut ? `${cutting_test.w_reject_nut}g` : '-' }}
+                                            {{ cutting_test.w_reject_nut ? t('cuttingTests.show.units.grams', { value: cutting_test.w_reject_nut }) : placeholder }}
                                         </span>
                                     </div>
                                 </div>
@@ -314,22 +402,30 @@ const pageTitle = computed(() => {
 
                             <!-- Defective Weights -->
                             <div class="space-y-3">
-                                <h4 class="text-sm font-medium text-muted-foreground">Defective Material</h4>
+                                <h4 class="text-sm font-medium text-muted-foreground">
+                                    {{ t('cuttingTests.show.sections.weights.defective.title') }}
+                                </h4>
                                 <div class="space-y-2">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm">Defective Nut:</span>
+                                        <span class="text-sm">
+                                            {{ t('cuttingTests.show.sections.weights.defective.nut') }}
+                                        </span>
                                         <span class="font-semibold font-mono">
-                                            {{ cutting_test.w_defective_nut ? `${cutting_test.w_defective_nut}g` : '-' }}
+                                            {{ cutting_test.w_defective_nut ? t('cuttingTests.show.units.grams', { value: cutting_test.w_defective_nut }) : placeholder }}
                                         </span>
                                     </div>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm">Defective Kernel:</span>
+                                        <span class="text-sm">
+                                            {{ t('cuttingTests.show.sections.weights.defective.kernel') }}
+                                        </span>
                                         <span class="font-semibold font-mono">
-                                            {{ cutting_test.w_defective_kernel ? `${cutting_test.w_defective_kernel}g` : '-' }}
+                                            {{ cutting_test.w_defective_kernel ? t('cuttingTests.show.units.grams', { value: cutting_test.w_defective_kernel }) : placeholder }}
                                         </span>
                                     </div>
                                     <div v-if="cutting_test.defective_ratio" class="flex justify-between items-center pt-1 border-t">
-                                        <span class="text-sm">Ratio (nut/kernel):</span>
+                                        <span class="text-sm">
+                                            {{ t('cuttingTests.show.sections.weights.defective.ratioLabel') }}
+                                        </span>
                                         <span class="font-semibold font-mono text-blue-600">
                                             {{ cutting_test.defective_ratio.formatted }}
                                         </span>
@@ -339,18 +435,24 @@ const pageTitle = computed(() => {
 
                             <!-- Good Weights -->
                             <div class="space-y-3">
-                                <h4 class="text-sm font-medium text-muted-foreground">Good Material</h4>
+                                <h4 class="text-sm font-medium text-muted-foreground">
+                                    {{ t('cuttingTests.show.sections.weights.good.title') }}
+                                </h4>
                                 <div class="space-y-2">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm">Good Kernel Weight:</span>
+                                        <span class="text-sm">
+                                            {{ t('cuttingTests.show.sections.weights.good.kernel') }}
+                                        </span>
                                         <span class="font-semibold font-mono text-green-600">
-                                            {{ cutting_test.w_good_kernel ? `${cutting_test.w_good_kernel}g` : '-' }}
+                                            {{ cutting_test.w_good_kernel ? t('cuttingTests.show.units.grams', { value: cutting_test.w_good_kernel }) : placeholder }}
                                         </span>
                                     </div>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm">Sample After Cut:</span>
+                                        <span class="text-sm">
+                                            {{ t('cuttingTests.show.sections.weights.good.sampleAfter') }}
+                                        </span>
                                         <span class="font-semibold font-mono">
-                                            {{ cutting_test.w_sample_after_cut ? `${cutting_test.w_sample_after_cut}g` : '-' }}
+                                            {{ cutting_test.w_sample_after_cut ? t('cuttingTests.show.units.grams', { value: cutting_test.w_sample_after_cut }) : placeholder }}
                                         </span>
                                     </div>
                                 </div>
@@ -362,7 +464,9 @@ const pageTitle = computed(() => {
                 <!-- Notes -->
                 <Card v-if="cutting_test.note" class="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle>Notes</CardTitle>
+                        <CardTitle>
+                            {{ t('cuttingTests.show.sections.notes.title') }}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div class="p-3 bg-muted/50 rounded-lg">
@@ -376,7 +480,7 @@ const pageTitle = computed(() => {
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <Info class="h-4 w-4" />
-                            Calculation Information
+                            {{ t('cuttingTests.show.sections.calculations.title') }}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -384,9 +488,18 @@ const pageTitle = computed(() => {
                             <Info class="h-4 w-4" />
                             <AlertDescription>
                                 <div class="space-y-1 text-sm">
-                                    <p><strong>Outturn Rate Formula:</strong> (Defective Kernel Weight ÷ 2 + Good Kernel Weight) × 80 ÷ 453.6</p>
-                                    <p><strong>Defective Ratio:</strong> Defective Nut Weight ÷ Defective Kernel Weight × 2</p>
-                                    <p><strong>Alert Thresholds:</strong> Sample weight difference > 5g, Defective ratio difference > 5g, Good kernel difference > 10g</p>
+                                    <p>
+                                        <strong>{{ t('cuttingTests.show.sections.calculations.formulas.outturn.title') }}</strong>
+                                        {{ t('cuttingTests.show.sections.calculations.formulas.outturn.body') }}
+                                    </p>
+                                    <p>
+                                        <strong>{{ t('cuttingTests.show.sections.calculations.formulas.defective.title') }}</strong>
+                                        {{ t('cuttingTests.show.sections.calculations.formulas.defective.body') }}
+                                    </p>
+                                    <p>
+                                        <strong>{{ t('cuttingTests.show.sections.calculations.thresholds.title') }}</strong>
+                                        {{ t('cuttingTests.show.sections.calculations.thresholds.body') }}
+                                    </p>
                                 </div>
                             </AlertDescription>
                         </Alert>

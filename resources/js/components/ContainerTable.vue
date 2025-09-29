@@ -11,6 +11,7 @@ import {
 import type { Container } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     containers: Container[];
@@ -19,6 +20,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     containers: () => [],
 });
+
+const { t } = useI18n();
 
 const rows = computed(() =>
     (props.containers ?? []).filter((container): container is Container => Boolean(container)),
@@ -61,13 +64,19 @@ const formatOutturn = (value: number | string | null | undefined): string => {
     <Table>
         <TableHeader>
             <TableRow>
-                <TableHead>Container Number</TableHead>
-                <TableHead>Truck</TableHead>
-                <TableHead>Quantity of Bags</TableHead>
-                <TableHead>Net</TableHead>
-                <TableHead>Moisture</TableHead>
-                <TableHead>Outturn</TableHead>
-                <TableHead class="w-24 text-right">Actions</TableHead>
+                <TableHead>
+                    {{ t('containers.table.headers.containerNumber') }}
+                </TableHead>
+                <TableHead>{{ t('containers.table.headers.truck') }}</TableHead>
+                <TableHead>
+                    {{ t('containers.table.headers.quantityOfBags') }}
+                </TableHead>
+                <TableHead>{{ t('containers.table.headers.net') }}</TableHead>
+                <TableHead>{{ t('containers.table.headers.moisture') }}</TableHead>
+                <TableHead>{{ t('containers.table.headers.outturn') }}</TableHead>
+                <TableHead class="w-24 text-right">
+                    {{ t('containers.table.headers.actions') }}
+                </TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
@@ -87,7 +96,9 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                         variant="ghost"
                         as-child
                     >
-                        <Link :href="`/containers/${container.id}/edit`">Edit</Link>
+                        <Link :href="`/containers/${container.id}/edit`">
+                            {{ t('common.actions.edit') }}
+                        </Link>
                     </Button>
                 </TableCell>
             </TableRow>

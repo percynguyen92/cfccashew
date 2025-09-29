@@ -19,13 +19,18 @@ import CuttingTestTable from '@/components/CuttingTestTable.vue';
 import type { Bill, Container, CuttingTest } from '@/types';
 import { Package, Plus, TestTube } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     bill: Bill;
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 const bill = computed(() => props.bill);
+const billIdentifier = computed(
+    () => bill.value.bill_number || String(bill.value.id),
+);
 
 const isEditDialogOpen = ref(false);
 
@@ -101,9 +106,6 @@ const sortCuttingTests = (tests: CuttingTest[]): CuttingTest[] =>
 const resolveCuttingTests = (tests: CuttingTestCollection): CuttingTest[] =>
     sortCuttingTests(normalizeCuttingTests(tests));
 
-const resolveContainerTests = (tests: CuttingTestCollection): CuttingTest[] =>
-    resolveCuttingTests(tests);
-
 const finalSamples = computed(() =>
     resolveCuttingTests(bill.value.final_samples as CuttingTestCollection),
 );
@@ -173,7 +175,9 @@ watch(isCuttingTestDialogOpen, (isOpen) => {
 const { breadcrumbs } = useBreadcrumbs();
 
 const formatOutturn = (outturn: number | string | null | undefined): string => {
-    if (outturn === null || outturn === undefined) return '-';
+    if (outturn === null || outturn === undefined) {
+        return t('common.placeholders.notAvailable');
+    }
 
     const numeric =
         typeof outturn === 'number'
@@ -181,15 +185,17 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
             : Number.parseFloat(outturn as string);
 
     if (Number.isNaN(numeric)) {
-        return '-';
+        return t('common.placeholders.notAvailable');
     }
 
-    return `${numeric.toFixed(2)} lbs/80kg`;
+    return t('bills.show.outturnValue', {
+        value: numeric.toFixed(2),
+    });
 };
 </script>
 
 <template>
-    <Head :title="`Bill #${bill.bill_number || bill.id}`" />
+    <Head :title="t('bills.show.title', { identifier: billIdentifier })" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
@@ -202,19 +208,22 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                 <div class="flex flex-col gap-2">
                     <div class="flex flex-wrap items-center gap-2">
                         <h1 class="text-3xl font-bold tracking-tight">
-                            Bill #{{ bill.bill_number || bill.id }}
+                            {{ t('bills.show.heading', { identifier: billIdentifier }) }}
                         </h1>
                         <Button
                             variant="outline"
                             type="button"
                             @click="openEditDialog"
                         >
-                            Edit Bill
+                            {{ t('bills.show.actions.edit') }}
                         </Button>
                     </div>
                     <p class="text-muted-foreground">
-                        Created
-                        {{ new Date(bill.created_at).toLocaleDateString() }}
+                        {{
+                            t('bills.show.meta.created', {
+                                date: new Date(bill.created_at).toLocaleDateString(),
+                            })
+                        }}
                     </p>
                 </div>
             </div>
@@ -226,46 +235,51 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                         class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
                     >
                         <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                                >Bill Number</label
-                            >
+                            <label class="text-sm font-medium text-muted-foreground">
+                                {{ t('bills.form.fields.billNumber.label') }}
+                            </label>
                             <p class="text-lg font-semibold">
-                                {{ bill.bill_number || '-' }}
+                                {{
+                                    bill.bill_number ||
+                                    t('common.placeholders.notAvailable')
+                                }}
                             </p>
                         </div>
                         <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                                >Seller</label
-                            >
+                            <label class="text-sm font-medium text-muted-foreground">
+                                {{ t('bills.form.fields.seller.label') }}
+                            </label>
                             <p class="text-lg font-semibold">
-                                {{ bill.seller || '-' }}
+                                {{
+                                    bill.seller ||
+                                    t('common.placeholders.notAvailable')
+                                }}
                             </p>
                         </div>
                         <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                                >Buyer</label
-                            >
+                            <label class="text-sm font-medium text-muted-foreground">
+                                {{ t('bills.form.fields.buyer.label') }}
+                            </label>
                             <p class="text-lg font-semibold">
-                                {{ bill.buyer || '-' }}
+                                {{
+                                    bill.buyer ||
+                                    t('common.placeholders.notAvailable')
+                                }}
                             </p>
                         </div>
                         <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                                >Average Outturn</label
-                            >
+                            <label class="text-sm font-medium text-muted-foreground">
+                                {{ t('bills.show.labels.averageOutturn') }}
+                            </label>
                             <p class="text-lg font-semibold">
                                 {{ formatOutturn(bill.average_outurn) }}
                             </p>
                         </div>
                     </div>
                     <div v-if="bill.note" class="mt-4">
-                        <label class="text-sm font-medium text-muted-foreground"
-                            >Note</label
-                        >
+                        <label class="text-sm font-medium text-muted-foreground">
+                            {{ t('bills.form.fields.note.label') }}
+                        </label>
                         <p class="mt-1 text-sm">{{ bill.note }}</p>
                     </div>
                 </CardContent>
@@ -278,16 +292,19 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                         <div>
                             <CardTitle class="flex items-center gap-2">
                                 <TestTube class="h-5 w-5" />
-                                Final Samples
+                                {{ t('bills.show.finalSamples.title') }}
                             </CardTitle>
-                            <CardDescription
-                                >Final sample cutting tests for this
-                                bill</CardDescription
-                            >
+                            <CardDescription>
+                                {{ t('bills.show.finalSamples.description') }}
+                            </CardDescription>
                         </div>
-                        <Button size="sm" variant="outline" @click="openCreateCuttingTestDialog">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            @click="openCreateCuttingTestDialog"
+                        >
                             <Plus class="mr-1 h-4 w-4" />
-                            Add Cutting Test
+                            {{ t('bills.show.finalSamples.add') }}
                         </Button>
                     </div>
                 </CardHeader>
@@ -300,10 +317,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
                         <TestTube class="mx-auto mb-4 h-12 w-12 opacity-50" />
-                        <p>No final samples recorded yet</p>
+                        <p>{{ t('bills.show.finalSamples.empty.title') }}</p>
                         <p class="text-sm">
-                            Add final sample cutting tests to track quality
-                            metrics
+                            {{ t('bills.show.finalSamples.empty.subtitle') }}
                         </p>
                         <Button
                             size="sm"
@@ -312,7 +328,7 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                             @click="openCreateCuttingTestDialog"
                         >
                             <Plus class="mr-1 h-4 w-4" />
-                            Add Cutting Test
+                            {{ t('bills.show.finalSamples.add') }}
                         </Button>
                     </div>
                 </CardContent>
@@ -325,19 +341,18 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                         <div>
                             <CardTitle class="flex items-center gap-2">
                                 <Package class="h-5 w-5" />
-                                Containers
+                                {{ t('bills.show.containers.title') }}
                             </CardTitle>
-                            <CardDescription
-                                >Containers associated with this
-                                bill</CardDescription
-                            >
+                            <CardDescription>
+                                {{ t('bills.show.containers.description') }}
+                            </CardDescription>
                         </div>
                         <Button as-child>
                             <Link
                                 :href="`/containers/create?bill_id=${bill.id}`"
                             >
                                 <Plus class="mr-2 h-4 w-4" />
-                                Add Container
+                                {{ t('bills.show.containers.add') }}
                             </Link>
                         </Button>
                     </div>
@@ -348,9 +363,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
                         <Package class="mx-auto mb-4 h-12 w-12 opacity-50" />
-                        <p>No containers added yet</p>
+                        <p>{{ t('bills.show.containers.empty.title') }}</p>
                         <p class="text-sm">
-                            Add containers to track weights and cutting tests
+                            {{ t('bills.show.containers.empty.subtitle') }}
                         </p>
                     </div>
                 </CardContent>
@@ -359,7 +374,7 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
 
         <Dialog v-model:open="isEditDialogOpen">
             <DialogContent
-                class="max-h-[90vh] w-full max-w-4xl sm:max-w-4xl lg:max-w-5xl overflow-y-auto"
+                class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl"
             >
                 <BillForm
                     v-if="isEditDialogOpen"
@@ -373,7 +388,7 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
 
         <Dialog v-model:open="isCuttingTestDialogOpen">
             <DialogContent
-                class="max-h-[90vh] w-full max-w-5xl sm:max-w-5xl xl:max-w-6xl overflow-y-auto"
+                class="max-h-[90vh] w-full max-w-5xl overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
             >
                 <CuttingTestForm
                     v-if="isCuttingTestDialogOpen"

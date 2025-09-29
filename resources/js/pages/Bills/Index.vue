@@ -45,6 +45,7 @@ import {
     Trash2,
 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 type BillListItem = BillModel & {
     containers_count: number;
@@ -63,6 +64,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const { breadcrumbs } = useBreadcrumbs();
 const { goToPage, getPaginationInfo } = usePagination();
 const { filters, isLoading, sortBy } = useFiltering(props.filters);
@@ -150,7 +152,10 @@ const pendingBillLabel = computed(() => {
 
     if (!bill) return '';
 
-    return bill.bill_number || `ID ${bill.id}`;
+    return (
+        bill.bill_number ||
+        t('bills.index.dialog.delete.fallback', { id: bill.id })
+    );
 });
 
 const isBillFormOpen = ref(false);
@@ -243,7 +248,7 @@ watch(isBillFormOpen, (isOpen) => {
 </script>
 
 <template>
-    <Head title="Bills" />
+    <Head :title="t('bills.index.title')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
@@ -252,14 +257,16 @@ watch(isBillFormOpen, (isOpen) => {
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-semibold">Bills</h1>
+                    <h1 class="text-2xl font-semibold">
+                        {{ t('bills.index.title') }}
+                    </h1>
                     <p class="text-sm text-muted-foreground">
-                        Manage Bills of Lading and their associated containers
+                        {{ t('bills.index.description') }}
                     </p>
                 </div>
                 <Button @click="openCreateBillDialog">
                     <Plus class="mr-2 h-4 w-4" />
-                    Create New Bill
+                    {{ t('bills.index.actions.create') }}
                 </Button>
             </div>
 
@@ -273,12 +280,16 @@ watch(isBillFormOpen, (isOpen) => {
                         <Input
                             :model-value="filters.search"
                             @input="handleSearch"
-                            placeholder="Search by bill number, seller, or buyer..."
+                            :placeholder="t('bills.index.search.placeholder')"
                             class="pl-9"
                         />
                     </div>
                     <div class="text-sm text-muted-foreground">
-                        {{ paginationInfo.total }} total bills
+                        {{
+                            t('bills.index.search.total', {
+                                count: paginationInfo.total,
+                            })
+                        }}
                     </div>
                 </CardContent>
             </Card>
@@ -305,7 +316,11 @@ watch(isBillFormOpen, (isOpen) => {
                                         @click="sortBy('bill_number')"
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
-                                        Bill #
+                                        {{
+                                            t(
+                                                'bills.index.table.headers.billNumber',
+                                            )
+                                        }}
                                         <component
                                             :is="getSortIcon('bill_number')"
                                             class="ml-2 h-4 w-4"
@@ -319,7 +334,9 @@ watch(isBillFormOpen, (isOpen) => {
                                         @click="sortBy('seller')"
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
-                                        Seller
+                                        {{
+                                            t('bills.index.table.headers.seller')
+                                        }}
                                         <component
                                             :is="getSortIcon('seller')"
                                             class="ml-2 h-4 w-4"
@@ -333,7 +350,7 @@ watch(isBillFormOpen, (isOpen) => {
                                         @click="sortBy('buyer')"
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
-                                        Buyer
+                                        {{ t('bills.index.table.headers.buyer') }}
                                         <component
                                             :is="getSortIcon('buyer')"
                                             class="ml-2 h-4 w-4"
@@ -347,7 +364,11 @@ watch(isBillFormOpen, (isOpen) => {
                                         @click="sortBy('containers_count')"
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
-                                        Containers
+                                        {{
+                                            t(
+                                                'bills.index.table.headers.containers',
+                                            )
+                                        }}
                                         <component
                                             :is="
                                                 getSortIcon('containers_count')
@@ -356,8 +377,20 @@ watch(isBillFormOpen, (isOpen) => {
                                         />
                                     </Button>
                                 </TableHead>
-                                <TableHead>Final Samples</TableHead>
-                                <TableHead>Avg. Outurn</TableHead>
+                                <TableHead>
+                                    {{
+                                        t(
+                                            'bills.index.table.headers.finalSamples',
+                                        )
+                                    }}
+                                </TableHead>
+                                <TableHead>
+                                    {{
+                                        t(
+                                            'bills.index.table.headers.averageOutturn',
+                                        )
+                                    }}
+                                </TableHead>
                                 <TableHead>
                                     <Button
                                         variant="ghost"
@@ -365,16 +398,20 @@ watch(isBillFormOpen, (isOpen) => {
                                         @click="sortBy('created_at')"
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
-                                        Created
+                                        {{
+                                            t(
+                                                'bills.index.table.headers.created',
+                                            )
+                                        }}
                                         <component
                                             :is="getSortIcon('created_at')"
                                             class="ml-2 h-4 w-4"
                                         />
                                     </Button>
                                 </TableHead>
-                                <TableHead class="text-right"
-                                    >Actions</TableHead
-                                >
+                                <TableHead class="text-right">
+                                    {{ t('bills.index.table.headers.actions') }}
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -396,13 +433,22 @@ watch(isBillFormOpen, (isOpen) => {
                                 "
                             >
                                 <TableCell class="font-medium">
-                                    {{ bill.bill_number || 'N/A' }}
+                                    {{
+                                        bill.bill_number ||
+                                        t('common.placeholders.notAvailable')
+                                    }}
                                 </TableCell>
                                 <TableCell>
-                                    {{ bill.seller || 'N/A' }}
+                                    {{
+                                        bill.seller ||
+                                        t('common.placeholders.notAvailable')
+                                    }}
                                 </TableCell>
                                 <TableCell>
-                                    {{ bill.buyer || 'N/A' }}
+                                    {{
+                                        bill.buyer ||
+                                        t('common.placeholders.notAvailable')
+                                    }}
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="secondary">
@@ -417,7 +463,11 @@ watch(isBillFormOpen, (isOpen) => {
                                                 : 'destructive'
                                         "
                                     >
-                                        {{ bill.final_samples_count }}/3
+                                        {{
+                                            t('bills.index.table.finalSamples', {
+                                                count: bill.final_samples_count,
+                                            })
+                                        }}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
@@ -425,11 +475,25 @@ watch(isBillFormOpen, (isOpen) => {
                                         v-if="bill.average_outurn"
                                         class="font-medium"
                                     >
-                                        {{ bill.average_outurn.toFixed(2) }}
-                                        lbs/80kg
+                                        {{
+                                            t(
+                                                'bills.index.table.averageOutturnValue',
+                                                {
+                                                    value: bill.average_outurn.toFixed(
+                                                        2,
+                                                    ),
+                                                },
+                                            )
+                                        }}
                                     </span>
                                     <span v-else class="text-muted-foreground"
-                                        >N/A</span
+                                        >
+                                            {{
+                                                t(
+                                                    'common.placeholders.notAvailable',
+                                                )
+                                            }}
+                                        </span
                                     >
                                 </TableCell>
                                 <TableCell class="text-muted-foreground">
@@ -441,21 +505,25 @@ watch(isBillFormOpen, (isOpen) => {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        aria-label="Edit bill"
+                                        :aria-label="t('bills.index.sr.edit')"
                                         @click.stop="openEditBillDialog(bill)"
                                     >
                                         <Pencil class="h-4 w-4" />
-                                        <span class="sr-only">Edit bill</span>
+                                        <span class="sr-only">
+                                            {{ t('bills.index.sr.edit') }}
+                                        </span>
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         class="text-destructive hover:text-destructive"
-                                        aria-label="Delete bill"
+                                        :aria-label="t('bills.index.sr.delete')"
                                         @click.stop="openDeleteDialog(bill)"
                                     >
                                         <Trash2 class="h-4 w-4" />
-                                        <span class="sr-only">Delete bill</span>
+                                        <span class="sr-only">
+                                            {{ t('bills.index.sr.delete') }}
+                                        </span>
                                     </Button>
                                 </TableCell>
                             </TableRow>
@@ -468,16 +536,22 @@ watch(isBillFormOpen, (isOpen) => {
                                 >
                                     <div class="text-muted-foreground">
                                         <p class="text-lg font-medium">
-                                            No bills found
+                                            {{ t('bills.index.empty.title') }}
                                         </p>
                                         <p class="text-sm">
                                             <template v-if="filters.search">
-                                                Try adjusting your search
-                                                criteria
+                                                {{
+                                                    t(
+                                                        'bills.index.empty.search',
+                                                    )
+                                                }}
                                             </template>
                                             <template v-else>
-                                                Get started by creating your
-                                                first bill
+                                                {{
+                                                    t(
+                                                        'bills.index.empty.default',
+                                                    )
+                                                }}
                                             </template>
                                         </p>
                                     </div>
@@ -494,9 +568,13 @@ watch(isBillFormOpen, (isOpen) => {
                 class="flex items-center justify-between"
             >
                 <div class="text-sm text-muted-foreground">
-                    Showing {{ paginationInfo.from }} to
-                    {{ paginationInfo.to }} of
-                    {{ paginationInfo.total }} results
+                    {{
+                        t('bills.index.pagination.summary', {
+                            from: paginationInfo.from,
+                            to: paginationInfo.to,
+                            total: paginationInfo.total,
+                        })
+                    }}
                 </div>
 
                 <Pagination>
@@ -508,7 +586,7 @@ watch(isBillFormOpen, (isOpen) => {
                                 :disabled="!paginationInfo.hasPrevPage"
                                 @click="goToPage(props.bills.prev_page_url)"
                             >
-                                Previous
+                                {{ t('bills.index.pagination.previous') }}
                             </Button>
                         </PaginationListItem>
 
@@ -533,7 +611,7 @@ watch(isBillFormOpen, (isOpen) => {
                                 :disabled="!paginationInfo.hasNextPage"
                                 @click="goToPage(props.bills.next_page_url)"
                             >
-                                Next
+                                {{ t('bills.index.pagination.next') }}
                             </Button>
                         </PaginationListItem>
                     </PaginationList>
@@ -560,11 +638,15 @@ watch(isBillFormOpen, (isOpen) => {
         <Dialog v-model:open="isConfirmOpen">
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete bill</DialogTitle>
+                    <DialogTitle>
+                        {{ t('bills.index.dialog.delete.title') }}
+                    </DialogTitle>
                     <DialogDescription>
-                        This action permanently removes bill
-                        {{ pendingBillLabel }} and all related data. This cannot
-                        be undone.
+                        {{
+                            t('bills.index.dialog.delete.description', {
+                                label: pendingBillLabel,
+                            })
+                        }}
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter class="gap-2">
@@ -573,14 +655,18 @@ watch(isBillFormOpen, (isOpen) => {
                         @click="closeDeleteDialog"
                         :disabled="isDeleting"
                     >
-                        Cancel
+                        {{ t('common.actions.cancel') }}
                     </Button>
                     <Button
                         variant="destructive"
                         @click="confirmDelete"
                         :disabled="isDeleting"
                     >
-                        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+                        {{
+                            isDeleting
+                                ? t('common.states.deleting')
+                                : t('common.actions.delete')
+                        }}
                     </Button>
                 </DialogFooter>
             </DialogContent>

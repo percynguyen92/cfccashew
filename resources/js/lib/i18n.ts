@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/vue3';
 import { createI18n } from 'vue-i18n';
+import type { WritableComputedRef } from 'vue';
 import en from '@/locales/en.json';
 import vi from '@/locales/vi.json';
 
@@ -11,7 +12,37 @@ const COOKIE_KEY = 'app_locale';
 const DEFAULT_LOCALE: SupportedLocale = 'en';
 const FALLBACK_LOCALE: SupportedLocale = 'vi';
 
-type MaybeLocale = SupportedLocale | string | undefined | null;
+let activeLocaleRef: WritableComputedRef<string> | null = null;
+
+export type MaybeLocale = SupportedLocale | string | undefined | null;
+
+type LocaleCarrier = {
+    props: {
+        locale?: MaybeLocale;
+    } & Record<string, unknown>;
+};
+
+type InertiaLocaleSource = {
+    initialPage: LocaleCarrier;
+    page?: LocaleCarrier;
+} & Record<string, unknown>;
+
+export const extractLocaleFromInertiaProps = (
+    source: InertiaLocaleSource,
+): MaybeLocale => {
+    const initialLocale = source.initialPage.props.locale;
+    if (isSupportedLocale(initialLocale)) {
+        return initialLocale;
+    }
+
+    const pageLocale = source.page?.props.locale;
+
+    if (isSupportedLocale(pageLocale)) {
+        return pageLocale;
+    }
+
+    return initialLocale ?? pageLocale ?? undefined;
+};
 
 const isSupportedLocale = (locale: MaybeLocale): locale is SupportedLocale =>
     typeof locale === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(locale);
@@ -54,15 +85,15 @@ const persistLocale = (locale: SupportedLocale) => {
 };
 
 const resolveInitialLocale = (initialLocale?: MaybeLocale): SupportedLocale => {
-    if (isSupportedLocale(initialLocale)) {
-        persistLocale(initialLocale);
-        return initialLocale;
-    }
-
     const storedLocale = readStoredLocale();
     if (storedLocale) {
         persistLocale(storedLocale);
         return storedLocale;
+    }
+
+    if (isSupportedLocale(initialLocale)) {
+        persistLocale(initialLocale);
+        return initialLocale;
     }
 
     const browserLocale = detectBrowserLocale();
@@ -75,8 +106,16 @@ const resolveInitialLocale = (initialLocale?: MaybeLocale): SupportedLocale => {
     return DEFAULT_LOCALE;
 };
 
-export const createI18nInstance = (initialLocale?: MaybeLocale) => {
+type CreateI18nInstanceOptions = {
+    attachRouterListener?: boolean;
+};
+
+export const createI18nInstance = (
+    initialLocale?: MaybeLocale,
+    options: CreateI18nInstanceOptions = {},
+) => {
     const locale = resolveInitialLocale(initialLocale);
+    const { attachRouterListener = true } = options;
     const i18n = createI18n({
         legacy: false,
         locale,
@@ -87,14 +126,38 @@ export const createI18nInstance = (initialLocale?: MaybeLocale) => {
         },
     });
 
-    router.on('success', (event) => {
-        const pageLocale = (event.detail.page.props as { locale?: MaybeLocale }).locale;
+    activeLocaleRef = i18n.global.locale;
 
-        if (isSupportedLocale(pageLocale) && i18n.global.locale.value !== pageLocale) {
-            i18n.global.locale.value = pageLocale;
-            persistLocale(pageLocale);
-        }
-    });
+    if (attachRouterListener && typeof window !== 'undefined') {
+        router.on('success', (event) => {
+            const pageLocale = (event.detail.page.props as { locale?: MaybeLocale }).locale;
+
+            const storedLocale = readStoredLocale();
+
+            if (storedLocale && storedLocale !== pageLocale) {
+                if (i18n.global.locale.value !== storedLocale) {
+                    i18n.global.locale.value = storedLocale;
+                }
+
+                persistLocale(storedLocale);
+                return;
+            }
+
+            if (
+                isSupportedLocale(pageLocale) &&
+                i18n.global.locale.value !== pageLocale
+            ) {
+                i18n.global.locale.value = pageLocale;
+                persistLocale(pageLocale);
+                return;
+            }
+
+            if (storedLocale && i18n.global.locale.value !== storedLocale) {
+                i18n.global.locale.value = storedLocale;
+                persistLocale(storedLocale);
+            }
+        });
+    }
 
     return i18n;
 };
@@ -105,6 +168,9 @@ export const setActiveLocale = (locale: SupportedLocale) => {
     }
 
     persistLocale(locale);
+    if (activeLocaleRef) {
+        activeLocaleRef.value = locale;
+    }
 };
 
 export const getActiveLocale = (): SupportedLocale => {

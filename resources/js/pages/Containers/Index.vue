@@ -33,6 +33,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash-es';
 import { Pencil, Search, Trash2 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface PaginationLink {
     url: string | null;
@@ -70,6 +71,7 @@ const normalizeFilters = (filters: Props['filters']) => ({
     date_to: filters.date_to ?? '',
 });
 
+const { t } = useI18n();
 const { breadcrumbs } = useBreadcrumbs();
 const { goToPage } = usePagination();
 
@@ -85,7 +87,10 @@ const pendingContainerLabel = computed(() => {
 
     if (!container) return '';
 
-    return container.container_number || `ID ${container.id}`;
+    return (
+        container.container_number ||
+        t('containers.index.dialog.delete.fallback', { id: container.id })
+    );
 });
 
 const searchForm = ref(normalizeFilters(props.filters));
@@ -136,28 +141,33 @@ const clearFilters = () => {
     submitFilters({});
 };
 
+const placeholder = computed(() => t('common.placeholders.notAvailable'));
+
 const formatWeight = (weight: number | string | null | undefined): string => {
-    if (weight === null || weight === undefined) return '-';
+    if (weight === null || weight === undefined) return placeholder.value;
     const numValue = typeof weight === 'string' ? parseFloat(weight) : weight;
-    if (isNaN(numValue)) return '-';
+    if (isNaN(numValue)) return placeholder.value;
     return numValue.toLocaleString();
 };
 
 const formatMoisture = (
     moisture: number | string | null | undefined,
 ): string => {
-    if (moisture === null || moisture === undefined) return '-';
+    if (moisture === null || moisture === undefined)
+        return placeholder.value;
     const numValue =
         typeof moisture === 'string' ? parseFloat(moisture) : moisture;
-    if (isNaN(numValue)) return '-';
+    if (isNaN(numValue)) return placeholder.value;
     return `${numValue.toFixed(1)}%`;
 };
 
 const formatOuturn = (outurn: number | string | null | undefined): string => {
-    if (outurn === null || outurn === undefined) return '-';
+    if (outurn === null || outurn === undefined) return placeholder.value;
     const numValue = typeof outurn === 'string' ? parseFloat(outurn) : outurn;
-    if (isNaN(numValue)) return '-';
-    return `${numValue.toFixed(2)} lbs/80kg`;
+    if (isNaN(numValue)) return placeholder.value;
+    return t('containers.index.table.outturnValue', {
+        value: numValue.toFixed(2),
+    });
 };
 
 const viewContainer = (container: Container) => {
@@ -209,19 +219,29 @@ const paginationLinks = computed(() => {
 
 const previousLink = computed<PaginationLink>(() => {
     const links = pagination.value.links ?? [];
-    return links[0] ?? { url: null, label: 'Previous', active: false };
+    return (
+        links[0] ?? {
+            url: null,
+            label: t('containers.index.pagination.previous'),
+            active: false,
+        }
+    );
 });
 
 const nextLink = computed<PaginationLink>(() => {
     const links = pagination.value.links ?? [];
     return (
-        links[links.length - 1] ?? { url: null, label: 'Next', active: false }
+        links[links.length - 1] ?? {
+            url: null,
+            label: t('containers.index.pagination.next'),
+            active: false,
+        }
     );
 });
 </script>
 
 <template>
-    <Head title="Containers" />
+    <Head :title="t('containers.index.title')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
@@ -229,13 +249,19 @@ const nextLink = computed<PaginationLink>(() => {
         >
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-semibold">Containers</h1>
+                    <h1 class="text-2xl font-semibold">
+                        {{ t('containers.index.title') }}
+                    </h1>
                     <p class="text-sm text-muted-foreground">
-                        Track container weights and related cutting tests.
+                        {{ t('containers.index.description') }}
                     </p>
                 </div>
                 <div class="text-sm text-muted-foreground">
-                    {{ pagination.total }} containers total
+                    {{
+                        t('containers.index.summary.total', {
+                            count: pagination.total,
+                        })
+                    }}
                 </div>
             </div>
 
@@ -244,34 +270,48 @@ const nextLink = computed<PaginationLink>(() => {
                     class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5"
                 >
                     <div class="space-y-2">
-                        <Label for="container_number">Container Number</Label>
+                        <Label for="container_number">
+                            {{ t('containers.index.filters.containerNumber.label') }}
+                        </Label>
                         <Input
                             id="container_number"
                             v-model="searchForm.container_number"
-                            placeholder="Search container number..."
+                            :placeholder="
+                                t('containers.index.filters.containerNumber.placeholder')
+                            "
                             @input="debouncedHandleSearch()"
                         />
                     </div>
                     <div class="space-y-2">
-                        <Label for="truck">Truck</Label>
+                        <Label for="truck">
+                            {{ t('containers.form.fields.truck.label') }}
+                        </Label>
                         <Input
                             id="truck"
                             v-model="searchForm.truck"
-                            placeholder="Search truck..."
+                            :placeholder="
+                                t('containers.index.filters.truck.placeholder')
+                            "
                             @input="debouncedHandleSearch()"
                         />
                     </div>
                     <div class="space-y-2">
-                        <Label for="bill_info">Bill Info</Label>
+                        <Label for="bill_info">
+                            {{ t('containers.index.filters.billInfo.label') }}
+                        </Label>
                         <Input
                             id="bill_info"
                             v-model="searchForm.bill_info"
-                            placeholder="Bill number, seller, buyer..."
+                            :placeholder="
+                                t('containers.index.filters.billInfo.placeholder')
+                            "
                             @input="debouncedHandleSearch()"
                         />
                     </div>
                     <div class="space-y-2">
-                        <Label for="date_from">From Date</Label>
+                        <Label for="date_from">
+                            {{ t('containers.index.filters.dateFrom.label') }}
+                        </Label>
                         <Input
                             id="date_from"
                             v-model="searchForm.date_from"
@@ -280,7 +320,9 @@ const nextLink = computed<PaginationLink>(() => {
                         />
                     </div>
                     <div class="space-y-2">
-                        <Label for="date_to">To Date</Label>
+                        <Label for="date_to">
+                            {{ t('containers.index.filters.dateTo.label') }}
+                        </Label>
                         <Input
                             id="date_to"
                             v-model="searchForm.date_to"
@@ -292,10 +334,10 @@ const nextLink = computed<PaginationLink>(() => {
                 <div class="flex flex-wrap items-center gap-2">
                     <Button size="sm" @click="handleSearch">
                         <Search class="mr-2 h-4 w-4" />
-                        Search
+                        {{ t('containers.index.filters.actions.search') }}
                     </Button>
                     <Button variant="outline" size="sm" @click="clearFilters">
-                        Clear Filters
+                        {{ t('containers.index.filters.actions.clear') }}
                     </Button>
                 </div>
             </Card>
@@ -306,22 +348,30 @@ const nextLink = computed<PaginationLink>(() => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Container Number</TableHead>
-                                    <TableHead>Truck</TableHead>
-                                    <TableHead>Bill Info</TableHead>
-                                    <TableHead class="text-right"
-                                        >Net Weight</TableHead
-                                    >
-                                    <TableHead class="text-right"
-                                        >Moisture</TableHead
-                                    >
-                                    <TableHead class="text-right"
-                                        >Outturn</TableHead
-                                    >
-                                    <TableHead>Created</TableHead>
-                                    <TableHead class="w-[120px] text-right"
-                                        >Actions</TableHead
-                                    >
+                                    <TableHead>
+                                        {{ t('containers.table.headers.containerNumber') }}
+                                    </TableHead>
+                                    <TableHead>
+                                        {{ t('containers.table.headers.truck') }}
+                                    </TableHead>
+                                    <TableHead>
+                                        {{ t('containers.index.table.headers.billInfo') }}
+                                    </TableHead>
+                                    <TableHead class="text-right">
+                                        {{ t('containers.index.table.headers.netWeight') }}
+                                    </TableHead>
+                                    <TableHead class="text-right">
+                                        {{ t('containers.index.table.headers.moisture') }}
+                                    </TableHead>
+                                    <TableHead class="text-right">
+                                        {{ t('containers.index.table.headers.outturn') }}
+                                    </TableHead>
+                                    <TableHead>
+                                        {{ t('containers.index.table.headers.created') }}
+                                    </TableHead>
+                                    <TableHead class="w-[120px] text-right">
+                                        {{ t('containers.index.table.headers.actions') }}
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -332,10 +382,13 @@ const nextLink = computed<PaginationLink>(() => {
                                     @click="viewContainer(container)"
                                 >
                                     <TableCell class="font-medium">
-                                        {{ container.container_number || '-' }}
+                                        {{
+                                            container.container_number ||
+                                            placeholder
+                                        }}
                                     </TableCell>
                                     <TableCell>
-                                        {{ container.truck || '-' }}
+                                        {{ container.truck || placeholder }}
                                     </TableCell>
                                     <TableCell>
                                         <div
@@ -344,23 +397,38 @@ const nextLink = computed<PaginationLink>(() => {
                                         >
                                             <div class="font-medium">
                                                 {{
-                                                    container.bill
-                                                        .bill_number ||
-                                                    `Bill ${container.bill.id}`
+                                                    container.bill.bill_number ||
+                                                    t(
+                                                        'containers.index.table.billNumberFallback',
+                                                        { id: container.bill.id },
+                                                    )
                                                 }}
                                             </div>
                                             <div
                                                 class="text-sm text-muted-foreground"
                                             >
-                                                {{ container.bill.seller }} /
-                                                {{ container.bill.buyer }}
+                                                {{
+                                                    t(
+                                                        'containers.index.table.billParties',
+                                                        {
+                                                            seller:
+                                                                container.bill
+                                                                    .seller ||
+                                                                placeholder,
+                                                            buyer:
+                                                                container.bill
+                                                                    .buyer ||
+                                                                placeholder,
+                                                        },
+                                                    )
+                                                }}
                                             </div>
                                         </div>
                                         <div
                                             v-else
                                             class="text-muted-foreground"
                                         >
-                                            -
+                                            {{ placeholder }}
                                         </div>
                                     </TableCell>
                                     <TableCell class="text-right font-mono">
@@ -410,9 +478,9 @@ const nextLink = computed<PaginationLink>(() => {
                                             "
                                         >
                                             <Pencil class="h-4 w-4" />
-                                            <span class="sr-only"
-                                                >Edit container</span
-                                            >
+                                            <span class="sr-only">
+                                                {{ t('containers.index.sr.edit') }}
+                                            </span>
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -424,9 +492,9 @@ const nextLink = computed<PaginationLink>(() => {
                                             "
                                         >
                                             <Trash2 class="h-4 w-4" />
-                                            <span class="sr-only"
-                                                >Delete container</span
-                                            >
+                                            <span class="sr-only">
+                                                {{ t('containers.index.sr.delete') }}
+                                            </span>
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -435,8 +503,7 @@ const nextLink = computed<PaginationLink>(() => {
                                         colspan="8"
                                         class="py-8 text-center text-muted-foreground"
                                     >
-                                        No containers found. Try adjusting your
-                                        search filters.
+                                        {{ t('containers.index.empty') }}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
@@ -450,8 +517,13 @@ const nextLink = computed<PaginationLink>(() => {
                 class="flex items-center justify-between"
             >
                 <div class="text-sm text-muted-foreground">
-                    Showing {{ pagination.from }} to {{ pagination.to }} of
-                    {{ pagination.total }} containers
+                    {{
+                        t('containers.index.pagination.summary', {
+                            from: pagination.from,
+                            to: pagination.to,
+                            total: pagination.total,
+                        })
+                    }}
                 </div>
                 <Pagination>
                     <PaginationList>
@@ -462,7 +534,7 @@ const nextLink = computed<PaginationLink>(() => {
                                 :disabled="!previousLink.url"
                                 @click="goToPage(previousLink.url)"
                             >
-                                Previous
+                                {{ t('containers.index.pagination.previous') }}
                             </Button>
                         </PaginationListItem>
 
@@ -487,7 +559,7 @@ const nextLink = computed<PaginationLink>(() => {
                                 :disabled="!nextLink.url"
                                 @click="goToPage(nextLink.url)"
                             >
-                                Next
+                                {{ t('containers.index.pagination.next') }}
                             </Button>
                         </PaginationListItem>
                     </PaginationList>
@@ -498,11 +570,15 @@ const nextLink = computed<PaginationLink>(() => {
         <Dialog v-model:open="isConfirmOpen">
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete container</DialogTitle>
+                    <DialogTitle>
+                        {{ t('containers.index.dialog.delete.title') }}
+                    </DialogTitle>
                     <DialogDescription>
-                        This action permanently removes container
-                        {{ pendingContainerLabel }} and all related data. This
-                        cannot be undone.
+                        {{
+                            t('containers.index.dialog.delete.description', {
+                                label: pendingContainerLabel,
+                            })
+                        }}
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter class="gap-2">
@@ -511,14 +587,18 @@ const nextLink = computed<PaginationLink>(() => {
                         @click="closeDeleteDialog"
                         :disabled="isDeleting"
                     >
-                        Cancel
+                        {{ t('common.actions.cancel') }}
                     </Button>
                     <Button
                         variant="destructive"
                         @click="confirmDelete"
                         :disabled="isDeleting"
                     >
-                        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+                        {{
+                            isDeleting
+                                ? t('common.states.deleting')
+                                : t('common.actions.delete')
+                        }}
                     </Button>
                 </DialogFooter>
             </DialogContent>

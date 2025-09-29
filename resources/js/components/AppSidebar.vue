@@ -19,6 +19,7 @@ import { Link } from '@inertiajs/vue3';
 import { FileText, LayoutGrid, Package, Scissors } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import DarkModeToggle from './DarkModeToggle.vue';
+import LanguageSwitcher from './LanguageSwitcher.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -71,6 +72,9 @@ const mainNavItems = computed<NavItem[]>(() => [
 
         <SidebarFooter>
             <NavUser />
+            <div class="w-full group-data-[collapsible=icon]:hidden">
+                <LanguageSwitcher full-width />
+            </div>
         </SidebarFooter>
     </Sidebar>
     <slot />

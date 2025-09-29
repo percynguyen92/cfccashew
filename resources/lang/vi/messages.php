@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'bill_created' => 'Tạo vận đơn thành công.',
-    'bill_updated' => 'Cập nhật vận đơn thành công.',
-    'bill_deleted' => 'Xóa vận đơn thành công.',
+    'bill_created' => 'Tạo bill thành công.',
+    'bill_updated' => 'Cập nhật bill thành công.',
+    'bill_deleted' => 'Xóa bill thành công.',
     'container_created' => 'Tạo container thành công.',
     'container_updated' => 'Cập nhật container thành công.',
     'container_deleted' => 'Xóa container thành công.',

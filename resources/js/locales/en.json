@@ -6,14 +6,24 @@
     },
     "navigation": {
         "dashboard": "Dashboard",
-        "bills": "Bills",
+        "bills": "Bill",
         "containers": "Containers",
-        "cuttingTests": "Cutting Tests",
+        "cuttingTests": "Cut Samples",
         "repository": "Repository",
         "documentation": "Documentation"
     },
     "header": {
         "navigationMenu": "Navigation Menu"
+    },
+    "branding": {
+        "name": "CFC Cashew"
+    },
+    "appearance": {
+        "tabs": {
+            "light": "Light",
+            "dark": "Dark",
+            "system": "System"
+        }
     },
     "common": {
         "actions": {
@@ -29,11 +39,15 @@
         "states": {
             "creating": "Creating...",
             "updating": "Updating...",
-            "saving": "Saving..."
+            "saving": "Saving...",
+            "deleting": "Deleting..."
         },
         "messages": {
             "loading": "Loading...",
             "noData": "No data available"
+        },
+        "placeholders": {
+            "notAvailable": "N/A"
         }
     },
     "userMenu": {
@@ -68,6 +82,84 @@
                 "note": {
                     "label": "Note",
                     "placeholder": "Enter additional notes (optional)"
+                }
+            }
+        },
+        "index": {
+            "title": "Bills",
+            "description": "Manage Bills of Lading and their associated containers",
+            "actions": {
+                "create": "Create New Bill"
+            },
+            "search": {
+                "placeholder": "Search by bill number, seller, or buyer...",
+                "total": "{count} total bills"
+            },
+            "table": {
+                "headers": {
+                    "billNumber": "Bill #",
+                    "seller": "Seller",
+                    "buyer": "Buyer",
+                    "containers": "Containers",
+                    "finalSamples": "Final Samples",
+                    "averageOutturn": "Avg. Outturn",
+                    "created": "Created",
+                    "actions": "Actions"
+                },
+                "finalSamples": "{count}/3",
+                "averageOutturnValue": "{value} lbs/80kg"
+            },
+            "empty": {
+                "title": "No bills found",
+                "search": "Try adjusting your search criteria",
+                "default": "Get started by creating your first bill"
+            },
+            "pagination": {
+                "summary": "Showing {from} to {to} of {total} results",
+                "previous": "Previous",
+                "next": "Next"
+            },
+            "sr": {
+                "edit": "Edit bill",
+                "delete": "Delete bill"
+            },
+            "dialog": {
+                "delete": {
+                    "title": "Delete bill",
+                    "description": "This action permanently removes bill {label} and all related data. This cannot be undone.",
+                    "fallback": "ID {id}"
+                }
+            }
+        },
+        "show": {
+            "title": "Bill #{identifier}",
+            "heading": "Bill #{identifier}",
+            "actions": {
+                "edit": "Edit Bill"
+            },
+            "meta": {
+                "created": "Created {date}"
+            },
+            "labels": {
+                "averageOutturn": "Average Outturn"
+            },
+            "outturnValue": "{value} lbs/80kg",
+            "finalSamples": {
+                "title": "Final Samples",
+                "description": "Final sample cutting tests for this bill",
+                "add": "Add Cutting Test",
+                "empty": {
+                    "title": "No final samples recorded yet",
+                    "subtitle": "Add final sample cutting tests to track quality metrics"
+                }
+            },
+            "containers": {
+                "title": "Containers",
+                "description": "Containers associated with this bill",
+                "add": "Add Container",
+                "empty": {
+                    "title": "No containers added yet",
+                    "subtitle": "Add containers to track weights and cutting tests"
                 }
             }
         }
@@ -105,33 +197,33 @@
                 },
                 "juteBagWeight": {
                     "label": "Jute Bag Weight (kg)",
-                    "placeholder": "1.50",
+                    "placeholder": "1.00",
                     "negative": "Jute bag weight cannot be negative.",
                     "max": "Jute bag weight cannot exceed 99.99 kg."
                 },
                 "totalWeight": {
                     "label": "Total Weight (kg)",
-                    "placeholder": "25000",
+                    "placeholder": "e.g. 45000",
                     "integer": "Total weight must be a whole number.",
                     "min": "Total weight cannot be less than {min}."
                 },
                 "truckWeight": {
                     "label": "Truck Weight (kg)",
-                    "placeholder": "10000",
+                    "placeholder": "e.g. 12000",
                     "integer": "Truck weight must be a whole number.",
                     "min": "Truck weight cannot be less than {min}."
                 },
                 "containerWeight": {
                     "label": "Container Weight (kg)",
-                    "placeholder": "2500",
+                    "placeholder": "e.g. 3500",
                     "integer": "Container weight must be a whole number.",
                     "min": "Container weight cannot be less than {min}."
                 },
                 "dunnageWeight": {
-                    "label": "Dunnage Weight (kg)",
-                    "placeholder": "200",
-                    "integer": "Dunnage weight must be a whole number.",
-                    "min": "Dunnage weight cannot be less than {min}."
+                    "label": "Dunnage + Dribag (kg)",
+                    "placeholder": "e.g. 200",
+                    "integer": "Dunnage + dribag weight must be a whole number.",
+                    "min": "Dunnage + dribag weight cannot be less than {min}."
                 },
                 "note": {
                     "label": "Note",
@@ -140,23 +232,23 @@
                 }
             },
             "calculated": {
-                "heading": "Calculated Weights",
+                "heading": "Weight Calculations",
                 "gross": {
-                    "label": "Gross Weight (kg)",
+                    "label": "Gross (kg)",
                     "formula": "Formula: Total - Truck - Container",
                     "warning": "Total weight should be greater than truck + container weight."
                 },
                 "tare": {
-                    "label": "Tare Weight (kg)",
+                    "label": "Tare (kg)",
                     "formula": "Formula: Quantity × Jute Bag Weight"
                 },
                 "net": {
-                    "label": "Net Weight (kg)",
-                    "formula": "Formula: Gross - Dunnage - Tare",
+                    "label": "Net (kg)",
+                    "formula": "Formula: Gross - (Dunnage + Dribag) - Tare",
                     "warning": "Net weight calculation results in zero or negative value. Please check your inputs."
                 },
-                "insufficient": "Gross weight is insufficient for dunnage and tare weights.",
-                "fillAll": "Please fill in all required fields to see calculated weights",
+                "insufficient": "Gross weight is insufficient for dunnage + dribag and tare weights.",
+                "fillAll": "Please complete all required fields to show calculated weights",
                 "issues": "Calculation Issues:"
             },
             "validation": {
@@ -168,6 +260,402 @@
                 "create": "Create",
                 "update": "Update",
                 "saving": "Saving..."
+            }
+        },
+        "table": {
+            "headers": {
+                "containerNumber": "Container Number",
+                "truck": "Truck",
+                "quantityOfBags": "Quantity of Bags",
+                "net": "Net",
+                "moisture": "Moisture",
+                "outturn": "Outturn",
+                "actions": "Actions"
+            }
+        },
+        "index": {
+            "title": "Containers",
+            "description": "Track container weights and related cutting tests.",
+            "summary": {
+                "total": "{count} containers total"
+            },
+            "filters": {
+                "containerNumber": {
+                    "label": "Container Number",
+                    "placeholder": "Search container number..."
+                },
+                "truck": {
+                    "placeholder": "Search truck..."
+                },
+                "billInfo": {
+                    "label": "Bill Info",
+                    "placeholder": "Bill number, seller, buyer..."
+                },
+                "dateFrom": {
+                    "label": "From Date"
+                },
+                "dateTo": {
+                    "label": "To Date"
+                },
+                "actions": {
+                    "search": "Search",
+                    "clear": "Clear Filters"
+                }
+            },
+            "table": {
+                "headers": {
+                    "billInfo": "Bill Info",
+                    "netWeight": "Net Weight",
+                    "moisture": "Moisture",
+                    "outturn": "Outturn",
+                    "created": "Created",
+                    "actions": "Actions"
+                },
+                "billNumberFallback": "Bill #{id}",
+                "billParties": "{seller} / {buyer}",
+                "outturnValue": "{value} lbs/80kg"
+            },
+            "sr": {
+                "edit": "Edit container",
+                "delete": "Delete container"
+            },
+            "empty": "No containers found. Try adjusting your search filters.",
+            "pagination": {
+                "summary": "Showing {from} to {to} of {total} containers",
+                "previous": "Previous",
+                "next": "Next"
+            },
+            "dialog": {
+                "delete": {
+                    "title": "Delete container",
+                    "description": "This action permanently removes container {label} and all related data. This cannot be undone.",
+                    "fallback": "ID {id}"
+                }
+            }
+        },
+        "show": {
+            "title": "Container {identifier}",
+            "heading": "Container {identifier}",
+            "actions": {
+                "edit": "Edit Container",
+                "addCuttingTest": "Add Cutting Test"
+            },
+            "sections": {
+                "containerInfo": {
+                    "title": "Container Information"
+                },
+                "weightInfo": {
+                    "title": "Weight Information"
+                }
+            },
+            "units": {
+                "kilogram": "kg"
+            },
+            "fields": {
+                "grossWeight": "Gross Weight",
+                "tareWeight": "Tare Weight",
+                "netWeight": "Net Weight",
+                "notes": "Notes"
+            },
+            "moistureValue": "{value}%",
+            "defectiveRatio": "{nut}/{kernel}",
+            "cuttingTests": {
+                "title": "Cutting Tests",
+                "add": "Add Test",
+                "headers": {
+                    "type": "Type",
+                    "moisture": "Moisture",
+                    "sampleWeight": "Sample Weight",
+                    "nutCount": "Nut Count",
+                    "defectiveRatio": "Defective Ratio",
+                    "outturn": "Outturn Rate",
+                    "date": "Date"
+                },
+                "sampleWeightValue": "{value} g",
+                "empty": {
+                    "title": "No cutting tests yet",
+                    "subtitle": "Add cutting tests to track quality metrics for this container.",
+                    "action": "Add First Test"
+                },
+                "types": {
+                    "finalFirst": "Final Sample 1st Cut",
+                    "finalSecond": "Final Sample 2nd Cut",
+                    "finalThird": "Final Sample 3rd Cut",
+                    "container": "Container Cut",
+                    "generic": "Type {type}"
+                }
+            },
+            "billInfo": {
+                "title": "Bill Information",
+                "view": "View Bill Details"
+            },
+            "quality": {
+                "title": "Quality Summary",
+                "averageMoisture": "Average Moisture",
+                "moistureWarning": "Warning: High moisture content",
+                "outturn": "Outturn Rate",
+                "testsCount": "Tests Count",
+                "testsCountValue": "{count} tests"
+            }
+        }
+    },
+    "cuttingTests": {
+        "index": {
+            "title": "Cutting Tests",
+            "description": "Monitor quality metrics across containers and samples.",
+            "actions": {
+                "create": "Add Cutting Test"
+            },
+            "filters": {
+                "billNumber": {
+                    "label": "Bill Number",
+                    "placeholder": "Search bill number..."
+                },
+                "testType": {
+                    "label": "Test Type",
+                    "placeholder": "All tests",
+                    "options": {
+                        "all": "All Tests",
+                        "final": "Final Tests",
+                        "container": "Container Tests"
+                    }
+                },
+                "container": {
+                    "label": "Container",
+                    "placeholder": "Container number..."
+                },
+                "moistureRange": {
+                    "label": "Moisture Range (%)",
+                    "minPlaceholder": "Min",
+                    "maxPlaceholder": "Max"
+                },
+                "dateFrom": {
+                    "label": "Date From"
+                },
+                "dateTo": {
+                    "label": "Date To"
+                },
+                "actions": {
+                    "search": "Search",
+                    "clear": "Clear Filters"
+                }
+            },
+            "summary": {
+                "total": "{count} cutting tests total"
+            },
+            "table": {
+                "headers": {
+                    "bill": "Bill",
+                    "sampleOrContainer": "Sample / Container",
+                    "moisture": "Moisture (%)",
+                    "defectiveNut": "Defective Nut (g)",
+                    "goodKernel": "Good Kernel (g)",
+                    "outturn": "Outturn (lbs/80kg)",
+                    "created": "Created",
+                    "actions": "Actions"
+                },
+                "billParties": "{seller} / {buyer}",
+                "billFallback": "Bill #{id}",
+                "finalSampleLabel": "#{order}",
+                "containerFallback": "Container #{id}",
+                "containerPlaceholder": "Container"
+            },
+            "empty": "No cutting tests found. Try adjusting your search filters.",
+            "pagination": {
+                "summary": "Showing {from} to {to} of {total} results",
+                "previous": "Previous",
+                "next": "Next"
+            },
+            "sr": {
+                "view": "View cutting test",
+                "edit": "Edit cutting test",
+                "delete": "Delete cutting test"
+            },
+            "dialog": {
+                "delete": {
+                    "confirm": "Are you sure you want to delete this cutting test?"
+                }
+            }
+        },
+        "show": {
+            "pageTitle": "{type} – Test #{id}",
+            "title": "Cutting Test",
+            "meta": {
+                "created": "Created: {date}",
+                "updated": "Updated: {date}"
+            },
+            "actions": {
+                "back": "Back to Bill",
+                "edit": "Edit",
+                "delete": "Delete"
+            },
+            "dialog": {
+                "delete": {
+                    "confirm": "Are you sure you want to delete this cutting test? This action cannot be undone."
+                }
+            },
+            "alerts": {
+                "weight": "Weight alert: sample weight decreased by {difference}g after cutting (threshold: 5g)",
+                "defectiveRatio": "Defective ratio alert: difference of {difference}g between expected and actual defective kernel weight (threshold: 5g)",
+                "goodKernel": "Good kernel alert: difference of {difference}g between expected and actual good kernel weight (threshold: 10g)"
+            },
+            "types": {
+                "finalFirst": "Final Sample 1st Cut",
+                "finalSecond": "Final Sample 2nd Cut",
+                "finalThird": "Final Sample 3rd Cut",
+                "container": "Container Cut",
+                "generic": "Type {type}"
+            },
+            "sections": {
+                "context": {
+                    "title": "Test Context",
+                    "bill": {
+                        "title": "Associated Bill",
+                        "seller": "Seller: {value}",
+                        "buyer": "Buyer: {value}"
+                    },
+                    "container": {
+                        "title": "Container Association",
+                        "finalSample": "Final sample (not associated with a specific container)",
+                        "truck": "Truck: {value}",
+                        "fallback": "Container #{id}"
+                    },
+                    "testType": "Test Type"
+                },
+                "measurements": {
+                    "title": "Basic Measurements",
+                    "sampleWeight": "Sample Weight",
+                    "moisture": "Moisture",
+                    "nutCount": "Nut Count",
+                    "outturn": "Outturn Rate",
+                    "notMeasured": "Not measured",
+                    "notCounted": "Not counted",
+                    "notCalculated": "Not calculated"
+                },
+                "weights": {
+                    "title": "Weight Breakdown",
+                    "reject": {
+                        "title": "Rejected Material",
+                        "nut": "Reject Nut Weight"
+                    },
+                    "defective": {
+                        "title": "Defective Material",
+                        "nut": "Defective Nut",
+                        "kernel": "Defective Kernel",
+                        "ratioLabel": "Ratio (nut/kernel)"
+                    },
+                    "good": {
+                        "title": "Good Material",
+                        "kernel": "Good Kernel Weight",
+                        "sampleAfter": "Sample After Cut"
+                    }
+                },
+                "notes": {
+                    "title": "Notes"
+                },
+                "calculations": {
+                    "title": "Calculation Information",
+                    "formulas": {
+                        "outturn": {
+                            "title": "Outturn Rate Formula:",
+                            "body": "(Defective Kernel Weight ÷ 2 + Good Kernel Weight) × 80 ÷ 453.6"
+                        },
+                        "defective": {
+                            "title": "Defective Ratio:",
+                            "body": "Defective Nut Weight ÷ Defective Kernel Weight × 2"
+                        }
+                    },
+                    "thresholds": {
+                        "title": "Alert Thresholds:",
+                        "body": "Sample weight difference > 5g, defective ratio difference > 5g, good kernel difference > 10g"
+                    }
+                }
+            },
+            "units": {
+                "grams": "{value}g"
+            }
+        },
+        "form": {
+            "title": {
+                "create": "Add Final Sample",
+                "edit": "Edit Final Sample"
+            },
+            "actions": {
+                "create": "Create Cutting Test",
+                "update": "Update Cutting Test"
+            },
+            "billLabel": "Bill #{id}",
+            "types": {
+                "finalFirst": "Final Sample 1st Cut",
+                "finalSecond": "Final Sample 2nd Cut",
+                "finalThird": "Final Sample 3rd Cut",
+                "generic": "Type {type}"
+            },
+            "fields": {
+                "type": {
+                    "label": "Test Type *"
+                },
+                "sampleWeight": {
+                    "label": "Sample Weight (grams) *"
+                },
+                "moisture": {
+                    "label": "Moisture (%)"
+                },
+                "nutCount": {
+                    "label": "Nut Count"
+                },
+                "rejectNutWeight": {
+                    "label": "Reject Nut Weight"
+                },
+                "defectiveNutWeight": {
+                    "label": "Defective Nut Weight"
+                },
+                "defectiveKernelWeight": {
+                    "label": "Defective Kernel Weight"
+                },
+                "goodKernelWeight": {
+                    "label": "Good Kernel Weight"
+                },
+                "sampleAfterCut": {
+                    "label": "Sample Weight After Cut"
+                },
+                "note": {
+                    "label": "Observation Notes",
+                    "placeholder": "Additional observations or comments"
+                }
+            },
+            "sections": {
+                "details": {
+                    "title": "Test Details"
+                },
+                "weights": {
+                    "title": "Weight Measurements (grams)",
+                    "outturnCalculated": "Calculated Outturn Rate"
+                },
+                "notes": {
+                    "title": "Notes"
+                }
+            },
+            "status": {
+                "notCalculated": "Not calculated"
+            },
+            "alerts": {
+                "weight": "Weight difference alert: sample weight decreased by {difference}g after cutting (threshold: 5g)",
+                "defectiveRatio": "Defective nut/kernel ratio alert: difference of {difference}g (threshold: 5g)",
+                "goodKernel": "Good kernel weight alert: difference of {difference}g (threshold: 10g)"
+            },
+            "errors": {
+                "billInvalid": "A valid bill is required.",
+                "typeInvalid": "Select a valid test type.",
+                "containerNotAllowed": "Final sample tests cannot reference a container.",
+                "integer": "{label} must be a whole number.",
+                "range": "{label} must be between {min} and {max}{unit, select, undefined {} other { {unit}}}.",
+                "moistureRange": "Moisture must be between 0 and 100%.",
+                "noteTooLong": "Note is too long."
+            },
+            "units": {
+                "grams": "grams",
+                "outturnRate": "{value} lbs/80kg"
             }
         }
     },
@@ -194,9 +682,9 @@
         "containerCreated": "Container created successfully.",
         "containerUpdated": "Container updated successfully.",
         "containerDeleted": "Container deleted successfully.",
-        "cuttingTestCreated": "Cutting test created successfully.",
-        "cuttingTestUpdated": "Cutting test updated successfully.",
-        "cuttingTestDeleted": "Cutting test deleted successfully."
+        "cuttingTestCreated": "Cut sample result created successfully.",
+        "cuttingTestUpdated": "Cut sample result updated successfully.",
+        "cuttingTestDeleted": "Cut sample result deleted successfully."
     },
     "breadcrumbs": {
         "bills": {
