@@ -9,6 +9,8 @@ import * as containerRoutes from '@/routes/containers';
 import { type Container } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ArrowLeft, Package } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     container: Container;
@@ -16,12 +18,16 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const { breadcrumbs } = useBreadcrumbs();
+const containerIdentifier = computed(
+    () => props.container.container_number || `#${props.container.id}`,
+);
 
 // Navigation
 const goBack = () => {
-    // Use container number if available, otherwise fall back to ID
-    const identifier = props.container.container_number || props.container.id;
+    const identifier =
+        props.container.container_number || props.container.id.toString();
     router.visit(containerRoutes.show.url(identifier.toString()));
 };
 
@@ -36,9 +42,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-    <Head
-        :title="`Edit Container ${container.container_number || `#${container.id}`}`"
-    />
+    <Head :title="$t('containers.edit.headTitle', { identifier: containerIdentifier })" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
@@ -49,14 +53,15 @@ const handleCancel = () => {
                 <div class="flex items-center gap-4">
                     <Button variant="ghost" size="sm" @click="goBack">
                         <ArrowLeft class="mr-2 h-4 w-4" />
-                        Back to Container
+                        {{ $t('containers.edit.actions.back') }}
                     </Button>
                     <div class="flex items-center gap-2">
                         <Package class="h-6 w-6" />
                         <h1 class="text-2xl font-semibold">
-                            Edit Container
                             {{
-                                container.container_number || `#${container.id}`
+                                $t('containers.edit.title', {
+                                    identifier: containerIdentifier,
+                                })
                             }}
                         </h1>
                     </div>
@@ -79,34 +84,43 @@ const handleCancel = () => {
                     <!-- Bill Information -->
                     <Card v-if="container.bill">
                         <CardHeader>
-                            <CardTitle>Bill Information</CardTitle>
+                            <CardTitle>{{ $t('containers.edit.bill.title') }}</CardTitle>
                         </CardHeader>
                         <CardContent class="space-y-3">
                             <div>
-                                <Label
-                                    class="text-sm font-medium text-muted-foreground"
-                                    >Bill Number</Label
-                                >
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.bill.number') }}
+                                </Label>
                                 <p class="font-medium">
                                     {{
                                         container.bill.bill_number ||
-                                        `Bill #${container.bill.id}`
+                                        $t('containers.edit.bill.fallback', {
+                                            id: container.bill.id,
+                                        })
                                     }}
                                 </p>
                             </div>
                             <div>
-                                <Label
-                                    class="text-sm font-medium text-muted-foreground"
-                                    >Seller</Label
-                                >
-                                <p>{{ container.bill.seller || '-' }}</p>
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.bill.seller') }}
+                                </Label>
+                                <p>
+                                    {{
+                                        container.bill.seller ||
+                                        $t('common.placeholders.notAvailable')
+                                    }}
+                                </p>
                             </div>
                             <div>
-                                <Label
-                                    class="text-sm font-medium text-muted-foreground"
-                                    >Buyer</Label
-                                >
-                                <p>{{ container.bill.buyer || '-' }}</p>
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.bill.buyer') }}
+                                </Label>
+                                <p>
+                                    {{
+                                        container.bill.buyer ||
+                                        $t('common.placeholders.notAvailable')
+                                    }}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>
@@ -114,14 +128,13 @@ const handleCancel = () => {
                     <!-- Container Metadata -->
                     <Card>
                         <CardHeader>
-                            <CardTitle>Container Details</CardTitle>
+                            <CardTitle>{{ $t('containers.edit.metadata.title') }}</CardTitle>
                         </CardHeader>
                         <CardContent class="space-y-3">
                             <div>
-                                <Label
-                                    class="text-sm font-medium text-muted-foreground"
-                                    >Created</Label
-                                >
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.metadata.created') }}
+                                </Label>
                                 <p class="text-sm">
                                     {{
                                         new Date(
@@ -131,10 +144,9 @@ const handleCancel = () => {
                                 </p>
                             </div>
                             <div>
-                                <Label
-                                    class="text-sm font-medium text-muted-foreground"
-                                    >Last Updated</Label
-                                >
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.metadata.updated') }}
+                                </Label>
                                 <p class="text-sm">
                                     {{
                                         new Date(

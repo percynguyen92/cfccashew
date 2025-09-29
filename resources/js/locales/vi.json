@@ -18,6 +18,30 @@
     "branding": {
         "name": "CFC Cashew"
     },
+    "welcome": {
+        "pageTitle": "Chào mừng",
+        "nav": {
+            "dashboard": "Bảng điều khiển",
+            "login": "Đăng nhập",
+            "register": "Đăng ký"
+        },
+        "hero": {
+            "title": "Bắt đầu thôi",
+            "subtitle": {
+                "line1": "Laravel có một hệ sinh thái cực kỳ phong phú.",
+                "line2": "Hãy bắt đầu với những nội dung dưới đây."
+            }
+        },
+        "tiles": {
+            "documentation": {
+                "intro": "Đọc",
+                "link": "Tài liệu"
+            },
+            "laracasts": {
+                "link": "Laracasts"
+            }
+        }
+    },
     "appearance": {
         "tabs": {
             "light": "Sáng",
@@ -31,11 +55,12 @@
             "create": "Tạo",
             "update": "Cập nhật",
             "save": "Lưu",
-            "delete": "Xóa",
-            "edit": "Sửa",
-            "view": "Xem",
-            "close": "Đóng"
-        },
+        "delete": "Xóa",
+        "edit": "Sửa",
+        "view": "Xem",
+        "close": "Đóng",
+        "continue": "Tiếp tục"
+    },
         "states": {
             "creating": "Đang tạo...",
             "updating": "Đang cập nhật...",
@@ -53,6 +78,146 @@
     "userMenu": {
         "settings": "Cài đặt",
         "logout": "Đăng xuất"
+    },
+    "sidebar": {
+        "mobile": {
+            "title": "Thanh điều hướng",
+            "description": "Hiển thị sidebar trên thiết bị di động."
+        },
+        "trigger": "Đổi trạng thái sidebar"
+    },
+    "breadcrumb": {
+        "ellipsis": "Thêm"
+    },
+    "auth": {
+        "forgotPassword": {
+            "title": "Quên mật khẩu",
+            "headTitle": "Quên mật khẩu",
+            "description": "Nhập email để nhận liên kết đặt lại mật khẩu",
+            "email": {
+                "label": "Địa chỉ email",
+                "placeholder": "email@vidu.com"
+            },
+            "actions": {
+                "send": "Gửi liên kết đặt lại mật khẩu"
+            },
+            "footer": {
+                "prefix": "Hoặc quay lại",
+                "link": "đăng nhập"
+            }
+        },
+        "confirmPassword": {
+            "title": "Xác nhận mật khẩu",
+            "headTitle": "Xác nhận mật khẩu",
+            "description": "Đây là khu vực bảo mật của ứng dụng. Vui lòng xác nhận mật khẩu trước khi tiếp tục.",
+            "password": {
+                "label": "Mật khẩu"
+            },
+            "actions": {
+                "confirm": "Xác nhận mật khẩu"
+            }
+        },
+        "twoFactorChallenge": {
+            "headTitle": "Xác thực hai lớp",
+            "code": {
+                "title": "Mã xác thực",
+                "description": "Nhập mã xác thực từ ứng dụng xác thực của bạn."
+            },
+            "recovery": {
+                "title": "Mã khôi phục",
+                "description": "Nhập một trong các mã khôi phục khẩn cấp để xác nhận truy cập vào tài khoản.",
+                "placeholder": "Nhập mã khôi phục"
+            },
+            "toggle": {
+                "prefix": "hoặc bạn có thể",
+                "toRecovery": "đăng nhập bằng mã khôi phục",
+                "toCode": "đăng nhập bằng mã xác thực"
+            }
+        }
+    },
+    "settings": {
+        "profile": {
+            "breadcrumb": "Cài đặt hồ sơ",
+            "title": "Cài đặt hồ sơ",
+            "heading": {
+                "title": "Thông tin hồ sơ",
+                "description": "Cập nhật tên và địa chỉ email của bạn"
+            },
+            "fields": {
+                "name": {
+                    "label": "Họ tên",
+                    "placeholder": "Họ tên đầy đủ"
+                },
+                "email": {
+                    "label": "Địa chỉ email",
+                    "placeholder": "Địa chỉ email"
+                }
+            },
+            "verification": {
+                "unverified": "Email của bạn chưa được xác minh.",
+                "resend": "Nhấn vào đây để gửi lại email xác minh.",
+                "sent": "Liên kết xác minh mới đã được gửi đến email của bạn."
+            },
+            "status": {
+                "saved": "Đã lưu."
+            }
+        },
+        "twoFactor": {
+            "breadcrumb": "Xác thực hai lớp",
+            "title": "Xác thực hai lớp",
+            "heading": {
+                "title": "Xác thực hai lớp",
+                "description": "Quản lý cài đặt xác thực hai lớp của bạn"
+            },
+            "status": {
+                "disabled": "Đang tắt",
+                "enabled": "Đang bật"
+            },
+            "copy": {
+                "disabled": "Khi bật xác thực hai lớp, bạn sẽ cần nhập mã PIN bảo mật khi đăng nhập. Mã PIN được lấy từ ứng dụng hỗ trợ TOTP trên điện thoại.",
+                "enabled": "Khi bật xác thực hai lớp, bạn sẽ cần nhập mã PIN ngẫu nhiên khi đăng nhập, mã này được lấy từ ứng dụng hỗ trợ TOTP trên điện thoại."
+            },
+            "actions": {
+                "continueSetup": "Tiếp tục thiết lập",
+                "enable": "Bật 2FA",
+                "disable": "Tắt 2FA"
+            },
+            "recovery": {
+                "title": "Mã khôi phục 2FA",
+                "description": "Các mã khôi phục giúp bạn truy cập lại khi mất thiết bị 2FA. Hãy lưu trữ trong trình quản lý mật khẩu an toàn.",
+                "actions": {
+                    "view": "Xem",
+                    "hide": "Ẩn",
+                    "regenerate": "Tạo lại mã"
+                },
+                "codesLabel": "Mã khôi phục",
+                "instructions": "Mỗi mã khôi phục chỉ dùng được một lần và sẽ bị xóa sau khi sử dụng. Nếu cần thêm mã, hãy nhấn \"{action}\" phía trên."
+            },
+            "setup": {
+                "enabled": {
+                    "title": "Đã bật xác thực hai lớp",
+                    "description": "Xác thực hai lớp đã được bật. Quét mã QR hoặc nhập khóa thiết lập trong ứng dụng xác thực."
+                },
+                "verify": {
+                    "title": "Xác minh mã xác thực",
+                    "description": "Nhập mã 6 chữ số từ ứng dụng xác thực",
+                    "codeLabel": "Mã xác thực"
+                },
+                "enable": {
+                    "title": "Bật xác thực hai lớp",
+                    "description": "Để hoàn tất bật xác thực hai lớp, hãy quét mã QR hoặc nhập khóa thiết lập vào ứng dụng xác thực"
+                },
+                "manual": {
+                    "title": "hoặc nhập mã thủ công"
+                },
+                "actions": {
+                    "close": "Đóng",
+                    "continue": "Tiếp tục",
+                    "confirm": "Xác nhận",
+                    "back": "Quay lại"
+                }
+            }
+        }
     },
     "bills": {
         "form": {
@@ -400,6 +565,45 @@
         }
     },
     "cuttingTests": {
+        "table": {
+            "headers": {
+                "moisture": "Độ ẩm",
+                "rejectNut": "Hạt loại",
+                "defectNut": "Hạt lỗi",
+                "goodKernel": "Nhân tốt",
+                "outturn": "Outturn",
+                "actions": "Thao tác"
+            },
+            "moistureValue": "{value}%",
+            "weightValue": "{value}g",
+            "outturnValue": "{value} lbs/80kg"
+        },
+        "edit": {
+            "headTitle": "Chỉnh sửa container {identifier}",
+            "title": "Chỉnh sửa container {identifier}",
+            "actions": {
+                "back": "Quay lại container"
+            },
+            "bill": {
+                "title": "Thông tin bill",
+                "number": "Số bill",
+                "seller": "Người bán",
+                "buyer": "Người mua",
+                "fallback": "Bill #{id}"
+            },
+            "metadata": {
+                "title": "Thông tin container",
+                "created": "Ngày tạo",
+                "updated": "Cập nhật lần cuối"
+            }
+        },
+        "create": {
+            "headTitle": "Tạo container",
+            "title": "Tạo container",
+            "actions": {
+                "back": "Quay lại"
+            }
+        },
         "index": {
             "title": "Kết quả cắt",
             "description": "Theo dõi các chỉ số chất lượng giữa container và mẫu.",

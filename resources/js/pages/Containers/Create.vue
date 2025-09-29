@@ -10,6 +10,8 @@ import * as containerRoutes from '@/routes/containers';
 import * as billRoutes from '@/routes/bills';
 import { Head, router } from '@inertiajs/vue3';
 import { Package, ArrowLeft } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     bill?: Bill;
@@ -18,7 +20,13 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const { breadcrumbs } = useBreadcrumbs();
+const billIdentifier = computed(() =>
+    props.bill
+        ? props.bill.bill_number || `#${props.bill.id}`
+        : null,
+);
 
 // Navigation
 const goBack = () => {
@@ -40,8 +48,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-
-    <Head title="Create Container" />
+    <Head :title="$t('containers.create.headTitle')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
@@ -50,11 +57,13 @@ const handleCancel = () => {
                 <div class="flex items-center gap-4">
                     <Button variant="ghost" size="sm" @click="goBack">
                         <ArrowLeft class="h-4 w-4 mr-2" />
-                        Back
+                        {{ $t('containers.create.actions.back') }}
                     </Button>
                     <div class="flex items-center gap-2">
                         <Package class="h-6 w-6" />
-                        <h1 class="text-2xl font-semibold">Create Container</h1>
+                        <h1 class="text-2xl font-semibold">
+                            {{ $t('containers.create.title') }}
+                        </h1>
                     </div>
                 </div>
             </div>
@@ -70,20 +79,43 @@ const handleCancel = () => {
                     <!-- Bill Information -->
                     <Card v-if="bill">
                         <CardHeader>
-                            <CardTitle>Bill Information</CardTitle>
+                            <CardTitle>{{ $t('containers.edit.bill.title') }}</CardTitle>
                         </CardHeader>
                         <CardContent class="space-y-3">
                             <div>
-                                <Label class="text-sm font-medium text-muted-foreground">Bill Number</Label>
-                                <p class="font-medium">{{ bill.bill_number || `Bill #${bill.id}` }}</p>
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.bill.number') }}
+                                </Label>
+                                <p class="font-medium">
+                                    {{
+                                        billIdentifier ||
+                                            $t('containers.edit.bill.fallback', {
+                                                id: bill?.id,
+                                            })
+                                    }}
+                                </p>
                             </div>
                             <div>
-                                <Label class="text-sm font-medium text-muted-foreground">Seller</Label>
-                                <p>{{ bill.seller || '-' }}</p>
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.bill.seller') }}
+                                </Label>
+                                <p>
+                                    {{
+                                        bill.seller ||
+                                        $t('common.placeholders.notAvailable')
+                                    }}
+                                </p>
                             </div>
                             <div>
-                                <Label class="text-sm font-medium text-muted-foreground">Buyer</Label>
-                                <p>{{ bill.buyer || '-' }}</p>
+                                <Label class="text-sm font-medium text-muted-foreground">
+                                    {{ $t('containers.edit.bill.buyer') }}
+                                </Label>
+                                <p>
+                                    {{
+                                        bill.buyer ||
+                                        $t('common.placeholders.notAvailable')
+                                    }}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import type { CuttingTest } from '@/types';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     tests: CuttingTest[];
@@ -26,6 +27,8 @@ const emit = defineEmits<{
 const rows = computed(() =>
     (props.tests ?? []).filter((test): test is CuttingTest => Boolean(test)),
 );
+
+const { t } = useI18n();
 
 const formatNumber = (
     value: number | string | null | undefined,
@@ -50,17 +53,23 @@ const formatNumber = (
 
 const formatMoisture = (value: number | string | null | undefined): string => {
     const rendered = formatNumber(value, 1);
-    return rendered === '-' ? rendered : `${rendered}%`;
+    return rendered === '-'
+        ? t('common.placeholders.notAvailable')
+        : t('cuttingTests.table.moistureValue', { value: rendered });
 };
 
 const formatWeight = (value: number | string | null | undefined): string => {
     const rendered = formatNumber(value);
-    return rendered === '-' ? rendered : `${rendered}g`;
+    return rendered === '-'
+        ? t('common.placeholders.notAvailable')
+        : t('cuttingTests.table.weightValue', { value: rendered });
 };
 
 const formatOutturn = (value: number | string | null | undefined): string => {
     const rendered = formatNumber(value, 2);
-    return rendered === '-' ? rendered : `${rendered} lbs/80kg`;
+    return rendered === '-'
+        ? t('common.placeholders.notAvailable')
+        : t('cuttingTests.table.outturnValue', { value: rendered });
 };
 </script>
 
@@ -68,12 +77,24 @@ const formatOutturn = (value: number | string | null | undefined): string => {
     <Table>
         <TableHeader>
             <TableRow>
-                <TableHead>Moisture</TableHead>
-                <TableHead>Reject Nut</TableHead>
-                <TableHead>Defect Nut</TableHead>
-                <TableHead>Good Kernel</TableHead>
-                <TableHead>Outturn</TableHead>
-                <TableHead class="w-24 text-right">Actions</TableHead>
+                <TableHead>
+                    {{ t('cuttingTests.table.headers.moisture') }}
+                </TableHead>
+                <TableHead>
+                    {{ t('cuttingTests.table.headers.rejectNut') }}
+                </TableHead>
+                <TableHead>
+                    {{ t('cuttingTests.table.headers.defectNut') }}
+                </TableHead>
+                <TableHead>
+                    {{ t('cuttingTests.table.headers.goodKernel') }}
+                </TableHead>
+                <TableHead>
+                    {{ t('cuttingTests.table.headers.outturn') }}
+                </TableHead>
+                <TableHead class="w-24 text-right">
+                    {{ t('cuttingTests.table.headers.actions') }}
+                </TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
@@ -90,7 +111,7 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                         variant="ghost"
                         @click="emit('edit', test)"
                     >
-                        Edit
+                        {{ t('common.actions.edit') }}
                     </Button>
                 </TableCell>
             </TableRow>

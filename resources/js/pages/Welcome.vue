@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <Head title="Welcome">
+    <Head :title="$t('welcome.pageTitle')">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
@@ -20,20 +20,20 @@ import { Head, Link } from '@inertiajs/vue3';
                     :href="dashboard()"
                     class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                 >
-                    Dashboard
+                    {{ $t('welcome.nav.dashboard') }}
                 </Link>
                 <template v-else>
                     <Link
                         :href="login()"
                         class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
                     >
-                        Log in
+                        {{ $t('welcome.nav.login') }}
                     </Link>
                     <Link
                         :href="register()"
                         class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                     >
-                        Register
+                        {{ $t('welcome.nav.register') }}
                     </Link>
                 </template>
             </nav>
@@ -47,10 +47,12 @@ import { Head, Link } from '@inertiajs/vue3';
                 <div
                     class="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
                 >
-                    <h1 class="mb-1 font-medium">Let's get started</h1>
+                    <h1 class="mb-1 font-medium">
+                        {{ $t('welcome.hero.title') }}
+                    </h1>
                     <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                        Laravel has an incredibly rich ecosystem. <br />We
-                        suggest starting with the following.
+                        {{ $t('welcome.hero.subtitle.line1') }}<br />
+                        {{ $t('welcome.hero.subtitle.line2') }}
                     </p>
                     <ul class="mb-4 flex flex-col lg:mb-6">
                         <li
@@ -68,13 +70,13 @@ import { Head, Link } from '@inertiajs/vue3';
                                 </span>
                             </span>
                             <span>
-                                Read the
+                                {{ $t('welcome.tiles.documentation.intro') }}
                                 <a
                                     href="https://laravel.com/docs"
                                     target="_blank"
                                     class="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
                                 >
-                                    <span>Documentation</span>
+                                    <span>{{ $t('welcome.tiles.documentation.link') }}</span>
                                     <svg
                                         width="{10}"
                                         height="{11}"
@@ -113,7 +115,7 @@ import { Head, Link } from '@inertiajs/vue3';
                                     target="_blank"
                                     class="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
                                 >
-                                    <span>Laracasts</span>
+                            <span>{{ $t('welcome.tiles.laracasts.link') }}</span>
                                     <svg
                                         width="{10}"
                                         height="{11}"

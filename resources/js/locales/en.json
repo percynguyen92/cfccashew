@@ -18,6 +18,30 @@
     "branding": {
         "name": "CFC Cashew"
     },
+    "welcome": {
+        "pageTitle": "Welcome",
+        "nav": {
+            "dashboard": "Dashboard",
+            "login": "Log in",
+            "register": "Register"
+        },
+        "hero": {
+            "title": "Let's get started",
+            "subtitle": {
+                "line1": "Laravel has an incredibly rich ecosystem.",
+                "line2": "We suggest starting with the following."
+            }
+        },
+        "tiles": {
+            "documentation": {
+                "intro": "Read the",
+                "link": "Documentation"
+            },
+            "laracasts": {
+                "link": "Laracasts"
+            }
+        }
+    },
     "appearance": {
         "tabs": {
             "light": "Light",
@@ -31,11 +55,12 @@
             "create": "Create",
             "update": "Update",
             "save": "Save",
-            "delete": "Delete",
-            "edit": "Edit",
-            "view": "View",
-            "close": "Close"
-        },
+        "delete": "Delete",
+        "edit": "Edit",
+        "view": "View",
+        "close": "Close",
+        "continue": "Continue"
+    },
         "states": {
             "creating": "Creating...",
             "updating": "Updating...",
@@ -53,6 +78,146 @@
     "userMenu": {
         "settings": "Settings",
         "logout": "Log out"
+    },
+    "sidebar": {
+        "mobile": {
+            "title": "Sidebar",
+            "description": "Displays the mobile sidebar."
+        },
+        "trigger": "Toggle Sidebar"
+    },
+    "breadcrumb": {
+        "ellipsis": "More"
+    },
+    "auth": {
+        "forgotPassword": {
+            "title": "Forgot password",
+            "headTitle": "Forgot password",
+            "description": "Enter your email to receive a password reset link",
+            "email": {
+                "label": "Email address",
+                "placeholder": "email@example.com"
+            },
+            "actions": {
+                "send": "Email password reset link"
+            },
+            "footer": {
+                "prefix": "Or, return to",
+                "link": "log in"
+            }
+        },
+        "confirmPassword": {
+            "title": "Confirm your password",
+            "headTitle": "Confirm password",
+            "description": "This is a secure area of the application. Please confirm your password before continuing.",
+            "password": {
+                "label": "Password"
+            },
+            "actions": {
+                "confirm": "Confirm Password"
+            }
+        },
+        "twoFactorChallenge": {
+            "headTitle": "Two-Factor Authentication",
+            "code": {
+                "title": "Authentication Code",
+                "description": "Enter the authentication code provided by your authenticator application."
+            },
+            "recovery": {
+                "title": "Recovery Code",
+                "description": "Please confirm access to your account by entering one of your emergency recovery codes.",
+                "placeholder": "Enter recovery code"
+            },
+            "toggle": {
+                "prefix": "or you can",
+                "toRecovery": "login using a recovery code",
+                "toCode": "login using an authentication code"
+            }
+        }
+    },
+    "settings": {
+        "profile": {
+            "breadcrumb": "Profile settings",
+            "title": "Profile settings",
+            "heading": {
+                "title": "Profile information",
+                "description": "Update your name and email address"
+            },
+            "fields": {
+                "name": {
+                    "label": "Name",
+                    "placeholder": "Full name"
+                },
+                "email": {
+                    "label": "Email address",
+                    "placeholder": "Email address"
+                }
+            },
+            "verification": {
+                "unverified": "Your email address is unverified.",
+                "resend": "Click here to resend the verification email.",
+                "sent": "A new verification link has been sent to your email address."
+            },
+            "status": {
+                "saved": "Saved."
+            }
+        },
+        "twoFactor": {
+            "breadcrumb": "Two-Factor Authentication",
+            "title": "Two-Factor Authentication",
+            "heading": {
+                "title": "Two-Factor Authentication",
+                "description": "Manage your two-factor authentication settings"
+            },
+            "status": {
+                "disabled": "Disabled",
+                "enabled": "Enabled"
+            },
+            "copy": {
+                "disabled": "When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.",
+                "enabled": "With two-factor authentication enabled, you will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone."
+            },
+            "actions": {
+                "continueSetup": "Continue Setup",
+                "enable": "Enable 2FA",
+                "disable": "Disable 2FA"
+            },
+            "recovery": {
+                "title": "2FA Recovery Codes",
+                "description": "Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.",
+                "actions": {
+                    "view": "View",
+                    "hide": "Hide",
+                    "regenerate": "Regenerate Codes"
+                },
+                "codesLabel": "Recovery Codes",
+                "instructions": "Each recovery code can be used once to access your account and will be removed after use. If you need more, click {action} above."
+            },
+            "setup": {
+                "enabled": {
+                    "title": "Two-Factor Authentication Enabled",
+                    "description": "Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app."
+                },
+                "verify": {
+                    "title": "Verify Authentication Code",
+                    "description": "Enter the 6-digit code from your authenticator app",
+                    "codeLabel": "Authentication Code"
+                },
+                "enable": {
+                    "title": "Enable Two-Factor Authentication",
+                    "description": "To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app"
+                },
+                "manual": {
+                    "title": "or, enter the code manually"
+                },
+                "actions": {
+                    "close": "Close",
+                    "continue": "Continue",
+                    "confirm": "Confirm",
+                    "back": "Back"
+                }
+            }
+        }
     },
     "bills": {
         "form": {
@@ -400,6 +565,45 @@
         }
     },
     "cuttingTests": {
+        "table": {
+            "headers": {
+                "moisture": "Moisture",
+                "rejectNut": "Reject Nut",
+                "defectNut": "Defect Nut",
+                "goodKernel": "Good Kernel",
+                "outturn": "Outturn",
+                "actions": "Actions"
+            },
+            "moistureValue": "{value}%",
+            "weightValue": "{value}g",
+            "outturnValue": "{value} lbs/80kg"
+        },
+        "edit": {
+            "headTitle": "Edit Container {identifier}",
+            "title": "Edit Container {identifier}",
+            "actions": {
+                "back": "Back to Container"
+            },
+            "bill": {
+                "title": "Bill Information",
+                "number": "Bill Number",
+                "seller": "Seller",
+                "buyer": "Buyer",
+                "fallback": "Bill #{id}"
+            },
+            "metadata": {
+                "title": "Container Details",
+                "created": "Created",
+                "updated": "Last Updated"
+            }
+        },
+        "create": {
+            "headTitle": "Create Container",
+            "title": "Create Container",
+            "actions": {
+                "back": "Back"
+            }
+        },
         "index": {
             "title": "Cutting Tests",
             "description": "Monitor quality metrics across containers and samples.",

@@ -19,6 +19,8 @@ import { Form } from '@inertiajs/vue3';
 import { useClipboard } from '@vueuse/core';
 import { Check, Copy, Loader2, ScanLine } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { Label } from '@/components/ui/label';
 
 interface Props {
     requiresConfirmation: boolean;
@@ -31,6 +33,7 @@ const isOpen = defineModel<boolean>('isOpen');
 const { copy, copied } = useClipboard();
 const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData } =
     useTwoFactorAuth();
+const { t } = useI18n();
 
 const showVerificationStep = ref(false);
 const code = ref<number[]>([]);
@@ -38,33 +41,27 @@ const codeValue = computed<string>(() => code.value.join(''));
 
 const pinInputContainerRef = ref<HTMLElement | null>(null);
 
-const modalConfig = computed<{
-    title: string;
-    description: string;
-    buttonText: string;
-}>(() => {
+const modalConfig = computed(() => {
     if (props.twoFactorEnabled) {
         return {
-            title: 'Two-Factor Authentication Enabled',
-            description:
-                'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
-            buttonText: 'Close',
+            title: t('settings.twoFactor.setup.enabled.title'),
+            description: t('settings.twoFactor.setup.enabled.description'),
+            buttonText: t('settings.twoFactor.setup.actions.close'),
         };
     }
 
     if (showVerificationStep.value) {
         return {
-            title: 'Verify Authentication Code',
-            description: 'Enter the 6-digit code from your authenticator app',
-            buttonText: 'Continue',
+            title: t('settings.twoFactor.setup.verify.title'),
+            description: t('settings.twoFactor.setup.verify.description'),
+            buttonText: t('settings.twoFactor.setup.actions.continue'),
         };
     }
 
     return {
-        title: 'Enable Two-Factor Authentication',
-        description:
-            'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
-        buttonText: 'Continue',
+        title: t('settings.twoFactor.setup.enable.title'),
+        description: t('settings.twoFactor.setup.enable.description'),
+        buttonText: t('settings.twoFactor.setup.actions.continue'),
     };
 });
 
@@ -186,9 +183,9 @@ watch(
                         <div
                             class="absolute inset-0 top-1/2 h-px w-full bg-border"
                         />
-                        <span class="relative bg-card px-2 py-1"
-                            >or, enter the code manually</span
-                        >
+                        <span class="relative bg-card px-2 py-1">
+                            {{ t('settings.twoFactor.setup.manual.title') }}
+                        </span>
                     </div>
 
                     <div
@@ -238,6 +235,9 @@ watch(
                             ref="pinInputContainerRef"
                             class="relative w-full space-y-3"
                         >
+                            <Label for="otp">
+                                {{ t('settings.twoFactor.setup.verify.codeLabel') }}
+                            </Label>
                             <div
                                 class="flex w-full flex-col items-center justify-center space-y-3 py-2"
                             >
@@ -274,7 +274,7 @@ watch(
                                     @click="showVerificationStep = false"
                                     :disabled="processing"
                                 >
-                                    Back
+                                    {{ t('settings.twoFactor.setup.actions.back') }}
                                 </Button>
                                 <Button
                                     type="submit"
@@ -283,7 +283,7 @@ watch(
                                         processing || codeValue.length < 6
                                     "
                                 >
-                                    Confirm
+                                    {{ t('settings.twoFactor.setup.actions.confirm') }}
                                 </Button>
                             </div>
                         </div>

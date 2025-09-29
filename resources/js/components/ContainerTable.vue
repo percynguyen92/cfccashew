@@ -82,13 +82,42 @@ const formatOutturn = (value: number | string | null | undefined): string => {
         <TableBody>
             <TableRow v-for="container in rows" :key="container.id">
                 <TableCell class="font-medium">
-                    {{ container.container_number || '-' }}
+                    {{
+                        container.container_number ||
+                        t('common.placeholders.notAvailable')
+                    }}
                 </TableCell>
-                <TableCell>{{ container.truck || '-' }}</TableCell>
-                <TableCell>{{ formatNumber(container.quantity_of_bags) }}</TableCell>
-                <TableCell>{{ formatWeight(container.w_net) }}</TableCell>
-                <TableCell>{{ formatMoisture(container.average_moisture) }}</TableCell>
-                <TableCell>{{ formatOutturn(container.outturn_rate) }}</TableCell>
+                <TableCell>
+                    {{ container.truck || t('common.placeholders.notAvailable') }}
+                </TableCell>
+                <TableCell>
+                    {{
+                        formatNumber(container.quantity_of_bags) === '-'
+                            ? t('common.placeholders.notAvailable')
+                            : formatNumber(container.quantity_of_bags)
+                    }}
+                </TableCell>
+                <TableCell>
+                    {{
+                        formatWeight(container.w_net) === '-'
+                            ? t('common.placeholders.notAvailable')
+                            : formatWeight(container.w_net)
+                    }}
+                </TableCell>
+                <TableCell>
+                    {{
+                        formatMoisture(container.average_moisture) === '-'
+                            ? t('common.placeholders.notAvailable')
+                            : formatMoisture(container.average_moisture)
+                    }}
+                </TableCell>
+                <TableCell>
+                    {{
+                        formatOutturn(container.outturn_rate) === '-'
+                            ? t('common.placeholders.notAvailable')
+                            : formatOutturn(container.outturn_rate)
+                    }}
+                </TableCell>
                 <TableCell class="text-right">
                     <Button
                         v-if="container.id"
