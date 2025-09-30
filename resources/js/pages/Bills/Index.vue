@@ -128,7 +128,9 @@ watch(
 );
 
 watch(
-    () => (page.props.flash as { createdBill?: BillListItem } | undefined)?.createdBill,
+    () =>
+        (page.props.flash as { createdBill?: BillListItem } | undefined)
+            ?.createdBill,
     (createdBill) => {
         if (!createdBill) {
             return;
@@ -295,7 +297,7 @@ watch(isBillFormOpen, (isOpen) => {
             </Card>
 
             <!-- Bills Table -->
-            <Card class="flex-1">
+            <Card class="flex-1 py-2">
                 <CardContent class="relative">
                     <div
                         v-if="isLoading"
@@ -335,7 +337,9 @@ watch(isBillFormOpen, (isOpen) => {
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
                                         {{
-                                            t('bills.index.table.headers.seller')
+                                            t(
+                                                'bills.index.table.headers.seller',
+                                            )
                                         }}
                                         <component
                                             :is="getSortIcon('seller')"
@@ -350,7 +354,9 @@ watch(isBillFormOpen, (isOpen) => {
                                         @click="sortBy('buyer')"
                                         class="h-auto p-0 font-medium hover:bg-transparent"
                                     >
-                                        {{ t('bills.index.table.headers.buyer') }}
+                                        {{
+                                            t('bills.index.table.headers.buyer')
+                                        }}
                                         <component
                                             :is="getSortIcon('buyer')"
                                             class="ml-2 h-4 w-4"
@@ -464,9 +470,12 @@ watch(isBillFormOpen, (isOpen) => {
                                         "
                                     >
                                         {{
-                                            t('bills.index.table.finalSamples', {
-                                                count: bill.final_samples_count,
-                                            })
+                                            t(
+                                                'bills.index.table.finalSamples',
+                                                {
+                                                    count: bill.final_samples_count,
+                                                },
+                                            )
                                         }}
                                     </Badge>
                                 </TableCell>
@@ -486,15 +495,13 @@ watch(isBillFormOpen, (isOpen) => {
                                             )
                                         }}
                                     </span>
-                                    <span v-else class="text-muted-foreground"
-                                        >
-                                            {{
-                                                t(
-                                                    'common.placeholders.notAvailable',
-                                                )
-                                            }}
-                                        </span
-                                    >
+                                    <span v-else class="text-muted-foreground">
+                                        {{
+                                            t(
+                                                'common.placeholders.notAvailable',
+                                            )
+                                        }}
+                                    </span>
                                 </TableCell>
                                 <TableCell class="text-muted-foreground">
                                     {{ formatDate(bill.created_at) }}

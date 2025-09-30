@@ -153,8 +153,7 @@ const formatWeight = (weight: number | string | null | undefined): string => {
 const formatMoisture = (
     moisture: number | string | null | undefined,
 ): string => {
-    if (moisture === null || moisture === undefined)
-        return placeholder.value;
+    if (moisture === null || moisture === undefined) return placeholder.value;
     const numValue =
         typeof moisture === 'string' ? parseFloat(moisture) : moisture;
     if (isNaN(numValue)) return placeholder.value;
@@ -271,13 +270,19 @@ const nextLink = computed<PaginationLink>(() => {
                 >
                     <div class="space-y-2">
                         <Label for="container_number">
-                            {{ t('containers.index.filters.containerNumber.label') }}
+                            {{
+                                t(
+                                    'containers.index.filters.containerNumber.label',
+                                )
+                            }}
                         </Label>
                         <Input
                             id="container_number"
                             v-model="searchForm.container_number"
                             :placeholder="
-                                t('containers.index.filters.containerNumber.placeholder')
+                                t(
+                                    'containers.index.filters.containerNumber.placeholder',
+                                )
                             "
                             @input="debouncedHandleSearch()"
                         />
@@ -303,7 +308,9 @@ const nextLink = computed<PaginationLink>(() => {
                             id="bill_info"
                             v-model="searchForm.bill_info"
                             :placeholder="
-                                t('containers.index.filters.billInfo.placeholder')
+                                t(
+                                    'containers.index.filters.billInfo.placeholder',
+                                )
                             "
                             @input="debouncedHandleSearch()"
                         />
@@ -342,35 +349,65 @@ const nextLink = computed<PaginationLink>(() => {
                 </div>
             </Card>
 
-            <Card class="flex-1">
+            <Card class="flex-1 py-2">
                 <CardContent>
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>
-                                        {{ t('containers.table.headers.containerNumber') }}
+                                        {{
+                                            t(
+                                                'containers.table.headers.containerNumber',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead>
-                                        {{ t('containers.table.headers.truck') }}
+                                        {{
+                                            t('containers.table.headers.truck')
+                                        }}
                                     </TableHead>
                                     <TableHead>
-                                        {{ t('containers.index.table.headers.billInfo') }}
+                                        {{
+                                            t(
+                                                'containers.index.table.headers.billInfo',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('containers.index.table.headers.netWeight') }}
+                                        {{
+                                            t(
+                                                'containers.index.table.headers.netWeight',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('containers.index.table.headers.moisture') }}
+                                        {{
+                                            t(
+                                                'containers.index.table.headers.moisture',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('containers.index.table.headers.outturn') }}
+                                        {{
+                                            t(
+                                                'containers.index.table.headers.outturn',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead>
-                                        {{ t('containers.index.table.headers.created') }}
+                                        {{
+                                            t(
+                                                'containers.index.table.headers.created',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="w-[120px] text-right">
-                                        {{ t('containers.index.table.headers.actions') }}
+                                        {{
+                                            t(
+                                                'containers.index.table.headers.actions',
+                                            )
+                                        }}
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -397,10 +434,14 @@ const nextLink = computed<PaginationLink>(() => {
                                         >
                                             <div class="font-medium">
                                                 {{
-                                                    container.bill.bill_number ||
+                                                    container.bill
+                                                        .bill_number ||
                                                     t(
                                                         'containers.index.table.billNumberFallback',
-                                                        { id: container.bill.id },
+                                                        {
+                                                            id: container.bill
+                                                                .id,
+                                                        },
                                                     )
                                                 }}
                                             </div>
@@ -479,7 +520,11 @@ const nextLink = computed<PaginationLink>(() => {
                                         >
                                             <Pencil class="h-4 w-4" />
                                             <span class="sr-only">
-                                                {{ t('containers.index.sr.edit') }}
+                                                {{
+                                                    t(
+                                                        'containers.index.sr.edit',
+                                                    )
+                                                }}
                                             </span>
                                         </Button>
                                         <Button
@@ -493,7 +538,11 @@ const nextLink = computed<PaginationLink>(() => {
                                         >
                                             <Trash2 class="h-4 w-4" />
                                             <span class="sr-only">
-                                                {{ t('containers.index.sr.delete') }}
+                                                {{
+                                                    t(
+                                                        'containers.index.sr.delete',
+                                                    )
+                                                }}
                                             </span>
                                         </Button>
                                     </TableCell>

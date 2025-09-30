@@ -59,7 +59,8 @@
             "edit": "Edit",
             "view": "View",
             "close": "Close",
-            "continue": "Continue"
+            "continue": "Continue",
+            "retry": "Retry"
         },
         "states": {
             "creating": "Creating...",
@@ -926,6 +927,105 @@
         "containers": {
             "showId": "Container #{id}",
             "showNumber": "Container {number}"
+        }
+    },
+    "dashboard": {
+        "headTitle": "Dashboard",
+        "title": "Dashboard overview",
+        "description": "Monitor key inspection metrics across bills, containers, and cutting tests.",
+        "messages": {
+            "refreshFailed": "Failed to refresh data. Showing the last available values."
+        },
+        "ranges": {
+            "week": "Last 7 days",
+            "month": "Last 30 days",
+            "year": "Last 12 months",
+            "placeholder": "Select range",
+            "default": "the selected period"
+        },
+        "stats": {
+            "title": "Key metrics",
+            "description": "Snapshot for {range}",
+            "rangeLabel": "Range",
+            "cards": {
+                "totalBills": {
+                    "label": "Bills created",
+                    "description": "Bills recorded during this period."
+                },
+                "pendingFinalTests": {
+                    "label": "Bills pending final tests",
+                    "description": "Bills waiting for final cutting test results."
+                },
+                "missingFinalSamples": {
+                    "label": "Bills missing final samples",
+                    "description": "Bills without a final sample on file."
+                },
+                "highMoistureContainers": {
+                    "label": "High moisture containers",
+                    "description": "Containers exceeding the moisture alert threshold."
+                },
+                "pendingContainerTests": {
+                    "label": "Containers pending tests",
+                    "description": "Containers awaiting any cutting test."
+                },
+                "highMoistureTests": {
+                    "label": "High moisture tests",
+                    "description": "Cutting tests above the moisture alert limit."
+                }
+            }
+        },
+        "recentBills": {
+            "title": "Recent bills",
+            "description": "Latest bills captured in {range}.",
+            "rangeLabel": "Range",
+            "empty": "No recent bills within this range.",
+            "table": {
+                "bill": "Bill",
+                "seller": "Seller",
+                "buyer": "Buyer",
+                "createdAt": "Created at",
+                "actions": "Actions"
+            }
+        },
+        "billsMissingFinalSamples": {
+            "title": "Bills missing final samples",
+            "description": "Bills that still need a final sample submission.",
+            "empty": "All bills have a final sample on record.",
+            "table": {
+                "bill": "Bill",
+                "seller": "Seller",
+                "updatedAt": "Last updated",
+                "actions": "Actions"
+            }
+        },
+        "highMoistureContainers": {
+            "title": "High moisture containers",
+            "description": "Containers flagged for high moisture readings.",
+            "empty": "No containers are currently above the moisture alert threshold.",
+            "table": {
+                "container": "Container",
+                "bill": "Bill",
+                "moisture": "Highest moisture",
+                "updatedAt": "Last updated",
+                "actions": "Actions"
+            }
+        },
+        "moistureDistribution": {
+            "title": "Moisture distribution",
+            "description": "Distribution of moisture results across cutting tests.",
+            "empty": "No cutting test data is available yet.",
+            "metrics": {
+                "avg": "Average moisture",
+                "min": "Minimum moisture",
+                "max": "Maximum moisture",
+                "sampleSize": "Based on {total} cutting tests."
+            },
+            "segments": {
+                "title": "Moisture buckets",
+                "low": "Low",
+                "medium": "Medium",
+                "high": "High"
+            }
         }
     }
 }

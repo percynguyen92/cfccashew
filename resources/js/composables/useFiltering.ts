@@ -13,6 +13,16 @@ export function useFiltering(initialFilters: FilterOptions = {}) {
     const filters = ref<FilterOptions>({ ...initialFilters });
     const isLoading = ref(false);
 
+    const normalizeSearchValue = (value: FilterOptions['search']) => {
+        if (typeof value === 'string') {
+            return value;
+        }
+
+        return value == null ? '' : String(value);
+    };
+
+    let lastSearchValue = normalizeSearchValue(initialFilters.search);
+
     const debouncedSearch = debounce((searchValue: string) => {
         updateFilters({ search: searchValue });
     }, 300);
@@ -70,9 +80,14 @@ export function useFiltering(initialFilters: FilterOptions = {}) {
     watch(
         () => filters.value.search,
         (newSearch) => {
-            if (newSearch !== initialFilters.search) {
-                debouncedSearch(newSearch || '');
+            const normalized = normalizeSearchValue(newSearch);
+
+            if (normalized === lastSearchValue) {
+                return;
             }
+
+            lastSearchValue = normalized;
+            debouncedSearch(normalized);
         },
     );
 

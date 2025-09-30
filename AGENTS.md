@@ -129,22 +129,22 @@ tests/
     - Queries handle read/report logic.
     - DTOs encouraged for data passing.
 
-- **Repositories**
-    - One per domain model (BillRepository, ContainerRepository, CuttingTestRepository).
-    - Expose CRUD and encapsulate query logic.
-
-- **Services**
-    - Contain domain processes (BillService, ContainerService, CuttingTestService).
-    - Depend on repositories via DI.
-
-- **Requests**
-    - Custom Request classes validate input.
-
-- **Enums**
-    - Use PHP Enums for fixed domain values.
-
-- **Queries**
-    - Extract complex selects into dedicated Query classes.
+- **Layer Responsibilities**
+    - **Controllers (`app/Http/Controllers/`)**
+        - Route handling, DI of Services, use Form Requests, return Inertia/JSON.
+    - **Services (`app/Services/`)**
+        - Business rules, validation, transaction mgmt, coordinate repos + queries.
+        - Examples: `BillService`, `ContainerService`, `CuttingTestService`.
+    - **Repositories (`app/Repositories/`)**
+        - Encapsulate database writes and simple queries by ID.
+    - **Queries (`app/Queries/`)**
+        - Encapsulate read logic: filtering, pagination, aggregations.
+    - **Resources (`app/Http/Resources/`)**
+        - Transform models, include relationships conditionally.
+    - **Form Requests (`app/Http/Requests/`)**
+        - Validation, custom rules, error messages, authorization.
+    - **Enums (`app/Enums/`)**
+        - Domain constants like `CuttingTestType`.
 
 - **Conventions**
     - PSR-12 coding style.
@@ -174,6 +174,14 @@ tests/
     type PageProps = { page?: { props?: { locale?: string } } };
     const props = data as PageProps;
     ```
+
+- **Benefits**
+    - Separation of concerns
+    - Testability
+    - Maintainability
+    - Reusability
+    - Consistency
+    - Type safety
 
 ---
 

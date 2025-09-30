@@ -21,77 +21,85 @@ The backend follows a layered architecture with clear separation of concerns:
 ## Layer Responsibilities
 
 ### 1. Controllers (`app/Http/Controllers/`)
+
 - **Purpose**: Handle HTTP requests and responses only
 - **Responsibilities**:
-  - Route handling
-  - Request validation (via Form Requests)
-  - Coordinate with Services
-  - Return responses (Inertia or JSON)
+    - Route handling
+    - Request validation (via Form Requests)
+    - Coordinate with Services
+    - Return responses (Inertia or JSON)
 - **Rules**:
-  - Keep thin - no business logic
-  - Use dependency injection for Services
-  - Use Form Requests for validation
-  - Use Resources for API responses
+    - Keep thin - no business logic
+    - Use dependency injection for Services
+    - Use Form Requests for validation
+    - Use Resources for API responses
 
 ### 2. Services (`app/Services/`)
+
 - **Purpose**: Contain business logic and orchestrate operations
 - **Responsibilities**:
-  - Business rules and validation
-  - Coordinate between Repositories and Queries
-  - Complex calculations and transformations
-  - Transaction management
+    - Business rules and validation
+    - Coordinate between Repositories and Queries
+    - Complex calculations and transformations
+    - Transaction management
 - **Examples**:
-  - `BillService`: Manages bill operations, calculates averages
-  - `ContainerService`: Handles weight calculations, container logic
-  - `CuttingTestService`: Validates test types, calculates ratios
+    - `BillService`: Manages bill operations, calculates averages
+    - `ContainerService`: Handles weight calculations, container logic
+    - `CuttingTestService`: Validates test types, calculates ratios
 
 ### 3. Repositories (`app/Repositories/`)
+
 - **Purpose**: Encapsulate database write operations (CRUD)
 - **Responsibilities**:
-  - Create, Update, Delete operations
-  - Simple queries by ID
-  - Data persistence logic
+    - Create, Update, Delete operations
+    - Simple queries by ID
+    - Data persistence logic
 - **Rules**:
-  - One repository per main model
-  - Focus on write operations
-  - Use Eloquent models
+    - One repository per main model
+    - Focus on write operations
+    - Use Eloquent models
 
 ### 4. Queries (`app/Queries/`)
+
 - **Purpose**: Handle complex read operations and reporting
 - **Responsibilities**:
-  - Complex queries with filters
-  - Pagination
-  - Aggregations and statistics
-  - Search functionality
+    - Complex queries with filters
+    - Pagination
+    - Aggregations and statistics
+    - Search functionality
 - **Rules**:
-  - Focus on read operations
-  - Return Eloquent Collections or Builders
-  - Handle filtering and sorting
+    - Focus on read operations
+    - Return Eloquent Collections or Builders
+    - Handle filtering and sorting
 
 ### 5. Resources (`app/Http/Resources/`)
+
 - **Purpose**: Transform models for API responses
 - **Responsibilities**:
-  - Data transformation
-  - Conditional field inclusion
-  - Relationship loading
-  - Consistent API format
+    - Data transformation
+    - Conditional field inclusion
+    - Relationship loading
+    - Consistent API format
 
 ### 6. Form Requests (`app/Http/Requests/`)
+
 - **Purpose**: Handle input validation
 - **Responsibilities**:
-  - Validation rules
-  - Custom validation logic
-  - Error messages
-  - Authorization checks
+    - Validation rules
+    - Custom validation logic
+    - Error messages
+    - Authorization checks
 
 ### 7. Enums (`app/Enums/`)
+
 - **Purpose**: Define domain constants and types
 - **Examples**:
-  - `CuttingTestType`: Defines test types with labels and behavior
+    - `CuttingTestType`: Defines test types with labels and behavior
 
 ## Key Classes
 
 ### Bills Domain
+
 - `BillController`: HTTP handling
 - `BillService`: Business logic (averages, statistics)
 - `BillRepository`: CRUD operations
@@ -100,6 +108,7 @@ The backend follows a layered architecture with clear separation of concerns:
 - `StoreBillRequest`/`UpdateBillRequest`: Validation
 
 ### Containers Domain
+
 - `ContainerController`: HTTP handling
 - `ContainerService`: Weight calculations, moisture alerts
 - `ContainerRepository`: CRUD operations
@@ -108,6 +117,7 @@ The backend follows a layered architecture with clear separation of concerns:
 - `StoreContainerRequest`: Validation
 
 ### Cutting Tests Domain
+
 - `CuttingTestController`: HTTP handling
 - `CuttingTestService`: Test validation, ratio calculations
 - `CuttingTestRepository`: CRUD operations
@@ -118,13 +128,15 @@ The backend follows a layered architecture with clear separation of concerns:
 ## Service Registration
 
 All services are registered in `RepositoryServiceProvider`:
+
 - Repositories as singletons
-- Queries as singletons  
+- Queries as singletons
 - Services as singletons
 
 ## API Endpoints
 
 Dashboard API endpoints (`routes/api.php`):
+
 - `GET /api/dashboard/stats` - Overall statistics
 - `GET /api/dashboard/recent-bills` - Recent bills widget
 - `GET /api/dashboard/bills-pending-final-tests` - Pending tests alert
@@ -144,6 +156,7 @@ Dashboard API endpoints (`routes/api.php`):
 ## Usage Examples
 
 ### Creating a Bill
+
 ```php
 // Controller
 public function store(StoreBillRequest $request): RedirectResponse
@@ -160,6 +173,7 @@ public function createBill(array $data): Bill
 ```
 
 ### Complex Query
+
 ```php
 // Service
 public function getAllBills(array $filters = [], int $perPage = 15): LengthAwarePaginator

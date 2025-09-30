@@ -255,7 +255,9 @@ function getFinalSampleLabel(type: number) {
         case 3:
             return t('cuttingTests.index.table.finalSampleLabel', { order: 3 });
         default:
-            return t('cuttingTests.index.table.finalSampleLabel', { order: '?' });
+            return t('cuttingTests.index.table.finalSampleLabel', {
+                order: '?',
+            });
     }
 }
 
@@ -300,13 +302,17 @@ function getContainerDisplay(test: CuttingTest) {
                 >
                     <div class="space-y-2">
                         <Label for="bill_number">
-                            {{ t('cuttingTests.index.filters.billNumber.label') }}
+                            {{
+                                t('cuttingTests.index.filters.billNumber.label')
+                            }}
                         </Label>
                         <Input
                             id="bill_number"
                             v-model="filters.bill_number"
                             :placeholder="
-                                t('cuttingTests.index.filters.billNumber.placeholder')
+                                t(
+                                    'cuttingTests.index.filters.billNumber.placeholder',
+                                )
                             "
                             @input="handleFilterChange"
                         />
@@ -320,49 +326,83 @@ function getContainerDisplay(test: CuttingTest) {
                             @update:model-value="handleFilterChange"
                         >
                             <SelectTrigger id="test_type">
-                                <SelectValue :placeholder="t('cuttingTests.index.filters.testType.placeholder')" />
+                                <SelectValue
+                                    :placeholder="
+                                        t(
+                                            'cuttingTests.index.filters.testType.placeholder',
+                                        )
+                                    "
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">
-                                    {{ t('cuttingTests.index.filters.testType.options.all') }}
+                                    {{
+                                        t(
+                                            'cuttingTests.index.filters.testType.options.all',
+                                        )
+                                    }}
                                 </SelectItem>
                                 <SelectItem value="final">
-                                    {{ t('cuttingTests.index.filters.testType.options.final') }}
+                                    {{
+                                        t(
+                                            'cuttingTests.index.filters.testType.options.final',
+                                        )
+                                    }}
                                 </SelectItem>
                                 <SelectItem value="container">
-                                    {{ t('cuttingTests.index.filters.testType.options.container') }}
+                                    {{
+                                        t(
+                                            'cuttingTests.index.filters.testType.options.container',
+                                        )
+                                    }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <div class="space-y-2">
                         <Label for="container_id">
-                            {{ t('cuttingTests.index.filters.container.label') }}
+                            {{
+                                t('cuttingTests.index.filters.container.label')
+                            }}
                         </Label>
                         <Input
                             id="container_id"
                             v-model="filters.container_id"
                             :placeholder="
-                                t('cuttingTests.index.filters.container.placeholder')
+                                t(
+                                    'cuttingTests.index.filters.container.placeholder',
+                                )
                             "
                             @input="handleFilterChange"
                         />
                     </div>
                     <div class="space-y-2">
                         <Label>
-                            {{ t('cuttingTests.index.filters.moistureRange.label') }}
+                            {{
+                                t(
+                                    'cuttingTests.index.filters.moistureRange.label',
+                                )
+                            }}
                         </Label>
                         <div class="flex gap-2">
                             <Input
                                 v-model="filters.moisture_min"
-                                :placeholder="t('cuttingTests.index.filters.moistureRange.minPlaceholder')"
+                                :placeholder="
+                                    t(
+                                        'cuttingTests.index.filters.moistureRange.minPlaceholder',
+                                    )
+                                "
                                 type="number"
                                 step="0.1"
                                 @input="handleFilterChange"
                             />
                             <Input
                                 v-model="filters.moisture_max"
-                                :placeholder="t('cuttingTests.index.filters.moistureRange.maxPlaceholder')"
+                                :placeholder="
+                                    t(
+                                        'cuttingTests.index.filters.moistureRange.maxPlaceholder',
+                                    )
+                                "
                                 type="number"
                                 step="0.1"
                                 @input="handleFilterChange"
@@ -410,35 +450,67 @@ function getContainerDisplay(test: CuttingTest) {
                 </div>
             </Card>
 
-            <Card class="flex-1">
+            <Card class="flex-1 py-2">
                 <CardContent>
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>
-                                        {{ t('cuttingTests.index.table.headers.bill') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.bill',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead>
-                                        {{ t('cuttingTests.index.table.headers.sampleOrContainer') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.sampleOrContainer',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('cuttingTests.index.table.headers.moisture') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.moisture',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('cuttingTests.index.table.headers.defectiveNut') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.defectiveNut',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('cuttingTests.index.table.headers.goodKernel') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.goodKernel',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="text-right">
-                                        {{ t('cuttingTests.index.table.headers.outturn') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.outturn',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead>
-                                        {{ t('cuttingTests.index.table.headers.created') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.created',
+                                            )
+                                        }}
                                     </TableHead>
                                     <TableHead class="w-[140px] text-right">
-                                        {{ t('cuttingTests.index.table.headers.actions') }}
+                                        {{
+                                            t(
+                                                'cuttingTests.index.table.headers.actions',
+                                            )
+                                        }}
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -473,14 +545,21 @@ function getContainerDisplay(test: CuttingTest) {
                                             class="text-xs text-muted-foreground"
                                         >
                                             {{
-                                                t('cuttingTests.index.table.billParties', {
-                                                    seller:
-                                                        test.bill?.seller ||
-                                                        t('common.placeholders.notAvailable'),
-                                                    buyer:
-                                                        test.bill?.buyer ||
-                                                        t('common.placeholders.notAvailable'),
-                                                })
+                                                t(
+                                                    'cuttingTests.index.table.billParties',
+                                                    {
+                                                        seller:
+                                                            test.bill?.seller ||
+                                                            t(
+                                                                'common.placeholders.notAvailable',
+                                                            ),
+                                                        buyer:
+                                                            test.bill?.buyer ||
+                                                            t(
+                                                                'common.placeholders.notAvailable',
+                                                            ),
+                                                    },
+                                                )
                                             }}
                                         </div>
                                     </TableCell>
@@ -506,10 +585,14 @@ function getContainerDisplay(test: CuttingTest) {
                                                     v-if="test.container"
                                                     type="button"
                                                     class="text-primary underline-offset-4 hover:underline"
-                                                    @click.stop="openContainer(test)"
+                                                    @click.stop="
+                                                        openContainer(test)
+                                                    "
                                                 >
                                                     {{
-                                                        getContainerDisplay(test)
+                                                        getContainerDisplay(
+                                                            test,
+                                                        )
                                                     }}
                                                 </button>
                                                 <span
@@ -517,7 +600,9 @@ function getContainerDisplay(test: CuttingTest) {
                                                     class="text-muted-foreground"
                                                 >
                                                     {{
-                                                        getContainerDisplay(test)
+                                                        getContainerDisplay(
+                                                            test,
+                                                        )
                                                     }}
                                                 </span>
                                             </template>
@@ -527,7 +612,10 @@ function getContainerDisplay(test: CuttingTest) {
                                         <span v-if="test.moisture_formatted">
                                             {{ test.moisture_formatted }}
                                         </span>
-                                        <span v-else class="text-muted-foreground">
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                        >
                                             {{ placeholder }}
                                         </span>
                                     </TableCell>
@@ -537,7 +625,10 @@ function getContainerDisplay(test: CuttingTest) {
                                         >
                                             {{ test.defective_nut_formatted }}
                                         </span>
-                                        <span v-else class="text-muted-foreground">
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                        >
                                             {{ placeholder }}
                                         </span>
                                     </TableCell>
@@ -550,7 +641,10 @@ function getContainerDisplay(test: CuttingTest) {
                                         >
                                             {{ test.w_good_kernel }}
                                         </span>
-                                        <span v-else class="text-muted-foreground">
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                        >
                                             {{ placeholder }}
                                         </span>
                                     </TableCell>
@@ -560,7 +654,10 @@ function getContainerDisplay(test: CuttingTest) {
                                         >
                                             {{ test.outturn_rate_formatted }}
                                         </span>
-                                        <span v-else class="text-muted-foreground">
+                                        <span
+                                            v-else
+                                            class="text-muted-foreground"
+                                        >
                                             {{ placeholder }}
                                         </span>
                                     </TableCell>
@@ -581,41 +678,61 @@ function getContainerDisplay(test: CuttingTest) {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            :aria-label="t('cuttingTests.index.sr.view')"
+                                            :aria-label="
+                                                t('cuttingTests.index.sr.view')
+                                            "
                                             @click.stop="
                                                 viewCuttingTest(test.id)
                                             "
                                         >
                                             <Eye class="h-4 w-4" />
                                             <span class="sr-only">
-                                                {{ t('cuttingTests.index.sr.view') }}
+                                                {{
+                                                    t(
+                                                        'cuttingTests.index.sr.view',
+                                                    )
+                                                }}
                                             </span>
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            :aria-label="t('cuttingTests.index.sr.edit')"
+                                            :aria-label="
+                                                t('cuttingTests.index.sr.edit')
+                                            "
                                             @click.stop="
                                                 editCuttingTest(test.id)
                                             "
                                         >
                                             <Pencil class="h-4 w-4" />
                                             <span class="sr-only">
-                                                {{ t('cuttingTests.index.sr.edit') }}
+                                                {{
+                                                    t(
+                                                        'cuttingTests.index.sr.edit',
+                                                    )
+                                                }}
                                             </span>
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
                                             class="text-destructive hover:text-destructive"
-                                            :aria-label="t('cuttingTests.index.sr.delete')"
+                                            :aria-label="
+                                                t(
+                                                    'cuttingTests.index.sr.delete',
+                                                )
+                                            "
                                             @click.stop="
                                                 deleteCuttingTest(test.id)
                                             "
                                         >
                                             <Trash2 class="h-4 w-4" />
                                             <span class="sr-only">
-                                                {{ t('cuttingTests.index.sr.delete') }}
+                                                {{
+                                                    t(
+                                                        'cuttingTests.index.sr.delete',
+                                                    )
+                                                }}
                                             </span>
                                         </Button>
                                     </TableCell>
@@ -648,7 +765,9 @@ function getContainerDisplay(test: CuttingTest) {
                                 :disabled="!previousLink.url"
                                 @click="goToPage(previousLink.url)"
                             >
-                                {{ t('cuttingTests.index.pagination.previous') }}
+                                {{
+                                    t('cuttingTests.index.pagination.previous')
+                                }}
                             </Button>
                         </PaginationListItem>
 

@@ -59,7 +59,8 @@
             "edit": "Sửa",
             "view": "Xem",
             "close": "Đóng",
-            "continue": "Tiếp tục"
+            "continue": "Tiếp tục",
+            "retry": "Thử lại"
         },
         "states": {
             "creating": "Đang tạo...",
@@ -926,6 +927,105 @@
         "containers": {
             "showId": "Container #{id}",
             "showNumber": "Container {number}"
+        }
+    },
+    "dashboard": {
+        "headTitle": "Bảng điều khiển",
+        "title": "Tổng quan bảng điều khiển",
+        "description": "Theo dõi các số liệu chính về Bill, container và mẫu cắt.",
+        "messages": {
+            "refreshFailed": "Không thể tải lại dữ liệu. Đang hiển thị giá trị gần nhất."
+        },
+        "ranges": {
+            "week": "7 ngày gần đây",
+            "month": "30 ngày gần đây",
+            "year": "12 tháng gần đây",
+            "placeholder": "Chọn khoảng thời gian",
+            "default": "khoảng thời gian đã chọn"
+        },
+        "stats": {
+            "title": "Chỉ số chính",
+            "description": "Tổng quan cho {range}",
+            "rangeLabel": "Thời gian",
+            "cards": {
+                "totalBills": {
+                    "label": "Bill đã tạo",
+                    "description": "Số Bill được ghi nhận trong khoảng này."
+                },
+                "pendingFinalTests": {
+                    "label": "Bill chờ cắt mẫu kết",
+                    "description": "Bill chưa có kết quả cắt mẫu kết bill."
+                },
+                "missingFinalSamples": {
+                    "label": "Bill chưa đủ 3 mẫu kết",
+                    "description": "Bill chưa cắt đủ 3 mẫu kết."
+                },
+                "highMoistureContainers": {
+                    "label": "Container ẩm cao",
+                    "description": "Container có độ ẩm quá cao."
+                },
+                "pendingContainerTests": {
+                    "label": "Container chưa cắt mẫu",
+                    "description": "Container chưa có mẫu và chưa cắt mẫu."
+                },
+                "highMoistureTests": {
+                    "label": "Mẫu cắt ẩm cao",
+                    "description": "Mẫu cắt vượt ngưỡng độ ẩm an toàn."
+                }
+            }
+        },
+        "recentBills": {
+            "title": "Bill mới nhất",
+            "description": "Các Bill phát sinh trong {range}.",
+            "rangeLabel": "Thời gian",
+            "empty": "Không có Bill nào trong thời gian này.",
+            "table": {
+                "bill": "Bill",
+                "seller": "Người bán",
+                "buyer": "Người mua",
+                "createdAt": "Ngày tạo",
+                "actions": "Thao tác"
+            }
+        },
+        "billsMissingFinalSamples": {
+            "title": "Bill thiếu mẫu cuối",
+            "description": "Bill vẫn cần bổ sung mẫu cuối.",
+            "empty": "Tất cả Bill đều có mẫu cuối.",
+            "table": {
+                "bill": "Bill",
+                "seller": "Người bán",
+                "updatedAt": "Cập nhật cuối",
+                "actions": "Thao tác"
+            }
+        },
+        "highMoistureContainers": {
+            "title": "Container ẩm cao",
+            "description": "Container bị cảnh báo vì độ ẩm cao.",
+            "empty": "Chưa có container nào vượt ngưỡng độ ẩm.",
+            "table": {
+                "container": "Container",
+                "bill": "Bill",
+                "moisture": "Độ ẩm cao nhất",
+                "updatedAt": "Cập nhật cuối",
+                "actions": "Thao tác"
+            }
+        },
+        "moistureDistribution": {
+            "title": "Phân bố độ ẩm",
+            "description": "Phân bố kết quả độ ẩm của các lần cắt.",
+            "empty": "Chưa có dữ liệu kiểm tra cắt.",
+            "metrics": {
+                "avg": "Độ ẩm trung bình",
+                "min": "Độ ẩm thấp nhất",
+                "max": "Độ ẩm cao nhất",
+                "sampleSize": "Dựa trên {total} lần kiểm tra."
+            },
+            "segments": {
+                "title": "Nhóm độ ẩm",
+                "low": "Thấp",
+                "medium": "Trung bình",
+                "high": "Cao"
+            }
         }
     }
 }
