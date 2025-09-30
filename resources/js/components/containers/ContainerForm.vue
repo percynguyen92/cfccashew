@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import InputError from '@/components/InputError.vue';
+import InputError from '@/components/shared/InputError.vue';
 import { Calculator, Save, X } from 'lucide-vue-next';
 import { type Container, type Bill } from '@/types';
 import * as containerRoutes from '@/routes/containers';

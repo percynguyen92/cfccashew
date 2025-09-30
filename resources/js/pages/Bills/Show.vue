@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BillForm from '@/components/bills/BillForm.vue';
 import ContainerForm from '@/components/containers/ContainerForm.vue';
-import ContainerTable from '@/components/ContainerTable.vue';
+import ContainerTable from '@/components/containers/ContainerTable.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -23,7 +23,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 
 import CuttingTestForm from '@/components/cutting-tests/CuttingTestForm.vue';
-import CuttingTestTable from '@/components/CuttingTestTable.vue';
+import CuttingTestTable from '@/components/cutting-tests/CuttingTestTable.vue';
 import * as containerRoutes from '@/routes/containers';
 import * as cuttingTestRoutes from '@/routes/cutting-tests';
 import type { Bill, Container, CuttingTest } from '@/types';
@@ -281,11 +281,11 @@ const confirmDelete = () => {
     } as const;
 
     if (type === 'container') {
-        router.delete(containerRoutes.destroy.url(id), options);
+        router.delete(containerRoutes.destroy.url(id.toString()), options);
         return;
     }
 
-    router.delete(cuttingTestRoutes.destroy.url(id), options);
+    router.delete(cuttingTestRoutes.destroy.url(id.toString()), options);
 };
 
 const handleEditContainer = (container: Container) => {

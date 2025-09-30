@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import NavMain from '@/components/NavMain.vue';
-import NavUser from '@/components/NavUser.vue';
+import NavMain from '@/components/navigation/NavMain.vue';
+import NavUser from '@/components/navigation/NavUser.vue';
 import {
     Sidebar,
     SidebarContent,
@@ -17,9 +17,9 @@ import { dashboard } from '@/routes/index';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { FileText, LayoutGrid, Package, Scissors } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
-import DarkModeToggle from './DarkModeToggle.vue';
-import LanguageSwitcher from './LanguageSwitcher.vue';
+import AppLogo from '@/components/branding/AppLogo.vue';
+import DarkModeToggle from '@/components/appearance/DarkModeToggle.vue';
+import LanguageSwitcher from '@/components/navigation/LanguageSwitcher.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 

@@ -55,12 +55,12 @@
             "create": "Tạo",
             "update": "Cập nhật",
             "save": "Lưu",
-        "delete": "Xóa",
-        "edit": "Sửa",
-        "view": "Xem",
-        "close": "Đóng",
-        "continue": "Tiếp tục"
-    },
+            "delete": "Xóa",
+            "edit": "Sửa",
+            "view": "Xem",
+            "close": "Đóng",
+            "continue": "Tiếp tục"
+        },
         "states": {
             "creating": "Đang tạo...",
             "updating": "Đang cập nhật...",
@@ -569,6 +569,25 @@
                 "outturn": "Outturn",
                 "testsCount": "Số lần cắt",
                 "testsCountValue": "{count} lần"
+            }
+        },
+        "edit": {
+            "headTitle": "Chỉnh sửa container",
+            "title": "Chi tiết container",
+            "actions": {
+                "back": "Quay lại danh sách"
+            },
+            "metadata": {
+                "title": "Thông tin container",
+                "created": "Ngày tạo",
+                "updated": "Lần cập nhật cuối"
+            },
+            "bill": {
+                "title": "Thông tin bill",
+                "number": "Số bill",
+                "fallback": "Bill #{id}",
+                "seller": "Người bán",
+                "buyer": "Người mua"
             }
         }
     },

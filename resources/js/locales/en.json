@@ -55,12 +55,12 @@
             "create": "Create",
             "update": "Update",
             "save": "Save",
-        "delete": "Delete",
-        "edit": "Edit",
-        "view": "View",
-        "close": "Close",
-        "continue": "Continue"
-    },
+            "delete": "Delete",
+            "edit": "Edit",
+            "view": "View",
+            "close": "Close",
+            "continue": "Continue"
+        },
         "states": {
             "creating": "Creating...",
             "updating": "Updating...",
@@ -569,6 +569,25 @@
                 "outturn": "Outturn Rate",
                 "testsCount": "Tests Count",
                 "testsCountValue": "{count} tests"
+            }
+        },
+        "edit": {
+            "headTitle": "Edit Container",
+            "title": "Edit Container Details",
+            "actions": {
+                "back": "Back to list"
+            },
+            "metadata": {
+                "title": "Container Info",
+                "created": "Created at",
+                "updated": "Last updated"
+            },
+            "bill": {
+                "title": "Bill Information",
+                "number": "Bill Number",
+                "fallback": "Bill #{id}",
+                "seller": "Seller",
+                "buyer": "Buyer"
             }
         }
     },

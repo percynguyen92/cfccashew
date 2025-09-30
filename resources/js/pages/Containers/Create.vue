@@ -11,7 +11,6 @@ import * as billRoutes from '@/routes/bills';
 import { Head, router } from '@inertiajs/vue3';
 import { Package, ArrowLeft } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 interface Props {
     bill?: Bill;
@@ -20,7 +19,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { t } = useI18n();
 const { breadcrumbs } = useBreadcrumbs();
 const billIdentifier = computed(() =>
     props.bill
