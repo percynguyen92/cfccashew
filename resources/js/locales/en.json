@@ -313,6 +313,10 @@
                 "title": "Final Samples",
                 "description": "Final sample cutting tests for this bill",
                 "add": "Add Cutting Test",
+                "delete": {
+                    "title": "Delete Cutting Test",
+                    "description": "This will permanently remove this cutting test. This action cannot be undone."
+                },
                 "empty": {
                     "title": "No final samples recorded yet",
                     "subtitle": "Add final sample cutting tests to track quality metrics"
@@ -322,6 +326,10 @@
                 "title": "Containers",
                 "description": "Containers associated with this bill",
                 "add": "Add Container",
+                "delete": {
+                    "title": "Delete Container",
+                    "description": "This will permanently remove container {label}. This action cannot be undone."
+                },
                 "empty": {
                     "title": "No containers added yet",
                     "subtitle": "Add containers to track weights and cutting tests"

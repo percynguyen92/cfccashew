@@ -9,19 +9,23 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import type { CuttingTest } from '@/types';
+import { Loader2, Trash2 } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 interface Props {
     tests: CuttingTest[];
+    deletingId?: number | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     tests: () => [],
+    deletingId: null,
 });
 
 const emit = defineEmits<{
     edit: [CuttingTest];
+    delete: [CuttingTest];
 }>();
 
 const rows = computed(() =>
@@ -92,7 +96,7 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                 <TableHead>
                     {{ t('cuttingTests.table.headers.outturn') }}
                 </TableHead>
-                <TableHead class="w-24 text-right">
+                <TableHead class="w-32 text-right">
                     {{ t('cuttingTests.table.headers.actions') }}
                 </TableHead>
             </TableRow>
@@ -105,14 +109,30 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                 <TableCell>{{ formatWeight(test.w_good_kernel) }}</TableCell>
                 <TableCell>{{ formatOutturn(test.outturn_rate) }}</TableCell>
                 <TableCell class="text-right">
-                    <Button
-                        v-if="test.id"
-                        size="sm"
-                        variant="ghost"
-                        @click="emit('edit', test)"
-                    >
-                        {{ t('common.actions.edit') }}
-                    </Button>
+                    <div class="flex justify-end gap-2">
+                        <Button
+                            v-if="test.id"
+                            size="sm"
+                            variant="ghost"
+                            @click="emit('edit', test)"
+                        >
+                            {{ t('common.actions.edit') }}
+                        </Button>
+                        <Button
+                            v-if="test.id"
+                            size="sm"
+                            variant="ghost"
+                            class="text-destructive hover:text-destructive"
+                            :disabled="props.deletingId === test.id"
+                            @click="emit('delete', test)"
+                        >
+                            <Loader2
+                                v-if="props.deletingId === test.id"
+                                class="mr-1 h-4 w-4 animate-spin"
+                            />
+                            <Trash2 v-else class="mr-1 h-4 w-4" />
+                        </Button>
+                    </div>
                 </TableCell>
             </TableRow>
         </TableBody>

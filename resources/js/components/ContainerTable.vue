@@ -9,30 +9,43 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import type { Container } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Loader2, Trash2 } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 interface Props {
     containers: Container[];
+    deletingId?: number | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     containers: () => [],
+    deletingId: null,
 });
 
 const { t } = useI18n();
 
+const emit = defineEmits<{
+    (event: 'edit', container: Container): void;
+    (event: 'delete', container: Container): void;
+}>();
+
 const rows = computed(() =>
-    (props.containers ?? []).filter((container): container is Container => Boolean(container)),
+    (props.containers ?? []).filter((container): container is Container =>
+        Boolean(container),
+    ),
 );
 
-const formatNumber = (value: number | string | null | undefined, fractionDigits = 0): string => {
+const formatNumber = (
+    value: number | string | null | undefined,
+    fractionDigits = 0,
+): string => {
     if (value === null || value === undefined) {
         return '-';
     }
 
-    const numeric = typeof value === 'number' ? value : Number.parseFloat(value as string);
+    const numeric =
+        typeof value === 'number' ? value : Number.parseFloat(value as string);
 
     if (Number.isNaN(numeric)) {
         return '-';
@@ -72,9 +85,13 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                     {{ t('containers.table.headers.quantityOfBags') }}
                 </TableHead>
                 <TableHead>{{ t('containers.table.headers.net') }}</TableHead>
-                <TableHead>{{ t('containers.table.headers.moisture') }}</TableHead>
-                <TableHead>{{ t('containers.table.headers.outturn') }}</TableHead>
-                <TableHead class="w-24 text-right">
+                <TableHead>{{
+                    t('containers.table.headers.moisture')
+                }}</TableHead>
+                <TableHead>{{
+                    t('containers.table.headers.outturn')
+                }}</TableHead>
+                <TableHead class="w-32 text-right">
                     {{ t('containers.table.headers.actions') }}
                 </TableHead>
             </TableRow>
@@ -88,7 +105,9 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                     }}
                 </TableCell>
                 <TableCell>
-                    {{ container.truck || t('common.placeholders.notAvailable') }}
+                    {{
+                        container.truck || t('common.placeholders.notAvailable')
+                    }}
                 </TableCell>
                 <TableCell>
                     {{
@@ -119,16 +138,30 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                     }}
                 </TableCell>
                 <TableCell class="text-right">
-                    <Button
-                        v-if="container.id"
-                        size="sm"
-                        variant="ghost"
-                        as-child
-                    >
-                        <Link :href="`/containers/${container.id}/edit`">
+                    <div class="flex justify-end gap-2">
+                        <Button
+                            v-if="container.id"
+                            size="sm"
+                            variant="ghost"
+                            @click="emit('edit', container)"
+                        >
                             {{ t('common.actions.edit') }}
-                        </Link>
-                    </Button>
+                        </Button>
+                        <Button
+                            v-if="container.id"
+                            size="sm"
+                            variant="ghost"
+                            class="text-destructive hover:text-destructive"
+                            :disabled="props.deletingId === container.id"
+                            @click="emit('delete', container)"
+                        >
+                            <Loader2
+                                v-if="props.deletingId === container.id"
+                                class="mr-1 h-4 w-4 animate-spin"
+                            />
+                            <Trash2 v-else class="mr-1 h-4 w-4" />
+                        </Button>
+                    </div>
                 </TableCell>
             </TableRow>
         </TableBody>

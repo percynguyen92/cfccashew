@@ -313,6 +313,10 @@
                 "title": "Mẫu cuối",
                 "description": "Kết quả cắt mẫu cuối cho bill này",
                 "add": "Thêm kết quả cắt",
+                "delete": {
+                    "title": "Xóa phép thử cắt",
+                    "description": "Thao tác này sẽ xóa vĩnh viễn phép thử này. Không thể hoàn tác."
+                },
                 "empty": {
                     "title": "Chưa có mẫu cuối nào",
                     "subtitle": "Thêm kết quả cắt mẫu cuối để theo dõi chất lượng"
@@ -322,6 +326,10 @@
                 "title": "Container",
                 "description": "Container liên kết với bill này",
                 "add": "Thêm container",
+                "delete": {
+                    "title": "Xóa container",
+                    "description": "Thao tác này sẽ xóa vĩnh viễn container {label}. Không thể hoàn tác."
+                },
                 "empty": {
                     "title": "Chưa có container nào",
                     "subtitle": "Thêm container để theo dõi khối lượng và mẫu cắt"

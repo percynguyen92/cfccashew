@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BillForm from '@/components/bills/BillForm.vue';
+import ContainerForm from '@/components/containers/ContainerForm.vue';
 import ContainerTable from '@/components/ContainerTable.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,15 +10,24 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 
 import CuttingTestForm from '@/components/cutting-tests/CuttingTestForm.vue';
 import CuttingTestTable from '@/components/CuttingTestTable.vue';
+import * as containerRoutes from '@/routes/containers';
+import * as cuttingTestRoutes from '@/routes/cutting-tests';
 import type { Bill, Container, CuttingTest } from '@/types';
-import { Package, Plus, TestTube } from 'lucide-vue-next';
+import { Loader2, Package, Plus, TestTube } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -137,6 +147,152 @@ const nextFinalSampleType = computed<1 | 2 | 3>(() => {
     return 1;
 });
 
+const isContainerDialogOpen = ref(false);
+const editingContainer = ref<Container | null>(null);
+
+const openContainerDialog = () => {
+    editingContainer.value = null;
+    isContainerDialogOpen.value = true;
+};
+
+const closeContainerDialog = () => {
+    isContainerDialogOpen.value = false;
+    editingContainer.value = null;
+};
+
+const handleContainerSuccess = () => {
+    closeContainerDialog();
+};
+
+const handleContainerCancel = () => {
+    closeContainerDialog();
+};
+
+watch(isContainerDialogOpen, (isOpen) => {
+    if (!isOpen) {
+        editingContainer.value = null;
+    }
+});
+
+type DeleteContext =
+    | { type: 'container'; record: Container }
+    | { type: 'cutting-test'; record: CuttingTest };
+
+const isDeleteDialogOpen = ref(false);
+const deleteContext = ref<DeleteContext | null>(null);
+const isDeleting = ref(false);
+const deletingContainerId = ref<number | null>(null);
+const deletingCuttingTestId = ref<number | null>(null);
+
+const openDeleteContainerDialog = (container: Container) => {
+    if (!container.id) {
+        return;
+    }
+
+    deleteContext.value = { type: 'container', record: container };
+    isDeleteDialogOpen.value = true;
+};
+
+const openDeleteCuttingTestDialog = (test: CuttingTest) => {
+    if (!test.id) {
+        return;
+    }
+
+    deleteContext.value = { type: 'cutting-test', record: test };
+    isDeleteDialogOpen.value = true;
+};
+
+const closeDeleteDialog = () => {
+    isDeleteDialogOpen.value = false;
+};
+
+watch(isDeleteDialogOpen, (isOpen) => {
+    if (!isOpen) {
+        deleteContext.value = null;
+        deletingContainerId.value = null;
+        deletingCuttingTestId.value = null;
+        isDeleting.value = false;
+    }
+});
+
+const deleteDialogTitle = computed(() => {
+    if (!deleteContext.value) {
+        return '';
+    }
+
+    return deleteContext.value.type === 'container'
+        ? t('bills.show.containers.delete.title')
+        : t('bills.show.finalSamples.delete.title');
+});
+
+const deleteDialogDescription = computed(() => {
+    if (!deleteContext.value) {
+        return '';
+    }
+
+    if (deleteContext.value.type === 'container') {
+        const container = deleteContext.value.record;
+        const label = container.container_number || `#${container.id}`;
+        return t('bills.show.containers.delete.description', { label });
+    }
+
+    return t('bills.show.finalSamples.delete.description');
+});
+
+const confirmDelete = () => {
+    if (!deleteContext.value || isDeleting.value) {
+        return;
+    }
+
+    const { type, record } = deleteContext.value;
+
+    if (!record.id) {
+        closeDeleteDialog();
+        return;
+    }
+
+    const id = record.id;
+
+    const options = {
+        preserveScroll: true,
+        onStart: () => {
+            isDeleting.value = true;
+            if (type === 'container') {
+                deletingContainerId.value = id;
+                deletingCuttingTestId.value = null;
+            } else {
+                deletingCuttingTestId.value = id;
+                deletingContainerId.value = null;
+            }
+        },
+        onSuccess: () => {
+            closeDeleteDialog();
+        },
+        onError: () => {
+            isDeleting.value = false;
+            deletingContainerId.value = null;
+            deletingCuttingTestId.value = null;
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+            deletingContainerId.value = null;
+            deletingCuttingTestId.value = null;
+        },
+    } as const;
+
+    if (type === 'container') {
+        router.delete(containerRoutes.destroy.url(id), options);
+        return;
+    }
+
+    router.delete(cuttingTestRoutes.destroy.url(id), options);
+};
+
+const handleEditContainer = (container: Container) => {
+    editingContainer.value = container;
+    isContainerDialogOpen.value = true;
+};
+
 const openCreateCuttingTestDialog = () => {
     cuttingTestDialogMode.value = 'create';
     cuttingTestBeingEdited.value = null;
@@ -208,7 +364,11 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                 <div class="flex flex-col gap-2">
                     <div class="flex flex-wrap items-center gap-2">
                         <h1 class="text-3xl font-bold tracking-tight">
-                            {{ t('bills.show.heading', { identifier: billIdentifier }) }}
+                            {{
+                                t('bills.show.heading', {
+                                    identifier: billIdentifier,
+                                })
+                            }}
                         </h1>
                         <Button
                             variant="outline"
@@ -221,7 +381,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     <p class="text-muted-foreground">
                         {{
                             t('bills.show.meta.created', {
-                                date: new Date(bill.created_at).toLocaleDateString(),
+                                date: new Date(
+                                    bill.created_at,
+                                ).toLocaleDateString(),
                             })
                         }}
                     </p>
@@ -235,7 +397,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                         class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
                     >
                         <div>
-                            <label class="text-sm font-medium text-muted-foreground">
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
                                 {{ t('bills.form.fields.billNumber.label') }}
                             </label>
                             <p class="text-lg font-semibold">
@@ -246,7 +410,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                             </p>
                         </div>
                         <div>
-                            <label class="text-sm font-medium text-muted-foreground">
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
                                 {{ t('bills.form.fields.seller.label') }}
                             </label>
                             <p class="text-lg font-semibold">
@@ -257,7 +423,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                             </p>
                         </div>
                         <div>
-                            <label class="text-sm font-medium text-muted-foreground">
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
                                 {{ t('bills.form.fields.buyer.label') }}
                             </label>
                             <p class="text-lg font-semibold">
@@ -268,7 +436,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                             </p>
                         </div>
                         <div>
-                            <label class="text-sm font-medium text-muted-foreground">
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
                                 {{ t('bills.show.labels.averageOutturn') }}
                             </label>
                             <p class="text-lg font-semibold">
@@ -277,7 +447,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                         </div>
                     </div>
                     <div v-if="bill.note" class="mt-4">
-                        <label class="text-sm font-medium text-muted-foreground">
+                        <label
+                            class="text-sm font-medium text-muted-foreground"
+                        >
                             {{ t('bills.form.fields.note.label') }}
                         </label>
                         <p class="mt-1 text-sm">{{ bill.note }}</p>
@@ -312,7 +484,9 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     <div v-if="finalSamples.length > 0">
                         <CuttingTestTable
                             :tests="finalSamples"
+                            :deleting-id="deletingCuttingTestId"
                             @edit="openEditCuttingTestDialog"
+                            @delete="openDeleteCuttingTestDialog"
                         />
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
@@ -347,19 +521,24 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                                 {{ t('bills.show.containers.description') }}
                             </CardDescription>
                         </div>
-                        <Button as-child>
-                            <Link
-                                :href="`/containers/create?bill_id=${bill.id}`"
-                            >
-                                <Plus class="mr-2 h-4 w-4" />
-                                {{ t('bills.show.containers.add') }}
-                            </Link>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            @click="openContainerDialog"
+                        >
+                            <Plus class="mr-2 h-4 w-4" />
+                            {{ t('bills.show.containers.add') }}
                         </Button>
                     </div>
                 </CardHeader>
                 <CardContent>
                     <div v-if="containers.length > 0">
-                        <ContainerTable :containers="containers" />
+                        <ContainerTable
+                            :containers="containers"
+                            :deleting-id="deletingContainerId"
+                            @edit="handleEditContainer"
+                            @delete="openDeleteContainerDialog"
+                        />
                     </div>
                     <div v-else class="py-8 text-center text-muted-foreground">
                         <Package class="mx-auto mb-4 h-12 w-12 opacity-50" />
@@ -383,6 +562,62 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     @success="handleEditSuccess"
                     @cancel="handleEditCancel"
                 />
+            </DialogContent>
+        </Dialog>
+
+        <Dialog v-model:open="isContainerDialogOpen">
+            <DialogContent
+                class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl"
+            >
+                <ContainerForm
+                    v-if="isContainerDialogOpen"
+                    :key="
+                        editingContainer
+                            ? `edit-${editingContainer.id}`
+                            : 'create'
+                    "
+                    :bill="bill"
+                    :bill-id="bill.id"
+                    :container="editingContainer || undefined"
+                    :is-editing="Boolean(editingContainer)"
+                    @success="handleContainerSuccess"
+                    @cancel="handleContainerCancel"
+                />
+            </DialogContent>
+        </Dialog>
+
+        <Dialog v-model:open="isDeleteDialogOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{{ deleteDialogTitle }}</DialogTitle>
+                    <DialogDescription>{{
+                        deleteDialogDescription
+                    }}</DialogDescription>
+                </DialogHeader>
+                <DialogFooter class="gap-2">
+                    <Button
+                        variant="outline"
+                        :disabled="isDeleting"
+                        @click="closeDeleteDialog"
+                    >
+                        {{ t('common.actions.cancel') }}
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        :disabled="isDeleting"
+                        @click="confirmDelete"
+                    >
+                        <Loader2
+                            v-if="isDeleting"
+                            class="mr-2 h-4 w-4 animate-spin"
+                        />
+                        {{
+                            isDeleting
+                                ? t('common.states.deleting')
+                                : t('common.actions.delete')
+                        }}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
 
