@@ -76,7 +76,8 @@ class BillController extends Controller
      */
     public function show(Bill $bill): Response
     {
-        $billData = $this->billService->getBillById($bill->id);
+        $bill->loadMissing(['containers', 'finalSamples', 'cuttingTests']);
+        $billData = $bill;
 
         return Inertia::render('Bills/Show', [
             'bill' => (new BillResource($billData))->resolve(),
@@ -88,6 +89,8 @@ class BillController extends Controller
      */
     public function edit(Bill $bill): Response
     {
+        $bill->loadMissing(['containers', 'finalSamples', 'cuttingTests']);
+
         return Inertia::render('Bills/Edit', [
             'bill' => new BillResource($bill),
         ]);

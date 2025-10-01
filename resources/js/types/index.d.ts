@@ -48,6 +48,15 @@ export interface Bill {
     seller: string | null;
     buyer: string | null;
     note: string | null;
+    w_dunnage_dribag: number | null;
+    w_jute_bag: number;
+    net_on_bl: number | null;
+    quantity_of_bags_on_bl: number | null;
+    origin: string | null;
+    inspection_start_date: string | null;
+    inspection_end_date: string | null;
+    inspection_location: string | null;
+    sampling_ratio: number;
     containers_count?: number;
     final_samples_count?: number;
     average_outurn?: number | null;
@@ -64,7 +73,7 @@ export interface Container {
     truck: string | null;
     container_number: string | null;
     quantity_of_bags: number | null;
-    w_jute_bag: number;
+    w_jute_bag: number | null;
     w_total: number | null;
     w_truck: number | null;
     w_container: number | null;
@@ -72,6 +81,8 @@ export interface Container {
     w_dunnage_dribag: number | null;
     w_tare: number | null;
     w_net: number | null;
+    container_condition: string;
+    seal_condition: string;
     note: string | null;
     average_moisture?: number | null;
     outturn_rate?: number | null;

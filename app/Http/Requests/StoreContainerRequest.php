@@ -31,11 +31,14 @@ class StoreContainerRequest extends FormRequest
                 'regex:/^[A-Z]{4}[0-9]{7}$/',
             ],
             'quantity_of_bags' => 'nullable|integer|min:0',
-            'w_jute_bag' => 'nullable|numeric|min:0|max:99.99',
             'w_total' => 'nullable|integer|min:0',
             'w_truck' => 'nullable|integer|min:0',
             'w_container' => 'nullable|integer|min:0',
-            'w_dunnage_dribag' => 'nullable|integer|min:0',
+            'w_gross' => 'nullable|integer|min:0',
+            'w_tare' => 'nullable|numeric|min:0',
+            'w_net' => 'nullable|numeric|min:0',
+            'container_condition' => 'nullable|string|max:255',
+            'seal_condition' => 'nullable|string|max:255',
             'note' => 'nullable|string|max:65535',
         ];
     }
@@ -51,7 +54,6 @@ class StoreContainerRequest extends FormRequest
             'bill_id.exists' => __('validation.custom.bill_id.exists'),
             'container_number.size' => __('validation.custom.container_number.size'),
             'container_number.regex' => __('validation.custom.container_number.regex'),
-            'w_jute_bag.max' => __('validation.custom.w_jute_bag.max'),
             '*.min' => __('validation.custom.weights.min'),
         ];
     }

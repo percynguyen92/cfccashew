@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bill extends Model
@@ -15,10 +16,28 @@ class Bill extends Model
         'bill_number',
         'seller',
         'buyer',
+        'w_dunnage_dribag',
+        'w_jute_bag',
+        'net_on_bl',
+        'quantity_of_bags_on_bl',
+        'origin',
+        'inspection_start_date',
+        'inspection_end_date',
+        'inspection_location',
+        'sampling_ratio',
         'note',
     ];
 
+    protected $with = ['containers'];
+
     protected $casts = [
+        'w_dunnage_dribag' => 'integer',
+        'w_jute_bag' => 'decimal:2',
+        'net_on_bl' => 'integer',
+        'quantity_of_bags_on_bl' => 'integer',
+        'inspection_start_date' => 'datetime',
+        'inspection_end_date' => 'datetime',
+        'sampling_ratio' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -27,9 +46,12 @@ class Bill extends Model
     /**
      * Get the containers for the bill.
      */
-    public function containers(): HasMany
+    public function containers(): BelongsToMany
     {
-        return $this->hasMany(Container::class);
+        return $this->belongsToMany(Container::class)
+            ->withTimestamps()
+            ->withPivot(['note'])
+            ->orderBy('containers.created_at');
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,30 +13,26 @@ class Container extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'bill_id',
         'truck',
         'container_number',
         'quantity_of_bags',
-        'w_jute_bag',
         'w_total',
         'w_truck',
         'w_container',
         'w_gross',
-        'w_dunnage_dribag',
         'w_tare',
         'w_net',
+        'container_condition',
+        'seal_condition',
         'note',
     ];
 
     protected $casts = [
-        'bill_id' => 'integer',
         'quantity_of_bags' => 'integer',
-        'w_jute_bag' => 'decimal:2',
         'w_total' => 'integer',
         'w_truck' => 'integer',
         'w_container' => 'integer',
         'w_gross' => 'integer',
-        'w_dunnage_dribag' => 'integer',
         'w_tare' => 'decimal:2',
         'w_net' => 'decimal:2',
         'created_at' => 'datetime',
@@ -45,11 +41,14 @@ class Container extends Model
     ];
 
     /**
-     * Get the bill that owns the container.
+     * Get the bills associated with the container.
      */
-    public function bill(): BelongsTo
+    public function bills(): BelongsToMany
     {
-        return $this->belongsTo(Bill::class);
+        return $this->belongsToMany(Bill::class)
+            ->withTimestamps()
+            ->withPivot(['note'])
+            ->orderBy('bills.created_at');
     }
 
     /**
@@ -74,29 +73,43 @@ class Container extends Model
 
     /**
      * Calculate tare weight using the formula: w_tare = quantity_of_bags * w_jute_bag
+     * Note: w_jute_bag comes from the associated Bill model
      */
     public function calculateTareWeight(): ?float
     {
-        if (is_null($this->quantity_of_bags) || is_null($this->w_jute_bag)) {
+        if (is_null($this->quantity_of_bags)) {
             return null;
         }
         
-        return $this->quantity_of_bags * $this->w_jute_bag;
+        // Get w_jute_bag from the first associated bill
+        $bill = $this->bills()->first();
+        if (!$bill || is_null($bill->w_jute_bag)) {
+            return null;
+        }
+        
+        return $this->quantity_of_bags * $bill->w_jute_bag;
     }
 
     /**
      * Calculate net weight using the formula: w_net = w_gross - w_dunnage_dribag - w_tare
+     * Note: w_dunnage_dribag comes from the associated Bill model
      */
     public function calculateNetWeight(): ?float
     {
         $grossWeight = $this->calculateGrossWeight();
         $tareWeight = $this->calculateTareWeight();
         
-        if (is_null($grossWeight) || is_null($tareWeight) || is_null($this->w_dunnage_dribag)) {
+        if (is_null($grossWeight) || is_null($tareWeight)) {
             return null;
         }
         
-        return max(0, $grossWeight - $this->w_dunnage_dribag - $tareWeight);
+        // Get w_dunnage_dribag from the first associated bill
+        $bill = $this->bills()->first();
+        if (!$bill || is_null($bill->w_dunnage_dribag)) {
+            return null;
+        }
+        
+        return max(0, $grossWeight - $bill->w_dunnage_dribag - $tareWeight);
     }
 
     /**

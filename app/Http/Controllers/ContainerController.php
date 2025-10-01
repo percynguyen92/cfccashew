@@ -65,6 +65,7 @@ class ContainerController extends Controller
         
         if ($billId) {
             $bill = \App\Models\Bill::find($billId);
+            $bill->loadMissing(['containers']);
         }
 
         return Inertia::render('Containers/Create', [
@@ -104,6 +105,8 @@ class ContainerController extends Controller
      */
     public function edit(Container $container): Response
     {
+        $container->loadMissing(['cuttingTests', 'bill']);
+
         return Inertia::render('Containers/Edit', [
             'container' => new ContainerResource($container),
         ]);

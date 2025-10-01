@@ -10,9 +10,11 @@ use function Pest\Laravel\assertModelExists;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
-it('loads related containers and cutting tests', function () {
+it('loads related containers via pivot and cutting tests', function () {
     $bill = Bill::factory()->create();
-    $container = Container::factory()->for($bill)->create();
+    $container = Container::factory()->create();
+    $bill->containers()->attach($container->id);
+
     $finalSample = CuttingTest::factory()->for($bill)->create([
         'type' => CuttingTestType::FinalFirstCut->value,
         'container_id' => null,
@@ -27,7 +29,8 @@ it('loads related containers and cutting tests', function () {
         ->and($bill->cuttingTests)->toHaveCount(2)
         ->and($bill->finalSamples)->toHaveCount(1)
         ->and($bill->finalSamples->first()->id)->toBe($finalSample->id)
-        ->and($bill->cuttingTests->pluck('id'))->toContain($containerTest->id);
+        ->and($bill->cuttingTests->pluck('id'))->toContain($containerTest->id)
+        ->and($bill->containers->first()->id)->toBe($container->id);
 });
 
 it('calculates average outturn from final samples', function () {

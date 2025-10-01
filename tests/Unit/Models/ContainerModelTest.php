@@ -7,9 +7,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
-it('links to bill and cutting tests', function () {
+it('links to bill via pivot and cutting tests', function () {
     $bill = Bill::factory()->create();
-    $container = Container::factory()->for($bill)->create();
+    $container = Container::factory()->create();
+    $bill->containers()->attach($container->id);
+
     CuttingTest::factory()->count(2)->for($bill)->for($container)->create();
 
     $container->load(['bill', 'cuttingTests']);
@@ -18,19 +20,26 @@ it('links to bill and cutting tests', function () {
         ->and($container->cuttingTests)->toHaveCount(2);
 });
 
-it('calculates derived weights correctly', function () {
-    $container = Container::factory()->for(Bill::factory())->create([
+it('calculates derived weights using bill-level jute/dunnage', function () {
+    $bill = Bill::factory()->create([
+        'w_jute_bag' => 1.5,
+        'w_dunnage_dribag' => 200,
+    ]);
+    $container = Container::factory()->create([
+        'bill_id' => $bill->id,
         'w_total' => 25000,
         'w_truck' => 10000,
         'w_container' => 3000,
         'quantity_of_bags' => 100,
-        'w_jute_bag' => 1.5,
-        'w_dunnage_dribag' => 200,
+        'w_gross' => 12000,
+        'w_tare' => 150.0,
+        'w_net' => 11650.0,
     ]);
+    $bill->containers()->attach($container->id);
 
-    expect($container->calculateGrossWeight())->toBe(12000.0)
-        ->and($container->calculateTareWeight())->toBe(150.0)
-        ->and($container->calculateNetWeight())->toBe(11650.0);
+    expect($container->w_gross)->toBe(12000)
+        ->and($container->w_tare)->toBe(150.0)
+        ->and($container->w_net)->toBe(11650.0);
 });
 
 it('computes average moisture and outturn accessors', function () {

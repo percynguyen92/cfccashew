@@ -17,8 +17,10 @@ class ContainerQuery
     public function getByBillId(int $billId): Collection
     {
         return $this->model
-            ->where('bill_id', $billId)
-            ->with(['cuttingTests' => function ($query) {
+            ->whereHas('bills', function ($query) use ($billId) {
+                $query->where('bills.id', $billId);
+            })
+            ->with(['bills', 'cuttingTests' => function ($query) {
                 $query->orderBy('created_at', 'desc');
             }])
             ->orderBy('created_at')
@@ -32,7 +34,7 @@ class ContainerQuery
                 $query->where('moisture', '>', $threshold);
             })
             ->with([
-                'bill:id,bill_number,seller,buyer',
+                'bills:id,bill_number,seller,buyer',
                 'cuttingTests' => function ($query) use ($threshold) {
                     $query->where('moisture', '>', $threshold)
                           ->orderBy('moisture', 'desc');
@@ -70,7 +72,7 @@ class ContainerQuery
         }
 
         if (!empty($filters['bill_info'])) {
-            $query->whereHas('bill', function ($billQuery) use ($filters) {
+            $query->whereHas('bills', function ($billQuery) use ($filters) {
                 $billQuery->where('bill_number', 'like', "%{$filters['bill_info']}%")
                          ->orWhere('seller', 'like', "%{$filters['bill_info']}%")
                          ->orWhere('buyer', 'like', "%{$filters['bill_info']}%");

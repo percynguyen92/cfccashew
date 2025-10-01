@@ -50,6 +50,8 @@ interface FormFields {
     w_truck: number | null;
     w_container: number | null;
     w_dunnage_dribag: number | null;
+    container_condition: string;
+    seal_condition: string;
     note: string;
 }
 
@@ -58,11 +60,13 @@ const form = useForm<FormFields>({
     truck: props.container?.truck ?? '',
     container_number: props.container?.container_number ?? '',
     quantity_of_bags: props.container?.quantity_of_bags ?? null,
-    w_jute_bag: props.container?.w_jute_bag ?? 1.5,
+    w_jute_bag: props.isEditing ? (props.container?.w_jute_bag ?? 1.5) : (props.bill?.w_jute_bag ?? 1.5),
     w_total: props.container?.w_total ?? null,
     w_truck: props.container?.w_truck ?? null,
     w_container: props.container?.w_container ?? null,
-    w_dunnage_dribag: props.container?.w_dunnage_dribag ?? null,
+    w_dunnage_dribag: props.isEditing ? (props.container?.w_dunnage_dribag ?? null) : (props.bill?.w_dunnage_dribag ?? null),
+    container_condition: props.container?.container_condition ?? 'Nguyên vẹn',
+    seal_condition: props.container?.seal_condition ?? 'Nguyên vẹn',
     note: props.container?.note ?? '',
 });
 
@@ -292,6 +296,21 @@ const validateForm = (): boolean => {
         }
     }
 
+    // Validate condition and seal
+    const trimmedCondition = form.container_condition.trim();
+    if (trimmedCondition.length > 255) {
+        form.setError('container_condition', t('validation.custom.container_condition.max'));
+        hasErrors = true;
+    }
+    form.container_condition = trimmedCondition || null;
+
+    const trimmedSeal = form.seal_condition.trim();
+    if (trimmedSeal.length > 255) {
+        form.setError('seal_condition', t('validation.custom.seal_condition.max'));
+        hasErrors = true;
+    }
+    form.seal_condition = trimmedSeal || null;
+
     const trimmedNote = form.note.trim();
     if (trimmedNote.length > 65535) {
         form.setError('note', t('containers.form.fields.note.tooLong'));
@@ -312,11 +331,14 @@ const handleSubmit = () => {
         truck: data.truck || null,
         container_number: data.container_number || null,
         quantity_of_bags: data.quantity_of_bags,
-        w_jute_bag: data.w_jute_bag,
         w_total: data.w_total,
         w_truck: data.w_truck,
         w_container: data.w_container,
-        w_dunnage_dribag: data.w_dunnage_dribag,
+        w_gross: grossWeight.value,
+        w_tare: tareWeight.value,
+        w_net: netWeight.value,
+        container_condition: data.container_condition || null,
+        seal_condition: data.seal_condition || null,
         note: data.note || null,
     }));
 
@@ -436,6 +458,7 @@ const handleCancel = () => emit('cancel');
                                 {{
                                     t('containers.form.fields.juteBagWeight.label')
                                 }}
+                                <span v-if="bill && !isEditing" class="text-xs text-muted-foreground ml-1">(from bill)</span>
                             </Label>
                             <Input
                                 id="w_jute_bag"
@@ -447,8 +470,9 @@ const handleCancel = () => emit('cancel');
                                 :placeholder="
                                     t('containers.form.fields.juteBagWeight.placeholder')
                                 "
-                                :aria-invalid="Boolean(form.errors.w_jute_bag)"
-                                :class="{ 'border-red-500': form.errors.w_jute_bag }"
+                                :readonly="!!bill && !isEditing"
+                                :disabled="!!bill && !isEditing"
+                                :class="['bg-muted/50 cursor-not-allowed', { 'border-red-500': form.errors.w_jute_bag }]"
                                 @input="clearError('w_jute_bag')"
                             />
                             <InputError :message="form.errors.w_jute_bag" />
@@ -522,6 +546,7 @@ const handleCancel = () => emit('cancel');
                                 {{
                                     t('containers.form.fields.dunnageWeight.label')
                                 }}
+                                <span v-if="bill && !isEditing" class="text-xs text-muted-foreground ml-1">(from bill)</span>
                             </Label>
                             <Input
                                 id="w_dunnage_dribag"
@@ -531,8 +556,9 @@ const handleCancel = () => emit('cancel');
                                 :placeholder="
                                     t('containers.form.fields.dunnageWeight.placeholder')
                                 "
-                                :aria-invalid="Boolean(form.errors.w_dunnage_dribag)"
-                                :class="{ 'border-red-500': form.errors.w_dunnage_dribag }"
+                                :readonly="!!bill && !isEditing"
+                                :disabled="!!bill && !isEditing"
+                                :class="['bg-muted/50 cursor-not-allowed', { 'border-red-500': form.errors.w_dunnage_dribag }]"
                                 @input="clearError('w_dunnage_dribag')"
                             />
                             <InputError :message="form.errors.w_dunnage_dribag" />
@@ -650,6 +676,42 @@ const handleCancel = () => emit('cancel');
                     </div>
                 </div>
                 
+                <!-- Condition and Seal -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <Label for="container_condition">
+                            {{ t('containers.form.fields.containerCondition.label') || 'Container Condition' }}
+                        </Label>
+                        <Input
+                            id="container_condition"
+                            v-model="form.container_condition"
+                            type="text"
+                            maxlength="255"
+                            :placeholder="t('containers.form.fields.containerCondition.placeholder') || 'Enter container condition'"
+                            :aria-invalid="Boolean(form.errors.container_condition)"
+                            :class="{ 'border-red-500': form.errors.container_condition }"
+                            @input="clearError('container_condition')"
+                        />
+                        <InputError :message="form.errors.container_condition" />
+                    </div>
+                    <div class="space-y-2">
+                        <Label for="seal_condition">
+                            {{ t('containers.form.fields.sealCondition.label') || 'Seal Condition' }}
+                        </Label>
+                        <Input
+                            id="seal_condition"
+                            v-model="form.seal_condition"
+                            type="text"
+                            maxlength="255"
+                            :placeholder="t('containers.form.fields.sealCondition.placeholder') || 'Enter seal condition'"
+                            :aria-invalid="Boolean(form.errors.seal_condition)"
+                            :class="{ 'border-red-500': form.errors.seal_condition }"
+                            @input="clearError('seal_condition')"
+                        />
+                        <InputError :message="form.errors.seal_condition" />
+                    </div>
+                </div>
+
                 <!-- Note -->
                 <div class="space-y-2">
                     <Label for="note">

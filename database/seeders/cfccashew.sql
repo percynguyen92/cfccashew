@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS `bills` (
   `bill_number` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `seller` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `buyer` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `w_dunnage_dribag` int unsigned DEFAULT NULL,
+  `w_jute_bag` decimal(4,2) NOT NULL DEFAULT '1.00',
+  `net_on_bl` int DEFAULT NULL,
+  `quantity_of_bags_on_bl` int DEFAULT NULL,
+  `origin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `inspection_start_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `inspection_end_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `inspection_location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sampling_ratio` decimal(5,2) NOT NULL DEFAULT '10.00',
   `note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -33,36 +42,49 @@ CREATE TABLE IF NOT EXISTS `bills` (
   KEY `idx_bills_created_at` (`created_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 -- Dumping structure for table cfccashew.containers
 CREATE TABLE IF NOT EXISTS `containers` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `bill_id` bigint unsigned NOT NULL,
   `truck` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `container_number` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `quantity_of_bags` int unsigned DEFAULT NULL,
-  `w_jute_bag` decimal(4,2) DEFAULT '1.00',
   `w_total` int unsigned DEFAULT NULL,
   `w_truck` int unsigned DEFAULT NULL,
   `w_container` int unsigned DEFAULT NULL,
   `w_gross` int unsigned DEFAULT NULL,
-  `w_dunnage_dribag` int unsigned DEFAULT NULL,
   `w_tare` decimal(10,2) DEFAULT NULL,
   `w_net` decimal(10,2) DEFAULT NULL,
+  `container_condition` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Nguyên vẹn',
+  `seal_condition` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Nguyên vẹn',
   `note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `containers_bill_id_foreign` (`bill_id`),
   KEY `idx_containers_created_at` (`created_at`),
   KEY `idx_containers_container_number` (`container_number`),
-  CONSTRAINT `containers_bill_id_foreign` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`),
   CONSTRAINT `chk_container_iso` CHECK (((`container_number` is null) or regexp_like(`container_number`,_utf8mb4'^[A-Z]{4}[0-9]{7}$')))
 ) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- Data exporting was unselected.
 
 -- Dumping structure for table cfccashew.cutting_tests
+CREATE TABLE IF NOT EXISTS `bill_container` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `bill_id` bigint unsigned NOT NULL,
+  `container_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `bill_container_bill_id_container_id_unique` (`bill_id`,`container_id`),
+  KEY `bill_container_bill_id_foreign` (`bill_id`),
+  KEY `bill_container_container_id_foreign` (`container_id`),
+  CONSTRAINT `bill_container_bill_id_foreign` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `bill_container_container_id_foreign` FOREIGN KEY (`container_id`) REFERENCES `containers` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `cutting_tests` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `bill_id` bigint unsigned NOT NULL,
