@@ -445,8 +445,116 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                                 {{ formatOutturn(bill.average_outurn) }}
                             </p>
                         </div>
+                        <div>
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                {{ t('bills.form.fields.origin.label') }}
+                            </label>
+                            <p class="text-lg font-semibold">
+                                {{
+                                    bill.origin ||
+                                    t('common.placeholders.notAvailable')
+                                }}
+                            </p>
+                        </div>
+                        <div>
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                {{ t('bills.form.fields.samplingRatio.label') }}
+                            </label>
+                            <p class="text-lg font-semibold">
+                                {{ bill.sampling_ratio ? `${bill.sampling_ratio}%` : t('common.placeholders.notAvailable') }}
+                            </p>
+                        </div>
+                        <div>
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                {{ t('bills.form.fields.netOnBl.label') }}
+                            </label>
+                            <p class="text-lg font-semibold">
+                                {{ bill.net_on_bl ? `${bill.net_on_bl} kg` : t('common.placeholders.notAvailable') }}
+                            </p>
+                        </div>
+                        <div>
+                            <label
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                {{ t('bills.form.fields.quantityOfBagsOnBl.label') }}
+                            </label>
+                            <p class="text-lg font-semibold">
+                                {{ bill.quantity_of_bags_on_bl || t('common.placeholders.notAvailable') }}
+                            </p>
+                        </div>
                     </div>
-                    <div v-if="bill.note" class="mt-4">
+
+                    <!-- Inspection Details Section -->
+                    <div class="mt-6 pt-4 border-t">
+                        <h4 class="text-lg font-medium mb-4">{{ t('bills.show.sections.inspectionDetails') }}</h4>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                                <label
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    {{ t('bills.form.fields.inspectionStartDate.label') }}
+                                </label>
+                                <p class="text-lg font-semibold">
+                                    {{ bill.inspection_start_date ? new Date(bill.inspection_start_date).toLocaleDateString() : t('common.placeholders.notAvailable') }}
+                                </p>
+                            </div>
+                            <div>
+                                <label
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    {{ t('bills.form.fields.inspectionEndDate.label') }}
+                                </label>
+                                <p class="text-lg font-semibold">
+                                    {{ bill.inspection_end_date ? new Date(bill.inspection_end_date).toLocaleDateString() : t('common.placeholders.notAvailable') }}
+                                </p>
+                            </div>
+                            <div>
+                                <label
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    {{ t('bills.form.fields.inspectionLocation.label') }}
+                                </label>
+                                <p class="text-lg font-semibold">
+                                    {{ bill.inspection_location || t('common.placeholders.notAvailable') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weight Information Section -->
+                    <div class="mt-6 pt-4 border-t">
+                        <h4 class="text-lg font-medium mb-4">{{ t('bills.show.sections.weightInfo') }}</h4>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <label
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    {{ t('bills.form.fields.wDunnageDribag.label') }}
+                                </label>
+                                <p class="text-lg font-semibold">
+                                    {{ bill.w_dunnage_dribag ? `${bill.w_dunnage_dribag} kg` : t('common.placeholders.notAvailable') }}
+                                </p>
+                            </div>
+                            <div>
+                                <label
+                                    class="text-sm font-medium text-muted-foreground"
+                                >
+                                    {{ t('bills.form.fields.wJuteBag.label') }}
+                                </label>
+                                <p class="text-lg font-semibold">
+                                    {{ bill.w_jute_bag ? `${bill.w_jute_bag} kg` : t('common.placeholders.notAvailable') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="bill.note" class="mt-6 pt-4 border-t">
                         <label
                             class="text-sm font-medium text-muted-foreground"
                         >

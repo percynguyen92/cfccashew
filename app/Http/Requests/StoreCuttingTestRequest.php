@@ -53,14 +53,37 @@ class StoreCuttingTestRequest extends FormRequest
                     CuttingTestType::ContainerCut->value,
                 ]),
             ],
-            'moisture' => 'nullable|numeric|min:0|max:100',
+            'moisture' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:20',
+                function ($attribute, $value, $fail) {
+                    if ($value && $value > 11) {
+                        // This is a warning, not a validation failure
+                        // The service layer will handle the alert
+                    }
+                },
+            ],
             'sample_weight' => 'required|integer|min:1|max:65535',
             'nut_count' => 'nullable|integer|min:0|max:65535',
             'w_reject_nut' => 'nullable|integer|min:0|max:65535',
             'w_defective_nut' => 'nullable|integer|min:0|max:65535',
             'w_defective_kernel' => 'nullable|integer|min:0|max:65535',
             'w_good_kernel' => 'nullable|integer|min:0|max:65535',
-            'w_sample_after_cut' => 'nullable|integer|min:0|max:65535',
+            'w_sample_after_cut' => [
+                'nullable',
+                'integer',
+                'min:0',
+                'max:2000',
+                function ($attribute, $value, $fail) {
+                    $sampleWeight = $this->input('sample_weight');
+                    if ($value && $sampleWeight && ($sampleWeight - $value) > 5) {
+                        // This is a warning, not a validation failure
+                        // The service layer will handle the alert
+                    }
+                },
+            ],
             'outturn_rate' => 'nullable|numeric|min:0|max:60',
             'note' => 'nullable|string|max:65535',
         ];

@@ -423,7 +423,14 @@
                 },
                 "insufficient": "Gross weight is insufficient for dunnage + dribag and tare weights.",
                 "fillAll": "Please complete all required fields to show calculated weights",
-                "issues": "Calculation Issues:"
+                "issues": "Calculation Issues:",
+                "errors": "Weight Calculation Errors:",
+                "warnings": "Weight Calculation Warnings:",
+                "status": {
+                    "calculated": "Calculated automatically",
+                    "pending": "Waiting for input",
+                    "manual": "Entered manually"
+                }
             },
             "validation": {
                 "integer": "{label} must be a whole number.",
@@ -874,7 +881,26 @@
             "alerts": {
                 "weight": "Weight difference alert: sample weight decreased by {difference}g after cutting (threshold: 5g)",
                 "defectiveRatio": "Defective nut/kernel ratio alert: difference of {difference}g (threshold: 5g)",
-                "goodKernel": "Good kernel weight alert: difference of {difference}g (threshold: 10g)"
+                "goodKernel": "Good kernel weight alert: difference of {difference}g (threshold: 10g)",
+                "moisture": {
+                    "high": "High moisture content: {value}% (threshold: {threshold}%)",
+                    "critical": "Critical moisture level: {value}% (critical threshold: {threshold}%)",
+                    "low": "Low moisture content: {value}% (may indicate over-drying)"
+                },
+                "validation": {
+                    "sampleWeightLoss": "Sample weight loss: {difference}g after cutting (threshold: {threshold}g)",
+                    "excessiveWeightLoss": "Excessive sample weight loss: {difference}g (critical threshold: {threshold}g)",
+                    "invalidWeightIncrease": "Invalid: sample weight increased by {difference}g after cutting",
+                    "ratioDiscrepancy": "Defective nut/kernel ratio discrepancy: {difference}g difference (threshold: {threshold}g)",
+                    "criticalRatioError": "Critical defective ratio error: {difference}g difference (critical threshold: {threshold}g)",
+                    "calculationDiscrepancy": "Good kernel calculation discrepancy: {difference}g difference (threshold: {threshold}g)",
+                    "criticalCalculationError": "Critical good kernel calculation error: {difference}g difference (critical threshold: {threshold}g)",
+                    "highOutturn": "High outturn rate: {value} lbs/80kg (typical range: 35-55)",
+                    "lowOutturn": "Low outturn rate: {value} lbs/80kg (typical range: 35-55)",
+                    "criticalLowOutturn": "Critical low outturn rate: {value} lbs/80kg (minimum expected: 20)",
+                    "weightAccountingIssue": "Weight accounting issue: only {percentage}% of sample weight accounted for",
+                    "weightAccountingError": "Weight accounting error: {percentage}% of sample weight accounted for (exceeds 120%)"
+                }
             },
             "errors": {
                 "billInvalid": "A valid bill is required.",

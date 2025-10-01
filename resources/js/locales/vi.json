@@ -423,7 +423,14 @@
                 },
                 "insufficient": "Khối lượng tổng không đủ để trừ khối lượng giấy + thuốc và tare.",
                 "fillAll": "Vui lòng nhập đầy đủ thông tin để hiển thị kết quả tính toán",
-                "issues": "Vấn đề tính toán:"
+                "issues": "Vấn đề tính toán:",
+                "errors": "Lỗi tính toán khối lượng:",
+                "warnings": "Cảnh báo tính toán khối lượng:",
+                "status": {
+                    "calculated": "Tự động tính toán",
+                    "pending": "Đang chờ nhập liệu",
+                    "manual": "Nhập thủ công"
+                }
             },
             "validation": {
                 "integer": "{label} phải là số nguyên.",
@@ -874,7 +881,26 @@
             "alerts": {
                 "weight": "Cảnh báo: mẫu giảm {difference}g sau khi cắt (ngưỡng 5g)",
                 "defectiveRatio": "Cảnh báo: tỉ lệ hạt/nhân chênh {difference}g (ngưỡng 5g)",
-                "goodKernel": "Cảnh báo: nhân tốt chênh {difference}g (ngưỡng 10g)"
+                "goodKernel": "Cảnh báo: nhân tốt chênh {difference}g (ngưỡng 10g)",
+                "moisture": {
+                    "high": "Độ ẩm cao: {value}% (ngưỡng: {threshold}%)",
+                    "critical": "Độ ẩm nguy hiểm: {value}% (ngưỡng nguy hiểm: {threshold}%)",
+                    "low": "Độ ẩm thấp: {value}% (có thể bị sấy quá khô)"
+                },
+                "validation": {
+                    "sampleWeightLoss": "Mất trọng lượng mẫu: {difference}g sau khi cắt (ngưỡng: {threshold}g)",
+                    "excessiveWeightLoss": "Mất trọng lượng mẫu quá mức: {difference}g (ngưỡng nguy hiểm: {threshold}g)",
+                    "invalidWeightIncrease": "Không hợp lệ: trọng lượng mẫu tăng {difference}g sau khi cắt",
+                    "ratioDiscrepancy": "Chênh lệch tỉ lệ hạt lỗi/nhân lỗi: {difference}g (ngưỡng: {threshold}g)",
+                    "criticalRatioError": "Lỗi tỉ lệ nghiêm trọng: {difference}g chênh lệch (ngưỡng nguy hiểm: {threshold}g)",
+                    "calculationDiscrepancy": "Chênh lệch tính toán nhân tốt: {difference}g (ngưỡng: {threshold}g)",
+                    "criticalCalculationError": "Lỗi tính toán nghiêm trọng: {difference}g chênh lệch (ngưỡng nguy hiểm: {threshold}g)",
+                    "highOutturn": "Tỷ lệ ra nhân cao: {value} lbs/80kg (khoảng bình thường: 35-55)",
+                    "lowOutturn": "Tỷ lệ ra nhân thấp: {value} lbs/80kg (khoảng bình thường: 35-55)",
+                    "criticalLowOutturn": "Tỷ lệ ra nhân cực thấp: {value} lbs/80kg (tối thiểu mong đợi: 20)",
+                    "weightAccountingIssue": "Vấn đề cân đối trọng lượng: chỉ {percentage}% trọng lượng mẫu được tính",
+                    "weightAccountingError": "Lỗi cân đối trọng lượng: {percentage}% trọng lượng mẫu được tính (vượt quá 120%)"
+                }
             },
             "errors": {
                 "billInvalid": "Cần chọn bill hợp lệ.",

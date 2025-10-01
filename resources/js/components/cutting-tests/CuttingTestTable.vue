@@ -8,10 +8,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import type { CuttingTest } from '@/types';
-import { Loader2, Trash2 } from 'lucide-vue-next';
+import { Loader2, Trash2, AlertTriangle } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import CuttingTestAlerts from './CuttingTestAlerts.vue';
 
 interface Props {
     tests: CuttingTest[];
@@ -75,6 +77,8 @@ const formatOutturn = (value: number | string | null | undefined): string => {
         ? t('common.placeholders.notAvailable')
         : t('cuttingTests.table.outturnValue', { value: rendered });
 };
+
+// Removed validation logic - now handled by CuttingTestAlerts component
 </script>
 
 <template>
@@ -96,6 +100,9 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                 <TableHead>
                     {{ t('cuttingTests.table.headers.outturn') }}
                 </TableHead>
+                <TableHead>
+                    {{ t('cuttingTests.table.headers.alerts') }}
+                </TableHead>
                 <TableHead class="w-32 text-right">
                     {{ t('cuttingTests.table.headers.actions') }}
                 </TableHead>
@@ -103,33 +110,34 @@ const formatOutturn = (value: number | string | null | undefined): string => {
         </TableHeader>
         <TableBody>
             <TableRow v-for="test in rows" :key="test.id">
-                <TableCell>{{ formatMoisture(test.moisture) }}</TableCell>
+                <TableCell>
+                    <div class="flex items-center gap-2">
+                        <span :class="test.moisture && test.moisture > 11 ? 'text-red-600 font-medium' : ''">
+                            {{ formatMoisture(test.moisture) }}
+                        </span>
+                        <div v-if="test.moisture && test.moisture > 11" class="flex items-center">
+                            <Badge variant="destructive" class="text-xs">
+                                <AlertTriangle class="h-3 w-3 mr-1" />
+                                High
+                            </Badge>
+                        </div>
+                    </div>
+                </TableCell>
                 <TableCell>{{ formatWeight(test.w_reject_nut) }}</TableCell>
                 <TableCell>{{ formatWeight(test.w_defective_nut) }}</TableCell>
                 <TableCell>{{ formatWeight(test.w_good_kernel) }}</TableCell>
                 <TableCell>{{ formatOutturn(test.outturn_rate) }}</TableCell>
+                <TableCell class="max-w-xs">
+                    <CuttingTestAlerts :cutting-test="test" :max-alerts="3" />
+                </TableCell>
                 <TableCell class="text-right">
                     <div class="flex justify-end gap-2">
-                        <Button
-                            v-if="test.id"
-                            size="sm"
-                            variant="ghost"
-                            @click="emit('edit', test)"
-                        >
+                        <Button v-if="test.id" size="sm" variant="ghost" @click="emit('edit', test)">
                             {{ t('common.actions.edit') }}
                         </Button>
-                        <Button
-                            v-if="test.id"
-                            size="sm"
-                            variant="ghost"
-                            class="text-destructive hover:text-destructive"
-                            :disabled="props.deletingId === test.id"
-                            @click="emit('delete', test)"
-                        >
-                            <Loader2
-                                v-if="props.deletingId === test.id"
-                                class="mr-1 h-4 w-4 animate-spin"
-                            />
+                        <Button v-if="test.id" size="sm" variant="ghost" class="text-destructive hover:text-destructive"
+                            :disabled="props.deletingId === test.id" @click="emit('delete', test)">
+                            <Loader2 v-if="props.deletingId === test.id" class="mr-1 h-4 w-4 animate-spin" />
                             <Trash2 v-else class="mr-1 h-4 w-4" />
                         </Button>
                     </div>

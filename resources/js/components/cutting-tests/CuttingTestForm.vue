@@ -15,9 +15,11 @@ import { Textarea } from '@/components/ui/textarea';
 import * as cuttingTestRoutes from '@/routes/cutting-tests';
 import type { Bill, CuttingTest } from '@/types';
 import { useForm } from '@inertiajs/vue3';
-import { AlertTriangle } from 'lucide-vue-next';
+import { AlertTriangle, AlertCircle, Info } from 'lucide-vue-next';
 import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useCuttingTestValidation } from '@/composables/useCuttingTestValidation';
+import CuttingTestAlerts from './CuttingTestAlerts.vue';
 
 interface Props {
     billId: number;
@@ -106,6 +108,37 @@ const typeOptions = computed(() => [
     { value: 3, label: t('cuttingTests.form.types.finalThird') },
 ]);
 
+// Create a reactive cutting test object for validation
+const currentTestData = computed<CuttingTest | null>(() => {
+    if (!form.sample_weight) return null;
+
+    return {
+        id: props.cuttingTest?.id || 0,
+        bill_id: form.bill_id,
+        container_id: form.container_id,
+        type: form.type as 1 | 2 | 3 | 4,
+        type_label: getTypeLabel(form.type),
+        moisture: typeof form.moisture === 'string' ? parseFloat(form.moisture) || null : form.moisture,
+        sample_weight: Number(form.sample_weight) || 0,
+        nut_count: typeof form.nut_count === 'string' ? parseInt(form.nut_count) || null : form.nut_count,
+        w_reject_nut: typeof form.w_reject_nut === 'string' ? parseInt(form.w_reject_nut) || null : form.w_reject_nut,
+        w_defective_nut: typeof form.w_defective_nut === 'string' ? parseInt(form.w_defective_nut) || null : form.w_defective_nut,
+        w_defective_kernel: typeof form.w_defective_kernel === 'string' ? parseInt(form.w_defective_kernel) || null : form.w_defective_kernel,
+        w_good_kernel: typeof form.w_good_kernel === 'string' ? parseInt(form.w_good_kernel) || null : form.w_good_kernel,
+        w_sample_after_cut: typeof form.w_sample_after_cut === 'string' ? parseInt(form.w_sample_after_cut) || null : form.w_sample_after_cut,
+        outturn_rate: calculatedOutturnRate.value ? parseFloat(calculatedOutturnRate.value) : null,
+        note: form.note || null,
+        is_final_sample: [1, 2, 3].includes(form.type),
+        is_container_test: form.type === 4,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    } as CuttingTest;
+});
+
+// Use validation composable
+const validation = useCuttingTestValidation(currentTestData);
+
+// Legacy computed properties for backward compatibility
 const weightDifference = computed(() => {
     const original = Number(form.sample_weight) || 0;
     const after = Number(form.w_sample_after_cut) || 0;
@@ -125,6 +158,34 @@ const goodKernelDifference = computed(() => {
     const goodKernel = Number(form.w_good_kernel) || 0;
     return (sampleWeight - rejectNut - defectiveNut) / 3.3 - goodKernel;
 });
+
+// Get alert icon based on type
+const getAlertIcon = (type: 'error' | 'warning' | 'info') => {
+    switch (type) {
+        case 'error':
+            return AlertCircle;
+        case 'warning':
+            return AlertTriangle;
+        case 'info':
+            return Info;
+        default:
+            return AlertTriangle;
+    }
+};
+
+// Get alert color classes based on type
+const getAlertClasses = (type: 'error' | 'warning' | 'info') => {
+    switch (type) {
+        case 'error':
+            return 'border-red-500 bg-red-50 text-red-700';
+        case 'warning':
+            return 'border-amber-500 bg-amber-50 text-amber-700';
+        case 'info':
+            return 'border-blue-500 bg-blue-50 text-blue-700';
+        default:
+            return 'border-amber-500 bg-amber-50 text-amber-700';
+    }
+};
 
 const calculatedOutturnRate = computed(() => {
     const defectiveKernel = Number(form.w_defective_kernel) || 0;
@@ -428,34 +489,22 @@ const handleCancel = () => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-4">
-                    <InputError
-                        v-if="form.errors.bill_id"
-                        :message="form.errors.bill_id"
-                    />
+                    <InputError v-if="form.errors.bill_id" :message="form.errors.bill_id" />
 
                     <div class="grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
                             <Label for="type">
                                 {{ t('cuttingTests.form.fields.type.label') }}
                             </Label>
-                            <Select
-                                :model-value="form.type"
-                                @update:model-value="(value) => {
-                                    form.type = Number(value);
-                                    clearError('type');
-                                }"
-                            >
+                            <Select :model-value="form.type" @update:model-value="(value) => {
+                                form.type = Number(value);
+                                clearError('type');
+                            }">
                                 <SelectTrigger>
-                                    <SelectValue
-                                        :placeholder="getTypeLabel(form.type)"
-                                    />
+                                    <SelectValue :placeholder="getTypeLabel(form.type)" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem
-                                        v-for="option in typeOptions"
-                                        :key="option.value"
-                                        :value="option.value"
-                                    >
+                                    <SelectItem v-for="option in typeOptions" :key="option.value" :value="option.value">
                                         {{ option.label }}
                                     </SelectItem>
                                 </SelectContent>
@@ -467,15 +516,8 @@ const handleCancel = () => {
                             <Label for="sample_weight">
                                 {{ t('cuttingTests.form.fields.sampleWeight.label') }}
                             </Label>
-                            <Input
-                                id="sample_weight"
-                                v-model="form.sample_weight"
-                                type="number"
-                                min="1"
-                                max="65535"
-                                required
-                                @input="clearError('sample_weight')"
-                            />
+                            <Input id="sample_weight" v-model="form.sample_weight" type="number" min="1" max="65535"
+                                required @input="clearError('sample_weight')" />
                             <InputError :message="form.errors.sample_weight" />
                         </div>
                     </div>
@@ -485,30 +527,20 @@ const handleCancel = () => {
                             <Label for="moisture">
                                 {{ t('cuttingTests.form.fields.moisture.label') }}
                             </Label>
-                            <Input
-                                id="moisture"
-                                v-model="form.moisture"
-                                type="number"
-                                min="0"
-                                max="100"
-                                step="0.01"
+                            <Input id="moisture" v-model="form.moisture" type="number" min="0" max="100" step="0.01"
                                 @input="clearError('moisture')"
-                            />
+                                :class="validation.moistureAlerts.value.length > 0 ? 'border-amber-500' : ''" />
                             <InputError :message="form.errors.moisture" />
+                            <!-- Inline moisture alerts -->
+                            <CuttingTestAlerts :cutting-test="currentTestData" :categories="['moisture']" show-inline />
                         </div>
 
                         <div class="space-y-2">
                             <Label for="nut_count">
                                 {{ t('cuttingTests.form.fields.nutCount.label') }}
                             </Label>
-                            <Input
-                                id="nut_count"
-                                v-model="form.nut_count"
-                                type="number"
-                                min="0"
-                                max="65535"
-                                @input="clearError('nut_count')"
-                            />
+                            <Input id="nut_count" v-model="form.nut_count" type="number" min="0" max="65535"
+                                @input="clearError('nut_count')" />
                             <InputError :message="form.errors.nut_count" />
                         </div>
                     </div>
@@ -527,65 +559,35 @@ const handleCancel = () => {
                             <Label for="w_reject_nut">
                                 {{ t('cuttingTests.form.fields.rejectNutWeight.label') }}
                             </Label>
-                            <Input
-                                id="w_reject_nut"
-                                v-model="form.w_reject_nut"
-                                type="number"
-                                min="0"
-                                max="65535"
-                                @input="clearError('w_reject_nut')"
-                            />
-                            <InputError
-                                :message="form.errors.w_reject_nut"
-                            />
+                            <Input id="w_reject_nut" v-model="form.w_reject_nut" type="number" min="0" max="65535"
+                                @input="clearError('w_reject_nut')" />
+                            <InputError :message="form.errors.w_reject_nut" />
                         </div>
 
                         <div class="space-y-2">
                             <Label for="w_defective_nut">
                                 {{ t('cuttingTests.form.fields.defectiveNutWeight.label') }}
                             </Label>
-                            <Input
-                                id="w_defective_nut"
-                                v-model="form.w_defective_nut"
-                                type="number"
-                                min="0"
-                                max="65535"
-                                @input="clearError('w_defective_nut')"
-                            />
-                            <InputError
-                                :message="form.errors.w_defective_nut"
-                            />
+                            <Input id="w_defective_nut" v-model="form.w_defective_nut" type="number" min="0" max="65535"
+                                @input="clearError('w_defective_nut')" />
+                            <InputError :message="form.errors.w_defective_nut" />
                         </div>
 
                         <div class="space-y-2">
                             <Label for="w_defective_kernel">
                                 {{ t('cuttingTests.form.fields.defectiveKernelWeight.label') }}
                             </Label>
-                            <Input
-                                id="w_defective_kernel"
-                                v-model="form.w_defective_kernel"
-                                type="number"
-                                min="0"
-                                max="65535"
-                                @input="clearError('w_defective_kernel')"
-                            />
-                            <InputError
-                                :message="form.errors.w_defective_kernel"
-                            />
+                            <Input id="w_defective_kernel" v-model="form.w_defective_kernel" type="number" min="0"
+                                max="65535" @input="clearError('w_defective_kernel')" />
+                            <InputError :message="form.errors.w_defective_kernel" />
                         </div>
 
                         <div class="space-y-2">
                             <Label for="w_good_kernel">
                                 {{ t('cuttingTests.form.fields.goodKernelWeight.label') }}
                             </Label>
-                            <Input
-                                id="w_good_kernel"
-                                v-model="form.w_good_kernel"
-                                type="number"
-                                min="0"
-                                max="65535"
-                                @input="clearError('w_good_kernel')"
-                            />
+                            <Input id="w_good_kernel" v-model="form.w_good_kernel" type="number" min="0" max="65535"
+                                @input="clearError('w_good_kernel')" />
                             <InputError :message="form.errors.w_good_kernel" />
                         </div>
 
@@ -593,17 +595,9 @@ const handleCancel = () => {
                             <Label for="w_sample_after_cut">
                                 {{ t('cuttingTests.form.fields.sampleAfterCut.label') }}
                             </Label>
-                            <Input
-                                id="w_sample_after_cut"
-                                v-model="form.w_sample_after_cut"
-                                type="number"
-                                min="0"
-                                max="65535"
-                                @input="clearError('w_sample_after_cut')"
-                            />
-                            <InputError
-                                :message="form.errors.w_sample_after_cut"
-                            />
+                            <Input id="w_sample_after_cut" v-model="form.w_sample_after_cut" type="number" min="0"
+                                max="65535" @input="clearError('w_sample_after_cut')" />
+                            <InputError :message="form.errors.w_sample_after_cut" />
                         </div>
                     </div>
 
@@ -624,55 +618,10 @@ const handleCancel = () => {
                 </CardContent>
             </Card>
 
-            <div
-                v-if="
-                    weightDifference > 5 ||
-                    defectiveNutKernelDifference > 5 ||
-                    goodKernelDifference > 10
-                "
-                class="space-y-2"
-            >
-                <div
-                    v-if="weightDifference > 5"
-                    class="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
-                >
-                    <AlertTriangle class="mt-0.5 h-4 w-4" />
-                    <span>
-                        {{
-                            t('cuttingTests.form.alerts.weight', {
-                                difference: weightDifference.toFixed(1),
-                            })
-                        }}
-                    </span>
-                </div>
-
-                <div
-                    v-if="defectiveNutKernelDifference > 5"
-                    class="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
-                >
-                    <AlertTriangle class="mt-0.5 h-4 w-4" />
-                    <span>
-                        {{
-                            t('cuttingTests.form.alerts.defectiveRatio', {
-                                difference: defectiveNutKernelDifference.toFixed(1),
-                            })
-                        }}
-                    </span>
-                </div>
-
-                <div
-                    v-if="goodKernelDifference > 10"
-                    class="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
-                >
-                    <AlertTriangle class="mt-0.5 h-4 w-4" />
-                    <span>
-                        {{
-                            t('cuttingTests.form.alerts.goodKernel', {
-                                difference: goodKernelDifference.toFixed(1),
-                            })
-                        }}
-                    </span>
-                </div>
+            <!-- Comprehensive Validation Alerts -->
+            <div v-if="validation.hasAlerts.value" class="space-y-3">
+                <h3 class="text-sm font-medium text-foreground">Validation Alerts</h3>
+                <CuttingTestAlerts :cutting-test="currentTestData" />
             </div>
 
             <Card>
@@ -686,25 +635,15 @@ const handleCancel = () => {
                         <Label for="note">
                             {{ t('cuttingTests.form.fields.note.label') }}
                         </Label>
-                        <Textarea
-                            id="note"
-                            v-model="form.note"
-                            rows="3"
-                            :placeholder="t('cuttingTests.form.fields.note.placeholder')"
-                            @input="clearError('note')"
-                        />
+                        <Textarea id="note" v-model="form.note" rows="3"
+                            :placeholder="t('cuttingTests.form.fields.note.placeholder')" @input="clearError('note')" />
                         <InputError :message="form.errors.note" />
                     </div>
                 </CardContent>
             </Card>
 
             <div class="flex items-center justify-end gap-3">
-                <Button
-                    type="button"
-                    variant="outline"
-                    @click="handleCancel"
-                    :disabled="isSubmitting"
-                >
+                <Button type="button" variant="outline" @click="handleCancel" :disabled="isSubmitting">
                     {{ t('common.actions.cancel') }}
                 </Button>
                 <Button type="submit" :disabled="isSubmitting">

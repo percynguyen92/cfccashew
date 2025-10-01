@@ -27,7 +27,8 @@ import {
     Target,
     Plus,
     ArrowLeft,
-    Edit
+    Edit,
+    AlertTriangle
 } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -131,9 +132,49 @@ const viewBill = () => {
 const addCuttingTest = () => {
     router.visit(cuttingTestRoutes.create.url({ query: { container_id: props.container.id, bill_id: props.container.bill_id } }));
 };
+
+// Get condition indicator color
+const getConditionColor = (condition: string | null): string => {
+    if (!condition) return 'bg-gray-400';
+
+    const lowerCondition = condition.toLowerCase();
+    if (lowerCondition.includes('good') || lowerCondition.includes('excellent')) {
+        return 'bg-green-500';
+    } else if (lowerCondition.includes('fair') || lowerCondition.includes('average')) {
+        return 'bg-yellow-500';
+    } else if (lowerCondition.includes('poor') || lowerCondition.includes('damaged')) {
+        return 'bg-red-500';
+    }
+    return 'bg-blue-500';
+};
+
+// Check for weight discrepancies
+const hasWeightDiscrepancies = computed(() => {
+    const container = props.container;
+    const discrepancies = [];
+
+    // Check if calculated weights match expected values
+    if (container.w_total && container.w_truck && container.w_container) {
+        const expectedGross = container.w_total - container.w_truck - container.w_container;
+        if (container.w_gross && Math.abs(container.w_gross - expectedGross) > 1) {
+            discrepancies.push('Gross weight calculation discrepancy detected');
+        }
+    }
+
+    // Check if net weight calculation is correct
+    if (container.w_gross && container.w_dunnage_dribag && container.w_tare) {
+        const expectedNet = container.w_gross - container.w_dunnage_dribag - container.w_tare;
+        if (container.w_net && Math.abs(container.w_net - expectedNet) > 1) {
+            discrepancies.push('Net weight calculation discrepancy detected');
+        }
+    }
+
+    return discrepancies;
+});
 </script>
 
 <template>
+
     <Head :title="t('containers.show.title', { identifier: containerIdentifier })" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -164,6 +205,15 @@ const addCuttingTest = () => {
                         <Plus class="h-4 w-4 mr-2" />
                         {{ t('containers.show.actions.addCuttingTest') }}
                     </Button>
+                </div>
+            </div>
+
+            <!-- Weight Discrepancy Alerts -->
+            <div v-if="hasWeightDiscrepancies.length > 0" class="space-y-2">
+                <div v-for="discrepancy in hasWeightDiscrepancies" :key="discrepancy"
+                    class="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    <AlertTriangle class="mt-0.5 h-4 w-4" />
+                    <span>{{ discrepancy }}</span>
                 </div>
             </div>
 
@@ -226,6 +276,26 @@ const addCuttingTest = () => {
                                     <p class="text-lg font-medium">
                                         {{ formatDecimalWeight(container.w_jute_bag) }}
                                         {{ t('containers.show.units.kilogram') }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{ t('containers.form.fields.containerCondition.label') }}
+                                    </label>
+                                    <p class="text-lg font-medium flex items-center gap-2">
+                                        <span :class="getConditionColor(container.container_condition)"
+                                            class="w-3 h-3 rounded-full"></span>
+                                        {{ container.container_condition || placeholder }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-muted-foreground">
+                                        {{ t('containers.form.fields.sealCondition.label') }}
+                                    </label>
+                                    <p class="text-lg font-medium flex items-center gap-2">
+                                        <span :class="getConditionColor(container.seal_condition)"
+                                            class="w-3 h-3 rounded-full"></span>
+                                        {{ container.seal_condition || placeholder }}
                                     </p>
                                 </div>
                             </div>

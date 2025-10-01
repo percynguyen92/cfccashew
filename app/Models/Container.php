@@ -47,7 +47,6 @@ class Container extends Model
     {
         return $this->belongsToMany(Bill::class)
             ->withTimestamps()
-            ->withPivot(['note'])
             ->orderBy('bills.created_at');
     }
 

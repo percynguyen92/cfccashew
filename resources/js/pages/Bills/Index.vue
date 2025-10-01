@@ -43,6 +43,7 @@ import {
     Plus,
     Search,
     Trash2,
+    AlertTriangle,
 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -241,6 +242,22 @@ const handleBillFormSuccess = () => {
 
 const currentIndexUrl = computed(() => page.url);
 
+// Check if a bill has containers with high moisture (>11%)
+const hasHighMoistureContainers = (bill: BillListItem): boolean => {
+    if (!bill.containers || bill.containers.length === 0) return false;
+    return bill.containers.some(container =>
+        container.average_moisture && container.average_moisture > 11
+    );
+};
+
+// Get count of high moisture containers for a bill
+const getHighMoistureContainerCount = (bill: BillListItem): number => {
+    if (!bill.containers || bill.containers.length === 0) return 0;
+    return bill.containers.filter(container =>
+        container.average_moisture && container.average_moisture > 11
+    ).length;
+};
+
 watch(isBillFormOpen, (isOpen) => {
     if (!isOpen) {
         billFormMode.value = 'create';
@@ -250,12 +267,11 @@ watch(isBillFormOpen, (isOpen) => {
 </script>
 
 <template>
+
     <Head :title="t('bills.index.title')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
+        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
@@ -276,15 +292,9 @@ watch(isBillFormOpen, (isOpen) => {
             <Card class="gap-1 py-4">
                 <CardContent class="flex flex-wrap items-center gap-4 px-4">
                     <div class="relative max-w-sm flex-1">
-                        <Search
-                            class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                        />
-                        <Input
-                            :model-value="filters.search"
-                            @input="handleSearch"
-                            :placeholder="t('bills.index.search.placeholder')"
-                            class="pl-9"
-                        />
+                        <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input :model-value="filters.search" @input="handleSearch"
+                            :placeholder="t('bills.index.search.placeholder')" class="pl-9" />
                     </div>
                     <div class="text-sm text-muted-foreground">
                         {{
@@ -299,88 +309,66 @@ watch(isBillFormOpen, (isOpen) => {
             <!-- Bills Table -->
             <Card class="flex-1 py-2">
                 <CardContent class="relative">
-                    <div
-                        v-if="isLoading"
-                        class="absolute inset-0 z-10 flex items-center justify-center bg-background/50"
-                    >
-                        <div
-                            class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"
-                        ></div>
+                    <div v-if="isLoading"
+                        class="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
+                        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
                     </div>
 
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        @click="sortBy('bill_number')"
-                                        class="h-auto p-0 font-medium hover:bg-transparent"
-                                    >
+                                    <Button variant="ghost" size="sm" @click="sortBy('bill_number')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
                                         {{
                                             t(
                                                 'bills.index.table.headers.billNumber',
                                             )
                                         }}
-                                        <component
-                                            :is="getSortIcon('bill_number')"
-                                            class="ml-2 h-4 w-4"
-                                        />
+                                        <component :is="getSortIcon('bill_number')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
                                 <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        @click="sortBy('seller')"
-                                        class="h-auto p-0 font-medium hover:bg-transparent"
-                                    >
+                                    <Button variant="ghost" size="sm" @click="sortBy('seller')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
                                         {{
                                             t(
                                                 'bills.index.table.headers.seller',
                                             )
                                         }}
-                                        <component
-                                            :is="getSortIcon('seller')"
-                                            class="ml-2 h-4 w-4"
-                                        />
+                                        <component :is="getSortIcon('seller')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
                                 <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        @click="sortBy('buyer')"
-                                        class="h-auto p-0 font-medium hover:bg-transparent"
-                                    >
+                                    <Button variant="ghost" size="sm" @click="sortBy('buyer')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
                                         {{
                                             t('bills.index.table.headers.buyer')
                                         }}
-                                        <component
-                                            :is="getSortIcon('buyer')"
-                                            class="ml-2 h-4 w-4"
-                                        />
+                                        <component :is="getSortIcon('buyer')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
                                 <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        @click="sortBy('containers_count')"
-                                        class="h-auto p-0 font-medium hover:bg-transparent"
-                                    >
+                                    <Button variant="ghost" size="sm" @click="sortBy('origin')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
+                                        {{
+                                            t(
+                                                'bills.index.table.headers.origin',
+                                            )
+                                        }}
+                                        <component :is="getSortIcon('origin')" class="ml-2 h-4 w-4" />
+                                    </Button>
+                                </TableHead>
+                                <TableHead>
+                                    <Button variant="ghost" size="sm" @click="sortBy('containers_count')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
                                         {{
                                             t(
                                                 'bills.index.table.headers.containers',
                                             )
                                         }}
-                                        <component
-                                            :is="
-                                                getSortIcon('containers_count')
-                                            "
-                                            class="ml-2 h-4 w-4"
-                                        />
+                                        <component :is="getSortIcon('containers_count')
+                                            " class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
                                 <TableHead>
@@ -398,21 +386,14 @@ watch(isBillFormOpen, (isOpen) => {
                                     }}
                                 </TableHead>
                                 <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        @click="sortBy('created_at')"
-                                        class="h-auto p-0 font-medium hover:bg-transparent"
-                                    >
+                                    <Button variant="ghost" size="sm" @click="sortBy('created_at')"
+                                        class="h-auto p-0 font-medium hover:bg-transparent">
                                         {{
                                             t(
                                                 'bills.index.table.headers.created',
                                             )
                                         }}
-                                        <component
-                                            :is="getSortIcon('created_at')"
-                                            class="ml-2 h-4 w-4"
-                                        />
+                                        <component :is="getSortIcon('created_at')" class="ml-2 h-4 w-4" />
                                     </Button>
                                 </TableHead>
                                 <TableHead class="text-right">
@@ -421,23 +402,18 @@ watch(isBillFormOpen, (isOpen) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow
-                                v-for="bill in tableRows"
-                                :key="bill.id"
-                                :class="[
-                                    'cursor-pointer transition-colors duration-500 ease-out',
-                                    highlightedBillId === bill.id
-                                        ? 'highlighted-row'
-                                        : '',
-                                ]"
-                                @click="
-                                    router.visit(
-                                        billRoutes.show.url(
-                                            bill.slug || bill.id,
-                                        ),
-                                    )
-                                "
-                            >
+                            <TableRow v-for="bill in tableRows" :key="bill.id" :class="[
+                                'cursor-pointer transition-colors duration-500 ease-out',
+                                highlightedBillId === bill.id
+                                    ? 'highlighted-row'
+                                    : '',
+                            ]" @click="
+                                router.visit(
+                                    billRoutes.show.url(
+                                        bill.slug || bill.id,
+                                    ),
+                                )
+                                ">
                                 <TableCell class="font-medium">
                                     {{
                                         bill.bill_number ||
@@ -457,18 +433,29 @@ watch(isBillFormOpen, (isOpen) => {
                                     }}
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="secondary">
-                                        {{ bill.containers_count }}
-                                    </Badge>
+                                    {{
+                                        bill.origin ||
+                                        t('common.placeholders.notAvailable')
+                                    }}
                                 </TableCell>
                                 <TableCell>
-                                    <Badge
-                                        :variant="
-                                            bill.final_samples_count >= 3
-                                                ? 'default'
-                                                : 'destructive'
-                                        "
-                                    >
+                                    <div class="flex items-center gap-2">
+                                        <Badge variant="secondary">
+                                            {{ bill.containers_count }}
+                                        </Badge>
+                                        <div v-if="hasHighMoistureContainers(bill)" class="flex items-center">
+                                            <Badge variant="destructive" class="text-xs">
+                                                <AlertTriangle class="h-3 w-3 mr-1" />
+                                                {{ getHighMoistureContainerCount(bill) }} High Moisture
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge :variant="bill.final_samples_count >= 3
+                                        ? 'default'
+                                        : 'destructive'
+                                        ">
                                         {{
                                             t(
                                                 'bills.index.table.finalSamples',
@@ -480,10 +467,7 @@ watch(isBillFormOpen, (isOpen) => {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <span
-                                        v-if="bill.average_outurn"
-                                        class="font-medium"
-                                    >
+                                    <span v-if="bill.average_outurn" class="font-medium">
                                         {{
                                             t(
                                                 'bills.index.table.averageOutturnValue',
@@ -506,27 +490,16 @@ watch(isBillFormOpen, (isOpen) => {
                                 <TableCell class="text-muted-foreground">
                                     {{ formatDate(bill.created_at) }}
                                 </TableCell>
-                                <TableCell
-                                    class="flex items-center justify-end gap-2"
-                                >
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        :aria-label="t('bills.index.sr.edit')"
-                                        @click.stop="openEditBillDialog(bill)"
-                                    >
+                                <TableCell class="flex items-center justify-end gap-2">
+                                    <Button variant="ghost" size="icon" :aria-label="t('bills.index.sr.edit')"
+                                        @click.stop="openEditBillDialog(bill)">
                                         <Pencil class="h-4 w-4" />
                                         <span class="sr-only">
                                             {{ t('bills.index.sr.edit') }}
                                         </span>
                                     </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        class="text-destructive hover:text-destructive"
-                                        :aria-label="t('bills.index.sr.delete')"
-                                        @click.stop="openDeleteDialog(bill)"
-                                    >
+                                    <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive"
+                                        :aria-label="t('bills.index.sr.delete')" @click.stop="openDeleteDialog(bill)">
                                         <Trash2 class="h-4 w-4" />
                                         <span class="sr-only">
                                             {{ t('bills.index.sr.delete') }}
@@ -537,10 +510,7 @@ watch(isBillFormOpen, (isOpen) => {
 
                             <!-- Empty State -->
                             <TableRow v-if="tableRows.length === 0">
-                                <TableCell
-                                    :colspan="8"
-                                    class="py-8 text-center"
-                                >
+                                <TableCell :colspan="9" class="py-8 text-center">
                                     <div class="text-muted-foreground">
                                         <p class="text-lg font-medium">
                                             {{ t('bills.index.empty.title') }}
@@ -570,10 +540,7 @@ watch(isBillFormOpen, (isOpen) => {
             </Card>
 
             <!-- Pagination -->
-            <div
-                v-if="tableRows.length > 0"
-                class="flex items-center justify-between"
-            >
+            <div v-if="tableRows.length > 0" class="flex items-center justify-between">
                 <div class="text-sm text-muted-foreground">
                     {{
                         t('bills.index.pagination.summary', {
@@ -587,37 +554,22 @@ watch(isBillFormOpen, (isOpen) => {
                 <Pagination>
                     <PaginationList>
                         <PaginationListItem>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                :disabled="!paginationInfo.hasPrevPage"
-                                @click="goToPage(props.bills.prev_page_url)"
-                            >
+                            <Button variant="outline" size="sm" :disabled="!paginationInfo.hasPrevPage"
+                                @click="goToPage(props.bills.prev_page_url)">
                                 {{ t('bills.index.pagination.previous') }}
                             </Button>
                         </PaginationListItem>
 
-                        <PaginationListItem
-                            v-for="link in props.bills.links.slice(1, -1)"
-                            :key="link.label"
-                        >
-                            <Button
-                                :variant="link.active ? 'default' : 'outline'"
-                                size="sm"
-                                :disabled="!link.url"
-                                @click="goToPage(link.url)"
-                            >
+                        <PaginationListItem v-for="link in props.bills.links.slice(1, -1)" :key="link.label">
+                            <Button :variant="link.active ? 'default' : 'outline'" size="sm" :disabled="!link.url"
+                                @click="goToPage(link.url)">
                                 <span v-html="link.label" />
                             </Button>
                         </PaginationListItem>
 
                         <PaginationListItem>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                :disabled="!paginationInfo.hasNextPage"
-                                @click="goToPage(props.bills.next_page_url)"
-                            >
+                            <Button variant="outline" size="sm" :disabled="!paginationInfo.hasNextPage"
+                                @click="goToPage(props.bills.next_page_url)">
                                 {{ t('bills.index.pagination.next') }}
                             </Button>
                         </PaginationListItem>
@@ -628,17 +580,9 @@ watch(isBillFormOpen, (isOpen) => {
 
         <Dialog v-model:open="isBillFormOpen">
             <!-- Bill Create/Edit Form -->
-            <DialogContent
-                class="max-h-[90vh] w-full overflow-y-auto sm:max-w-4xl lg:max-w-5xl"
-            >
-                <BillForm
-                    v-if="isBillFormOpen"
-                    :bill="billBeingEdited || undefined"
-                    :is-editing="isEditingBill"
-                    :redirect-url="currentIndexUrl"
-                    @success="handleBillFormSuccess"
-                    @cancel="handleBillFormCancel"
-                />
+            <DialogContent class="max-h-[90vh] w-full overflow-y-auto sm:max-w-4xl lg:max-w-5xl">
+                <BillForm v-if="isBillFormOpen" :bill="billBeingEdited || undefined" :is-editing="isEditingBill"
+                    :redirect-url="currentIndexUrl" @success="handleBillFormSuccess" @cancel="handleBillFormCancel" />
             </DialogContent>
         </Dialog>
 
@@ -657,18 +601,10 @@ watch(isBillFormOpen, (isOpen) => {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter class="gap-2">
-                    <Button
-                        variant="outline"
-                        @click="closeDeleteDialog"
-                        :disabled="isDeleting"
-                    >
+                    <Button variant="outline" @click="closeDeleteDialog" :disabled="isDeleting">
                         {{ t('common.actions.cancel') }}
                     </Button>
-                    <Button
-                        variant="destructive"
-                        @click="confirmDelete"
-                        :disabled="isDeleting"
-                    >
+                    <Button variant="destructive" @click="confirmDelete" :disabled="isDeleting">
                         {{
                             isDeleting
                                 ? t('common.states.deleting')
