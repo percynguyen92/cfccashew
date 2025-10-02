@@ -10,10 +10,11 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { CuttingTest } from '@/types';
-import { Loader2, Trash2, AlertTriangle } from 'lucide-vue-next';
+import { Loader2, Trash2, AlertTriangle, Pencil } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CuttingTestAlerts from './CuttingTestAlerts.vue';
+import { useCuttingTestValidation } from '@/composables/useCuttingTestValidation';
 
 interface Props {
     tests: CuttingTest[];
@@ -78,7 +79,13 @@ const formatOutturn = (value: number | string | null | undefined): string => {
         : t('cuttingTests.table.outturnValue', { value: rendered });
 };
 
-// Removed validation logic - now handled by CuttingTestAlerts component
+// Check if any cutting test has validation alerts
+const hasAnyAlerts = computed(() => {
+    return rows.value.some(test => {
+        const validation = useCuttingTestValidation(computed(() => test));
+        return validation.hasAlerts.value;
+    });
+});
 </script>
 
 <template>
@@ -100,7 +107,7 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                 <TableHead>
                     {{ t('cuttingTests.table.headers.outturn') }}
                 </TableHead>
-                <TableHead>
+                <TableHead v-if="hasAnyAlerts">
                     {{ t('cuttingTests.table.headers.alerts') }}
                 </TableHead>
                 <TableHead class="w-32 text-right">
@@ -118,7 +125,7 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                         <div v-if="test.moisture && test.moisture > 11" class="flex items-center">
                             <Badge variant="destructive" class="text-xs">
                                 <AlertTriangle class="h-3 w-3 mr-1" />
-                                High
+                                {{ t('cuttingTests.table.highMoisture') }}
                             </Badge>
                         </div>
                     </div>
@@ -127,18 +134,18 @@ const formatOutturn = (value: number | string | null | undefined): string => {
                 <TableCell>{{ formatWeight(test.w_defective_nut) }}</TableCell>
                 <TableCell>{{ formatWeight(test.w_good_kernel) }}</TableCell>
                 <TableCell>{{ formatOutturn(test.outturn_rate) }}</TableCell>
-                <TableCell class="max-w-xs">
+                <TableCell v-if="hasAnyAlerts" class="max-w-xs">
                     <CuttingTestAlerts :cutting-test="test" :max-alerts="3" />
                 </TableCell>
-                <TableCell class="text-right">
+                <TableCell>
                     <div class="flex justify-end gap-2">
                         <Button v-if="test.id" size="sm" variant="ghost" @click="emit('edit', test)">
-                            {{ t('common.actions.edit') }}
+                            <Pencil class="h-4 w-4" />
                         </Button>
                         <Button v-if="test.id" size="sm" variant="ghost" class="text-destructive hover:text-destructive"
                             :disabled="props.deletingId === test.id" @click="emit('delete', test)">
-                            <Loader2 v-if="props.deletingId === test.id" class="mr-1 h-4 w-4 animate-spin" />
-                            <Trash2 v-else class="mr-1 h-4 w-4" />
+                            <Loader2 v-if="props.deletingId === test.id" class="h-4 w-4 animate-spin" />
+                            <Trash2 v-else class="h-4 w-4" />
                         </Button>
                     </div>
                 </TableCell>

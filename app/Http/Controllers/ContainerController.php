@@ -91,8 +91,8 @@ class ContainerController extends Controller
     public function show(Container $container): Response
     {
         // Load relationships if not already loaded
-        if (!$container->relationLoaded('cuttingTests') || !$container->relationLoaded('bill')) {
-            $container->load(['cuttingTests', 'bill']);
+        if (!$container->relationLoaded('cuttingTests') || !$container->relationLoaded('bills')) {
+            $container->load(['cuttingTests', 'bills']);
         }
 
         return Inertia::render('Containers/Show', [
@@ -105,7 +105,7 @@ class ContainerController extends Controller
      */
     public function edit(Container $container): Response
     {
-        $container->loadMissing(['cuttingTests', 'bill']);
+        $container->loadMissing(['cuttingTests', 'bills']);
 
         return Inertia::render('Containers/Edit', [
             'container' => new ContainerResource($container),

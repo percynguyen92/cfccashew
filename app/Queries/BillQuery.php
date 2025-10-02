@@ -18,9 +18,16 @@ class BillQuery
     {
         $query = $this->model->query()
             ->withCount(['containers', 'finalSamples'])
-            ->with(['finalSamples' => function ($query) {
-                $query->whereNotNull('outturn_rate');
-            }]);
+            ->with([
+                'containers' => function ($query) {
+                    $query->with(['cuttingTests' => function ($subQuery) {
+                        $subQuery->whereNotNull('moisture');
+                    }]);
+                },
+                'finalSamples' => function ($query) {
+                    $query->whereNotNull('outturn_rate');
+                }
+            ]);
 
         // Apply search filter
         if (!empty($filters['search'])) {
@@ -50,10 +57,12 @@ class BillQuery
 
         // Calculate average outurn for each bill
         $bills->getCollection()->transform(function ($bill) {
+            // Calculate average outturn from final samples
             $finalSamples = $bill->finalSamples->whereNotNull('outturn_rate');
             $bill->average_outurn = $finalSamples->isNotEmpty() 
                 ? round($finalSamples->avg('outturn_rate'), 2) 
                 : null;
+
             return $bill;
         });
 

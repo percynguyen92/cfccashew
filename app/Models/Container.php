@@ -51,6 +51,23 @@ class Container extends Model
     }
 
     /**
+     * Get the first associated bill (for backward compatibility).
+     */
+    public function bill(): ?Bill
+    {
+        return $this->bills()->first();
+    }
+
+    /**
+     * Get the bill_id attribute (ID of the first associated bill).
+     */
+    public function getBillIdAttribute(): ?int
+    {
+        $bill = $this->bill();
+        return $bill ? $bill->id : null;
+    }
+
+    /**
      * Get the cutting tests for the container.
      */
     public function cuttingTests(): HasMany

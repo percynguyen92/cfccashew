@@ -244,7 +244,7 @@ const currentIndexUrl = computed(() => page.url);
 
 // Check if a bill has containers with high moisture (>11%)
 const hasHighMoistureContainers = (bill: BillListItem): boolean => {
-    if (!bill.containers || bill.containers.length === 0) return false;
+    if (!bill.containers || !Array.isArray(bill.containers) || bill.containers.length === 0) return false;
     return bill.containers.some(container =>
         container.average_moisture && container.average_moisture > 11
     );
@@ -252,7 +252,7 @@ const hasHighMoistureContainers = (bill: BillListItem): boolean => {
 
 // Get count of high moisture containers for a bill
 const getHighMoistureContainerCount = (bill: BillListItem): number => {
-    if (!bill.containers || bill.containers.length === 0) return 0;
+    if (!bill.containers || !Array.isArray(bill.containers) || bill.containers.length === 0) return 0;
     return bill.containers.filter(container =>
         container.average_moisture && container.average_moisture > 11
     ).length;
@@ -353,7 +353,7 @@ watch(isBillFormOpen, (isOpen) => {
                                         class="h-auto p-0 font-medium hover:bg-transparent">
                                         {{
                                             t(
-                                                'bills.index.table.headers.origin',
+                                                'bills.index.table.headers.origin'
                                             )
                                         }}
                                         <component :is="getSortIcon('origin')" class="ml-2 h-4 w-4" />
@@ -446,7 +446,9 @@ watch(isBillFormOpen, (isOpen) => {
                                         <div v-if="hasHighMoistureContainers(bill)" class="flex items-center">
                                             <Badge variant="destructive" class="text-xs">
                                                 <AlertTriangle class="h-3 w-3 mr-1" />
-                                                {{ getHighMoistureContainerCount(bill) }} High Moisture
+                                                {{ t('bills.index.table.highMoisture', {
+                                                    count:
+                                                getHighMoistureContainerCount(bill) }) }}
                                             </Badge>
                                         </div>
                                     </div>

@@ -52,5 +52,19 @@ return [
         'outturn_rate' => [
             'max' => 'Tỷ lệ outturn không được vượt quá 60 lbs/80kg.',
         ],
+        'w_total' => [
+            'must_be_greater_than_truck_container' => 'Tổng trọng lượng phải lớn hơn tổng trọng lượng xe tải và container.',
+        ],
+        'container_condition' => [
+            'required' => 'Tình trạng container là bắt buộc.',
+            'in' => 'Vui lòng chọn tình trạng container hợp lệ.',
+        ],
+        'seal_condition' => [
+            'required' => 'Tình trạng niêm phong là bắt buộc.',
+            'in' => 'Vui lòng chọn tình trạng niêm phong hợp lệ.',
+        ],
+        'quantity_of_bags' => [
+            'max' => 'Số lượng bao không được vượt quá 2000.',
+        ],
     ],
 ];

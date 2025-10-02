@@ -47,7 +47,7 @@ class ContainerQuery
     {
         return $this->model
             ->whereDoesntHave('cuttingTests')
-            ->with('bill:id,bill_number,seller,buyer')
+            ->with('bills:id,bill_number,seller,buyer')
             ->orderBy('created_at')
             ->get();
     }
@@ -55,7 +55,7 @@ class ContainerQuery
     public function search(array $filters = []): Builder
     {
         $query = $this->model->query()->with([
-            'bill:id,bill_number,seller,buyer',
+            'bills:id,bill_number,seller,buyer',
             'cuttingTests' => function ($query) {
                 $query->select('id', 'container_id', 'moisture', 'outturn_rate')
                       ->whereNotNull('moisture')

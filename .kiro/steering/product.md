@@ -4,6 +4,9 @@ inclusion: always
 
 # CFCCashew Inspection System - Product Domain
 
+## Internationalization (i18n) Requirement
+**CRITICAL**: Never hardcode text strings in code. Always use the existing i18n system for all user-facing text.
+
 ## Domain Overview
 Cashew inspection system managing Bills of Lading, containers, and cutting test results for quality control.
 
@@ -11,13 +14,16 @@ Cashew inspection system managing Bills of Lading, containers, and cutting test 
 
 ### Bill (Bill of Lading)
 - Root entity containing: `bill_number`, `seller`, `buyer`, `note`
-- Has many Containers and CuttingTests
+- Has many-to-many relationship with Containers (a bill can have multiple containers, a container can belong to multiple bills)
+- Has many CuttingTests
 - Can have up to 3 final samples (cutting tests with `container_id = NULL`, `type = 1-3`)
 
 ### Container
-- Belongs to Bill, contains weight calculations and container details
+- Many-to-many relationship with Bills (can belong to multiple bills)
+- Contains weight calculations and container details
 - Key fields: `truck`, `container_number` (ISO format: 4 letters + 7 digits), weight fields
 - Has many CuttingTests (`type = 4`)
+- Weight calculations use data from associated bills (w_jute_bag, w_dunnage_dribag)
 
 ### CuttingTest
 - Inspection results linked to Bill (required) and Container (optional for final samples)

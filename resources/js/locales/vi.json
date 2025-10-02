@@ -19,22 +19,22 @@
         "name": "CFC Cashew"
     },
     "welcome": {
-        "pageTitle": "Chào mừng",
+        "pageTitle": "Chào mừng đến với CFCCashew",
         "nav": {
             "dashboard": "Bảng điều khiển",
             "login": "Đăng nhập",
             "register": "Đăng ký"
         },
         "hero": {
-            "title": "Bắt đầu thôi",
+            "title": "Hệ thống kiểm tra CFCCashew",
             "subtitle": {
-                "line1": "Laravel có một hệ sinh thái cực kỳ phong phú.",
-                "line2": "Hãy bắt đầu với những nội dung dưới đây."
+                "line1": "Quản lý Bill, container và kết quả kiểm tra cắt",
+                "line2": "để kiểm soát chất lượng hạt điều toàn diện."
             }
         },
         "tiles": {
             "documentation": {
-                "intro": "Đọc",
+                "intro": "Laravel có tài liệu tuyệt vời bao gồm mọi khía cạnh của framework.",
                 "link": "Tài liệu"
             },
             "laracasts": {
@@ -51,29 +51,44 @@
     },
     "common": {
         "actions": {
-            "cancel": "Hủy",
-            "create": "Tạo",
-            "update": "Cập nhật",
             "save": "Lưu",
+            "cancel": "Hủy",
             "delete": "Xóa",
             "edit": "Sửa",
+            "create": "Tạo",
             "view": "Xem",
+            "back": "Quay lại",
             "close": "Đóng",
+            "submit": "Gửi",
+            "reset": "Đặt lại",
+            "search": "Tìm kiếm",
+            "filter": "Lọc",
+            "clear": "Xóa",
+            "export": "Xuất",
+            "import": "Nhập",
             "continue": "Tiếp tục",
-            "retry": "Thử lại"
+            "retry": "Thử lại",
+            "update": "Cập nhật"
         },
         "states": {
-            "creating": "Đang tạo...",
-            "updating": "Đang cập nhật...",
+            "loading": "Đang tải...",
             "saving": "Đang lưu...",
-            "deleting": "Đang xóa..."
+            "deleting": "Đang xóa...",
+            "processing": "Đang xử lý...",
+            "creating": "Đang tạo...",
+            "updating": "Đang cập nhật..."
         },
         "messages": {
             "loading": "Đang tải...",
-            "noData": "Không có dữ liệu"
+            "noData": "Không có dữ liệu",
+            "error": "Đã xảy ra lỗi",
+            "success": "Thao tác hoàn thành thành công"
         },
         "placeholders": {
-            "notAvailable": "N/A"
+            "notAvailable": "N/A",
+            "selectOption": "Chọn một tùy chọn",
+            "enterText": "Nhập văn bản",
+            "search": "Tìm kiếm..."
         }
     },
     "userMenu": {
@@ -89,6 +104,105 @@
     },
     "breadcrumb": {
         "ellipsis": "Thêm"
+    },
+    "dashboard": {
+        "headTitle": "Bảng điều khiển",
+        "title": "Tổng quan bảng điều khiển",
+        "description": "Theo dõi các số liệu chính về Bill, container và mẫu cắt.",
+        "messages": {
+            "refreshFailed": "Không thể tải lại dữ liệu. Đang hiển thị giá trị gần nhất."
+        },
+        "ranges": {
+            "week": "7 ngày gần đây",
+            "month": "30 ngày gần đây",
+            "year": "12 tháng gần đây",
+            "placeholder": "Chọn khoảng thời gian",
+            "default": "khoảng thời gian đã chọn"
+        },
+        "stats": {
+            "title": "Chỉ số chính",
+            "description": "Tổng quan cho {range}",
+            "rangeLabel": "Thời gian",
+            "cards": {
+                "totalBills": {
+                    "label": "Bill đã tạo",
+                    "description": "Số Bill được ghi nhận trong khoảng này."
+                },
+                "pendingFinalTests": {
+                    "label": "Bill chờ cắt mẫu kết",
+                    "description": "Bill chưa có kết quả cắt mẫu kết bill."
+                },
+                "missingFinalSamples": {
+                    "label": "Bill chưa đủ 3 mẫu kết",
+                    "description": "Bill chưa cắt đủ 3 mẫu kết."
+                },
+                "highMoistureContainers": {
+                    "label": "Container ẩm cao",
+                    "description": "Container có độ ẩm quá cao."
+                },
+                "pendingContainerTests": {
+                    "label": "Container chưa cắt mẫu",
+                    "description": "Container chưa có mẫu và chưa cắt mẫu."
+                },
+                "highMoistureTests": {
+                    "label": "Mẫu cắt ẩm cao",
+                    "description": "Mẫu cắt vượt ngưỡng độ ẩm an toàn."
+                }
+            }
+        },
+        "recentBills": {
+            "title": "Bill mới nhất",
+            "description": "Các Bill phát sinh trong {range}.",
+            "rangeLabel": "Thời gian",
+            "empty": "Không có Bill nào trong thời gian này.",
+            "table": {
+                "bill": "Bill",
+                "seller": "Người bán",
+                "buyer": "Người mua",
+                "createdAt": "Ngày tạo",
+                "actions": "Thao tác"
+            }
+        },
+        "billsMissingFinalSamples": {
+            "title": "Bill thiếu mẫu cuối",
+            "description": "Bill vẫn cần bổ sung mẫu cuối.",
+            "empty": "Tất cả Bill đều có mẫu cuối.",
+            "table": {
+                "bill": "Bill",
+                "seller": "Người bán",
+                "updatedAt": "Cập nhật cuối",
+                "actions": "Thao tác"
+            }
+        },
+        "highMoistureContainers": {
+            "title": "Container ẩm cao",
+            "description": "Container bị cảnh báo vì độ ẩm cao.",
+            "empty": "Chưa có container nào vượt ngưỡng độ ẩm.",
+            "table": {
+                "container": "Container",
+                "bill": "Bill",
+                "moisture": "Độ ẩm cao nhất",
+                "updatedAt": "Cập nhật cuối",
+                "actions": "Thao tác"
+            }
+        },
+        "moistureDistribution": {
+            "title": "Phân bố độ ẩm",
+            "description": "Phân bố kết quả độ ẩm của các lần cắt.",
+            "empty": "Chưa có dữ liệu kiểm tra cắt.",
+            "metrics": {
+                "avg": "Độ ẩm trung bình",
+                "min": "Độ ẩm thấp nhất",
+                "max": "Độ ẩm cao nhất",
+                "sampleSize": "Dựa trên {total} lần kiểm tra."
+            },
+            "segments": {
+                "title": "Nhóm độ ẩm",
+                "low": "Thấp",
+                "medium": "Trung bình",
+                "high": "Cao"
+            }
+        }
     },
     "auth": {
         "forgotPassword": {
@@ -245,56 +359,90 @@
                     "label": "Người mua",
                     "placeholder": "Nhập tên người mua (bắt buộc)"
                 },
+                "origin": {
+                    "label": "Xuất xứ"
+                },
+                "samplingRatio": {
+                    "label": "Tỷ lệ lấy mẫu"
+                },
+                "netOnBl": {
+                    "label": "NET trên B/L"
+                },
+                "quantityOfBagsOnBl": {
+                    "label": "Số bao trên B/L"
+                },
+                "inspectionStartDate": {
+                    "label": "Ngày bắt đầu kiểm tra"
+                },
+                "inspectionEndDate": {
+                    "label": "Ngày kết thúc kiểm tra"
+                },
+                "inspectionLocation": {
+                    "label": "Địa điểm kiểm tra"
+                },
+                "wDunnageDribag": {
+                    "label": "Trọng lượng Dunnage/Dribag"
+                },
+                "wJuteBag": {
+                    "label": "Trọng lượng bao đay"
+                },
                 "note": {
                     "label": "Ghi chú",
                     "placeholder": "Nhập ghi chú bổ sung (không bắt buộc)"
                 }
+            },
+            "sections": {
+                "weights": "Trọng lượng",
+                "blInfo": "Thông tin B/L",
+                "inspection": "Dữ liệu kiểm tra"
             }
         },
         "index": {
             "title": "Bill",
-            "description": "Quản lý Bill of Lading và các container liên quan",
+            "description": "Quản lý Bill và các container liên quan",
             "actions": {
-                "create": "Tạo Bill mới"
+                "create": "Tạo Bill"
             },
             "search": {
-                "placeholder": "Tìm bằng số bill, người bán hoặc người mua...",
-                "total": "Tổng cộng {count} bill"
+                "placeholder": "Tìm kiếm bill theo số, người bán hoặc người mua...",
+                "total": "Hiển thị {count} bill"
             },
             "table": {
                 "headers": {
-                    "billNumber": "Số bill",
+                    "billNumber": "Số Bill",
                     "seller": "Người bán",
                     "buyer": "Người mua",
+                    "origin": "Xuất xứ",
                     "containers": "Container",
-                    "finalSamples": "Mẫu kết Bill",
+                    "finalSamples": "Mẫu cuối",
                     "averageOutturn": "Outturn TB",
-                    "created": "Ngày tạo",
+                    "created": "Tạo lúc",
                     "actions": "Thao tác"
                 },
                 "finalSamples": "{count}/3",
-                "averageOutturnValue": "{value} lbs/80kg"
+                "averageOutturnValue": "{value} lbs/80kg",
+                "highMoisture": "{count} Độ ẩm cao"
             },
             "empty": {
                 "title": "Không tìm thấy bill",
-                "search": "Hãy điều chỉnh tiêu chí tìm kiếm",
+                "search": "Thử điều chỉnh tiêu chí tìm kiếm",
                 "default": "Bắt đầu bằng cách tạo bill đầu tiên"
             },
             "pagination": {
-                "summary": "Hiển thị {from} đến {to} trên tổng {total} kết quả",
+                "summary": "Hiển thị {from} đến {to} trong tổng số {total} kết quả",
                 "previous": "Trước",
-                "next": "Sau"
-            },
-            "sr": {
-                "edit": "Chỉnh sửa bill",
-                "delete": "Xóa bill"
+                "next": "Tiếp"
             },
             "dialog": {
                 "delete": {
-                    "title": "Xóa bill",
-                    "description": "Thao tác này sẽ xóa vĩnh viễn bill {label} và toàn bộ dữ liệu liên quan. Không thể hoàn tác.",
-                    "fallback": "ID {id}"
+                    "title": "Xóa Bill",
+                    "description": "Bạn có chắc chắn muốn xóa \"{label}\"? Hành động này không thể hoàn tác.",
+                    "fallback": "Bill #{id}"
                 }
+            },
+            "sr": {
+                "edit": "Sửa bill",
+                "delete": "Xóa bill"
             }
         },
         "show": {
@@ -307,9 +455,29 @@
                 "created": "Tạo ngày {date}"
             },
             "labels": {
-                "averageOutturn": "Outturn trung bình"
+                "averageOutturn": "Outturn trung bình",
+                "bill": "Bill",
+                "createdAt": "tạo lúc {date}",
+                "net": "NET",
+                "inspectionPeriod": "Bắt đầu từ",
+                "to": "đến"
             },
             "outturnValue": "{value} lbs/80kg",
+            "sections": {
+                "inspectionDetails": {
+                    "title": "Chi tiết kiểm tra",
+                    "startDate": "Ngày bắt đầu",
+                    "endDate": "Ngày kết thúc",
+                    "location": "Địa điểm"
+                },
+                "weightInfo": {
+                    "title": "Thông tin trọng lượng",
+                    "netOnBl": "NET trên B/L",
+                    "quantityOfBags": "Số bao",
+                    "dunnageWeight": "Trọng lượng dunnage",
+                    "juteBagWeight": "Trọng lượng bao đay"
+                }
+            },
             "finalSamples": {
                 "title": "Mẫu cuối",
                 "description": "Kết quả cắt mẫu cuối cho bill này",
@@ -362,6 +530,12 @@
                     "placeholder": "CONT1234567",
                     "length": "Số container phải đúng 11 ký tự.",
                     "format": "Số container phải đúng định dạng ISO (4 chữ cái + 7 chữ số)."
+                },
+                "containerCondition": {
+                    "label": "Tình trạng container"
+                },
+                "sealCondition": {
+                    "label": "Tình trạng seal"
                 },
                 "quantityOfBags": {
                     "label": "Số bao",
@@ -419,7 +593,7 @@
                 "net": {
                     "label": "Net (kg)",
                     "formula": "Công thức: Gross - (Giấy + thuốc) - Tare",
-                    "warning": "Kết quả khối lượng tịnh bằng 0 hoặc âm. Vui lòng kiểm tra lại dữ liệu."
+                    "warning": "Kết quả NET bằng 0 hoặc âm. Vui lòng kiểm tra lại dữ liệu."
                 },
                 "insufficient": "Khối lượng tổng không đủ để trừ khối lượng giấy + thuốc và tare.",
                 "fillAll": "Vui lòng nhập đầy đủ thông tin để hiển thị kết quả tính toán",
@@ -447,11 +621,28 @@
             "headers": {
                 "containerNumber": "Số container",
                 "truck": "Xe tải",
-                "quantityOfBags": "Số bao",
-                "net": "Khối lượng tịnh",
+                "bags": "Số bao",
+                "totalWeight": "Tổng khối lượng",
+                "truckWeight": "Khối lượng xe",
+                "containerWeight": "Khối lượng container",
+                "grossWeight": "Khối lượng thô",
+                "tareWeight": "Khối lượng tare",
+                "netWeight": "Khối lượng NET",
                 "moisture": "Độ ẩm",
-                "outturn": "Outturn",
+                "outturnRate": "Tỷ lệ outturn",
                 "actions": "Thao tác"
+            },
+            "pagination": {
+                "showing": "Hiển thị {start}-{end} trong tổng số {total} container",
+                "page": "Trang {current} / {total}",
+                "previous": "Trước",
+                "next": "Tiếp"
+            },
+            "highMoisture": "Cao",
+            "empty": "Không tìm thấy container",
+            "weightDiscrepancy": {
+                "error": "Khối lượng NET nhỏ hơn 50% khối lượng thô",
+                "warning": "Khối lượng NET có vẻ thấp so với khối lượng thô"
             }
         },
         "index": {
@@ -486,7 +677,7 @@
             "table": {
                 "headers": {
                     "billInfo": "Thông tin bill",
-                    "netWeight": "Khối lượng tịnh",
+                    "netWeight": "NET",
                     "moisture": "Độ ẩm",
                     "outturn": "Outturn",
                     "created": "Ngày tạo",
@@ -535,7 +726,7 @@
             "fields": {
                 "grossWeight": "Khối lượng gross",
                 "tareWeight": "Khối lượng tare",
-                "netWeight": "Khối lượng tịnh",
+                "netWeight": "NET",
                 "notes": "Ghi chú"
             },
             "moistureValue": "{value}%",
@@ -579,6 +770,13 @@
                 "testsCountValue": "{count} lần"
             }
         },
+        "create": {
+            "headTitle": "Tạo Container",
+            "title": "Tạo Container mới",
+            "actions": {
+                "back": "Quay lại"
+            }
+        },
         "edit": {
             "headTitle": "Chỉnh sửa container",
             "title": "Chi tiết container",
@@ -607,11 +805,13 @@
                 "defectNut": "Hạt lỗi",
                 "goodKernel": "Nhân tốt",
                 "outturn": "Outturn",
-                "actions": "Thao tác"
+                "actions": "Thao tác",
+                "alerts": "Cảnh báo"
             },
             "moistureValue": "{value}%",
             "weightValue": "{value}g",
-            "outturnValue": "{value} lbs/80kg"
+            "outturnValue": "{value} lbs/80kg",
+            "highMoisture": "Cao"
         },
         "edit": {
             "headTitle": "Chỉnh sửa container {identifier}",
@@ -779,14 +979,14 @@
                     },
                     "defective": {
                         "title": "Phần lỗi",
-                        "nut": "Khối lượng hạt lỗi",
-                        "kernel": "Khối lượng nhân lỗi",
-                        "ratioLabel": "Tỉ lệ (hạt/nhân)"
+                        "nut": "Hạt lỗi",
+                        "kernel": "Nhân lỗi",
+                        "ratioLabel": "Tỷ lệ (hạt/nhân)"
                     },
                     "good": {
                         "title": "Phần tốt",
                         "kernel": "Khối lượng nhân tốt",
-                        "sampleAfter": "Khối lượng sau khi cắt"
+                        "sampleAfter": "Mẫu sau khi cắt"
                     }
                 },
                 "notes": {
@@ -796,17 +996,17 @@
                     "title": "Thông tin tính toán",
                     "formulas": {
                         "outturn": {
-                            "title": "Công thức outturn:",
-                            "body": "(Nhân lỗi ÷ 2 + Nhân tốt) × 80 ÷ 453.6"
+                            "title": "Công thức Outturn:",
+                            "body": "(Khối lượng nhân lỗi ÷ 2 + Khối lượng nhân tốt) × 80 ÷ 453.6"
                         },
                         "defective": {
-                            "title": "Tỉ lệ lỗi:",
-                            "body": "Hạt lỗi ÷ Nhân lỗi × 2"
+                            "title": "Tỷ lệ lỗi:",
+                            "body": "Khối lượng hạt lỗi ÷ Khối lượng nhân lỗi × 2"
                         }
                     },
                     "thresholds": {
                         "title": "Ngưỡng cảnh báo:",
-                        "body": "Chênh lệch khối lượng mẫu > 5g, tỉ lệ lỗi > 5g, chênh lệch nhân tốt > 10g"
+                        "body": "Chênh lệch khối lượng mẫu > 5g, chênh lệch tỷ lệ lỗi > 5g, chênh lệch nhân tốt > 10g"
                     }
                 }
             },
@@ -820,8 +1020,8 @@
                 "edit": "Chỉnh sửa mẫu cuối"
             },
             "actions": {
-                "create": "Tạo kết quả",
-                "update": "Cập nhật kết quả"
+                "create": "Tạo kết quả cắt",
+                "update": "Cập nhật kết quả cắt"
             },
             "billLabel": "Bill #{id}",
             "types": {
@@ -835,7 +1035,7 @@
                     "label": "Loại kiểm tra *"
                 },
                 "sampleWeight": {
-                    "label": "Khối lượng mẫu (g) *"
+                    "label": "Khối lượng mẫu (gram) *"
                 },
                 "moisture": {
                     "label": "Độ ẩm (%)"
@@ -856,59 +1056,59 @@
                     "label": "Khối lượng nhân tốt"
                 },
                 "sampleAfterCut": {
-                    "label": "Khối lượng sau cắt"
+                    "label": "Khối lượng mẫu sau cắt"
                 },
                 "note": {
                     "label": "Ghi chú quan sát",
-                    "placeholder": "Ghi chú bổ sung"
+                    "placeholder": "Quan sát hoặc nhận xét bổ sung"
                 }
             },
             "sections": {
                 "details": {
-                    "title": "Thông tin kiểm tra"
+                    "title": "Chi tiết kiểm tra"
                 },
                 "weights": {
-                    "title": "Khối lượng (g)",
-                    "outturnCalculated": "Outturn tính toán"
+                    "title": "Đo lường khối lượng (gram)",
+                    "outturnCalculated": "Tỷ lệ Outturn tính toán"
                 },
                 "notes": {
                     "title": "Ghi chú"
                 }
             },
             "status": {
-                "notCalculated": "Chưa tính"
+                "notCalculated": "Chưa tính toán"
             },
             "alerts": {
-                "weight": "Cảnh báo: mẫu giảm {difference}g sau khi cắt (ngưỡng 5g)",
-                "defectiveRatio": "Cảnh báo: tỉ lệ hạt/nhân chênh {difference}g (ngưỡng 5g)",
-                "goodKernel": "Cảnh báo: nhân tốt chênh {difference}g (ngưỡng 10g)",
+                "weight": "Cảnh báo chênh lệch khối lượng: khối lượng mẫu giảm {difference}g sau khi cắt (ngưỡng: 5g)",
+                "defectiveRatio": "Cảnh báo tỷ lệ hạt lỗi/nhân: chênh lệch {difference}g (ngưỡng: 5g)",
+                "goodKernel": "Cảnh báo khối lượng nhân tốt: chênh lệch {difference}g (ngưỡng: 10g)",
                 "moisture": {
                     "high": "Độ ẩm cao: {value}% (ngưỡng: {threshold}%)",
                     "critical": "Độ ẩm nguy hiểm: {value}% (ngưỡng nguy hiểm: {threshold}%)",
                     "low": "Độ ẩm thấp: {value}% (có thể bị sấy quá khô)"
                 },
                 "validation": {
-                    "sampleWeightLoss": "Mất trọng lượng mẫu: {difference}g sau khi cắt (ngưỡng: {threshold}g)",
-                    "excessiveWeightLoss": "Mất trọng lượng mẫu quá mức: {difference}g (ngưỡng nguy hiểm: {threshold}g)",
-                    "invalidWeightIncrease": "Không hợp lệ: trọng lượng mẫu tăng {difference}g sau khi cắt",
-                    "ratioDiscrepancy": "Chênh lệch tỉ lệ hạt lỗi/nhân lỗi: {difference}g (ngưỡng: {threshold}g)",
-                    "criticalRatioError": "Lỗi tỉ lệ nghiêm trọng: {difference}g chênh lệch (ngưỡng nguy hiểm: {threshold}g)",
-                    "calculationDiscrepancy": "Chênh lệch tính toán nhân tốt: {difference}g (ngưỡng: {threshold}g)",
-                    "criticalCalculationError": "Lỗi tính toán nghiêm trọng: {difference}g chênh lệch (ngưỡng nguy hiểm: {threshold}g)",
-                    "highOutturn": "Tỷ lệ ra nhân cao: {value} lbs/80kg (khoảng bình thường: 35-55)",
-                    "lowOutturn": "Tỷ lệ ra nhân thấp: {value} lbs/80kg (khoảng bình thường: 35-55)",
-                    "criticalLowOutturn": "Tỷ lệ ra nhân cực thấp: {value} lbs/80kg (tối thiểu mong đợi: 20)",
-                    "weightAccountingIssue": "Vấn đề cân đối trọng lượng: chỉ {percentage}% trọng lượng mẫu được tính",
-                    "weightAccountingError": "Lỗi cân đối trọng lượng: {percentage}% trọng lượng mẫu được tính (vượt quá 120%)"
+                    "sampleWeightLoss": "Mất khối lượng mẫu: {difference}g sau khi cắt (ngưỡng: {threshold}g)",
+                    "excessiveWeightLoss": "Mất khối lượng mẫu quá mức: {difference}g (ngưỡng nguy hiểm: {threshold}g)",
+                    "invalidWeightIncrease": "Không hợp lệ: khối lượng mẫu tăng {difference}g sau khi cắt",
+                    "ratioDiscrepancy": "Chênh lệch tỷ lệ hạt lỗi/nhân: chênh lệch {difference}g (ngưỡng: {threshold}g)",
+                    "criticalRatioError": "Lỗi tỷ lệ hạt lỗi nghiêm trọng: chênh lệch {difference}g (ngưỡng nguy hiểm: {threshold}g)",
+                    "calculationDiscrepancy": "Chênh lệch tính toán nhân tốt: chênh lệch {difference}g (ngưỡng: {threshold}g)",
+                    "criticalCalculationError": "Lỗi tính toán nhân tốt nghiêm trọng: chênh lệch {difference}g (ngưỡng nguy hiểm: {threshold}g)",
+                    "highOutturn": "Tỷ lệ outturn cao: {value} lbs/80kg (khoảng bình thường: 35-55)",
+                    "lowOutturn": "Tỷ lệ outturn thấp: {value} lbs/80kg (khoảng bình thường: 35-55)",
+                    "criticalLowOutturn": "Tỷ lệ outturn thấp nghiêm trọng: {value} lbs/80kg (tối thiểu mong đợi: 20)",
+                    "weightAccountingIssue": "Vấn đề tính toán khối lượng: chỉ {percentage}% khối lượng mẫu được tính",
+                    "weightAccountingError": "Lỗi tính toán khối lượng: {percentage}% khối lượng mẫu được tính (vượt quá 120%)"
                 }
             },
             "errors": {
-                "billInvalid": "Cần chọn bill hợp lệ.",
-                "typeInvalid": "Hãy chọn loại kiểm tra hợp lệ.",
-                "containerNotAllowed": "Mẫu cuối không được gắn container.",
+                "billInvalid": "Cần chọn Bill hợp lệ.",
+                "typeInvalid": "Chọn loại kiểm tra hợp lệ.",
+                "containerNotAllowed": "Kiểm tra mẫu cuối không thể tham chiếu container.",
                 "integer": "{label} phải là số nguyên.",
-                "range": "{label} phải nằm trong khoảng {min} - {max}{unit, select, undefined {} other { {unit}}}.",
-                "moistureRange": "Độ ẩm phải trong khoảng 0-100%.",
+                "range": "{label} phải nằm trong khoảng {min} đến {max}{unit, select, undefined {} other { {unit}}}.",
+                "moistureRange": "Độ ẩm phải nằm trong khoảng 0 đến 100%.",
                 "noteTooLong": "Ghi chú quá dài."
             },
             "units": {
@@ -953,105 +1153,6 @@
         "containers": {
             "showId": "Container #{id}",
             "showNumber": "Container {number}"
-        }
-    },
-    "dashboard": {
-        "headTitle": "Bảng điều khiển",
-        "title": "Tổng quan bảng điều khiển",
-        "description": "Theo dõi các số liệu chính về Bill, container và mẫu cắt.",
-        "messages": {
-            "refreshFailed": "Không thể tải lại dữ liệu. Đang hiển thị giá trị gần nhất."
-        },
-        "ranges": {
-            "week": "7 ngày gần đây",
-            "month": "30 ngày gần đây",
-            "year": "12 tháng gần đây",
-            "placeholder": "Chọn khoảng thời gian",
-            "default": "khoảng thời gian đã chọn"
-        },
-        "stats": {
-            "title": "Chỉ số chính",
-            "description": "Tổng quan cho {range}",
-            "rangeLabel": "Thời gian",
-            "cards": {
-                "totalBills": {
-                    "label": "Bill đã tạo",
-                    "description": "Số Bill được ghi nhận trong khoảng này."
-                },
-                "pendingFinalTests": {
-                    "label": "Bill chờ cắt mẫu kết",
-                    "description": "Bill chưa có kết quả cắt mẫu kết bill."
-                },
-                "missingFinalSamples": {
-                    "label": "Bill chưa đủ 3 mẫu kết",
-                    "description": "Bill chưa cắt đủ 3 mẫu kết."
-                },
-                "highMoistureContainers": {
-                    "label": "Container ẩm cao",
-                    "description": "Container có độ ẩm quá cao."
-                },
-                "pendingContainerTests": {
-                    "label": "Container chưa cắt mẫu",
-                    "description": "Container chưa có mẫu và chưa cắt mẫu."
-                },
-                "highMoistureTests": {
-                    "label": "Mẫu cắt ẩm cao",
-                    "description": "Mẫu cắt vượt ngưỡng độ ẩm an toàn."
-                }
-            }
-        },
-        "recentBills": {
-            "title": "Bill mới nhất",
-            "description": "Các Bill phát sinh trong {range}.",
-            "rangeLabel": "Thời gian",
-            "empty": "Không có Bill nào trong thời gian này.",
-            "table": {
-                "bill": "Bill",
-                "seller": "Người bán",
-                "buyer": "Người mua",
-                "createdAt": "Ngày tạo",
-                "actions": "Thao tác"
-            }
-        },
-        "billsMissingFinalSamples": {
-            "title": "Bill thiếu mẫu cuối",
-            "description": "Bill vẫn cần bổ sung mẫu cuối.",
-            "empty": "Tất cả Bill đều có mẫu cuối.",
-            "table": {
-                "bill": "Bill",
-                "seller": "Người bán",
-                "updatedAt": "Cập nhật cuối",
-                "actions": "Thao tác"
-            }
-        },
-        "highMoistureContainers": {
-            "title": "Container ẩm cao",
-            "description": "Container bị cảnh báo vì độ ẩm cao.",
-            "empty": "Chưa có container nào vượt ngưỡng độ ẩm.",
-            "table": {
-                "container": "Container",
-                "bill": "Bill",
-                "moisture": "Độ ẩm cao nhất",
-                "updatedAt": "Cập nhật cuối",
-                "actions": "Thao tác"
-            }
-        },
-        "moistureDistribution": {
-            "title": "Phân bố độ ẩm",
-            "description": "Phân bố kết quả độ ẩm của các lần cắt.",
-            "empty": "Chưa có dữ liệu kiểm tra cắt.",
-            "metrics": {
-                "avg": "Độ ẩm trung bình",
-                "min": "Độ ẩm thấp nhất",
-                "max": "Độ ẩm cao nhất",
-                "sampleSize": "Dựa trên {total} lần kiểm tra."
-            },
-            "segments": {
-                "title": "Nhóm độ ẩm",
-                "low": "Thấp",
-                "medium": "Trung bình",
-                "high": "Cao"
-            }
         }
     }
 }

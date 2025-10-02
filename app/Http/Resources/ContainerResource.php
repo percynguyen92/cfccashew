@@ -43,10 +43,16 @@ class ContainerResource extends JsonResource
                     return $test ? $test->outturn_rate : null;
                 }
             ),
-            'bill' => $this->when(
-                $this->relationLoaded('bill'),
+            'bills' => $this->when(
+                $this->relationLoaded('bills'),
                 function () use ($request) {
-                    return (new BillResource($this->bill))->toArray($request);
+                    return BillResource::collection($this->bills)->resolve();
+                }
+            ),
+            'bill' => $this->when(
+                $this->relationLoaded('bills') && $this->bills->isNotEmpty(),
+                function () use ($request) {
+                    return (new BillResource($this->bills->first()))->toArray($request);
                 }
             ),
             'cutting_tests' => $this->when(

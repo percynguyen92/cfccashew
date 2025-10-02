@@ -32,15 +32,7 @@ class BillResource extends JsonResource
             'sampling_ratio' => $this->sampling_ratio,
             'containers_count' => $this->whenCounted('containers'),
             'final_samples_count' => $this->whenCounted('finalSamples'),
-            'average_outurn' => $this->when(
-                $this->relationLoaded('finalSamples'),
-                function () {
-                    $finalSamples = $this->finalSamples->whereNotNull('outturn_rate');
-                    return $finalSamples->isNotEmpty()
-                        ? round($finalSamples->avg('outturn_rate'), 2)
-                        : null;
-                }
-            ),
+            'average_outurn' => $this->average_outurn ?? null,
             'containers' => ContainerResource::collection($this->whenLoaded('containers')),
             'final_samples' => CuttingTestResource::collection($this->whenLoaded('finalSamples')),
             'cutting_tests' => CuttingTestResource::collection($this->whenLoaded('cuttingTests')),

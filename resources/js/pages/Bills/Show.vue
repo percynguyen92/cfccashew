@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
@@ -27,7 +26,7 @@ import CuttingTestTable from '@/components/cutting-tests/CuttingTestTable.vue';
 import * as containerRoutes from '@/routes/containers';
 import * as cuttingTestRoutes from '@/routes/cutting-tests';
 import type { Bill, Container, CuttingTest } from '@/types';
-import { Loader2, Package, Plus, TestTube } from 'lucide-vue-next';
+import { Loader2, Package, Plus, TestTube, Pencil } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -63,7 +62,7 @@ const handleEditCancel = () => {
 const containers = computed(() => {
     const raw = bill.value.containers as
         | Container[]
-        | { data?: Container[]; [key: string]: unknown }
+        | { data?: Container[];[key: string]: unknown }
         | undefined;
 
     if (Array.isArray(raw)) {
@@ -87,7 +86,7 @@ const containers = computed(() => {
 
 type CuttingTestCollection =
     | CuttingTest[]
-    | { data?: CuttingTest[]; [key: string]: unknown }
+    | { data?: CuttingTest[];[key: string]: unknown }
     | null
     | undefined;
 
@@ -351,346 +350,218 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
 </script>
 
 <template>
+
     <Head :title="t('bills.show.title', { identifier: billIdentifier })" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4"
-        >
-            <!-- Header -->
-            <div
-                class="flex flex-wrap items-center justify-between gap-4 md:flex-nowrap"
-            >
-                <div class="flex flex-col gap-2">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <h1 class="text-3xl font-bold tracking-tight">
-                            {{
-                                t('bills.show.heading', {
-                                    identifier: billIdentifier,
-                                })
-                            }}
-                        </h1>
-                        <Button
-                            variant="outline"
-                            type="button"
-                            @click="openEditDialog"
-                        >
-                            {{ t('bills.show.actions.edit') }}
-                        </Button>
-                    </div>
-                    <p class="text-muted-foreground">
-                        {{
-                            t('bills.show.meta.created', {
-                                date: new Date(
-                                    bill.created_at,
-                                ).toLocaleDateString(),
-                            })
-                        }}
-                    </p>
-                </div>
-            </div>
+        <div class="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
 
-            <!-- Bill Information Card -->
-            <Card>
-                <CardContent>
-                    <div
-                        class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
-                    >
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.billNumber.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{
-                                    bill.bill_number ||
-                                    t('common.placeholders.notAvailable')
-                                }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.seller.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{
-                                    bill.seller ||
-                                    t('common.placeholders.notAvailable')
-                                }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.buyer.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{
-                                    bill.buyer ||
-                                    t('common.placeholders.notAvailable')
-                                }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.show.labels.averageOutturn') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{ formatOutturn(bill.average_outurn) }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.origin.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{
-                                    bill.origin ||
-                                    t('common.placeholders.notAvailable')
-                                }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.samplingRatio.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{ bill.sampling_ratio ? `${bill.sampling_ratio}%` : t('common.placeholders.notAvailable') }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.netOnBl.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{ bill.net_on_bl ? `${bill.net_on_bl} kg` : t('common.placeholders.notAvailable') }}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ t('bills.form.fields.quantityOfBagsOnBl.label') }}
-                            </label>
-                            <p class="text-lg font-semibold">
-                                {{ bill.quantity_of_bags_on_bl || t('common.placeholders.notAvailable') }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Inspection Details Section -->
-                    <div class="mt-6 pt-4 border-t">
-                        <h4 class="text-lg font-medium mb-4">{{ t('bills.show.sections.inspectionDetails') }}</h4>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <div>
-                                <label
-                                    class="text-sm font-medium text-muted-foreground"
-                                >
-                                    {{ t('bills.form.fields.inspectionStartDate.label') }}
-                                </label>
-                                <p class="text-lg font-semibold">
-                                    {{ bill.inspection_start_date ? new Date(bill.inspection_start_date).toLocaleDateString() : t('common.placeholders.notAvailable') }}
-                                </p>
+            <!-- Bill Information & Final Samples Section -->
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <!-- Bill Information Card -->
+                <Card>
+                    <CardContent class="px-6">
+                        <!-- Header Row -->
+                        <div class="mb-3 flex items-center justify-between border-b pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg font-semibold">{{ t('bills.show.labels.bill') }}:</span>
+                                <span class="text-lg font-bold">
+                                    {{ bill.bill_number || t('common.placeholders.notAvailable') }}
+                                </span>
+                                <Button variant="outline" type="button" @click="openEditDialog">
+                                    <Pencil class="h-3 w-3" />
+                                    {{ t('bills.show.actions.edit') }}
+                                </Button>
                             </div>
-                            <div>
-                                <label
-                                    class="text-sm font-medium text-muted-foreground"
-                                >
-                                    {{ t('bills.form.fields.inspectionEndDate.label') }}
-                                </label>
-                                <p class="text-lg font-semibold">
-                                    {{ bill.inspection_end_date ? new Date(bill.inspection_end_date).toLocaleDateString() : t('common.placeholders.notAvailable') }}
-                                </p>
-                            </div>
-                            <div>
-                                <label
-                                    class="text-sm font-medium text-muted-foreground"
-                                >
-                                    {{ t('bills.form.fields.inspectionLocation.label') }}
-                                </label>
-                                <p class="text-lg font-semibold">
-                                    {{ bill.inspection_location || t('common.placeholders.notAvailable') }}
-                                </p>
+                            <div class="text-sm text-muted-foreground">
+                                {{ t('bills.show.labels.createdAt', {
+                                    date: new
+                                        Date(bill.created_at).toLocaleDateString()
+                                }) }}
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Weight Information Section -->
-                    <div class="mt-6 pt-4 border-t">
-                        <h4 class="text-lg font-medium mb-4">{{ t('bills.show.sections.weightInfo') }}</h4>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label
-                                    class="text-sm font-medium text-muted-foreground"
-                                >
-                                    {{ t('bills.form.fields.wDunnageDribag.label') }}
-                                </label>
-                                <p class="text-lg font-semibold">
-                                    {{ bill.w_dunnage_dribag ? `${bill.w_dunnage_dribag} kg` : t('common.placeholders.notAvailable') }}
-                                </p>
+                        <!-- Information Grid -->
+                        <div class="space-y-2">
+                            <!-- Row 1: Seller & Sampling Ratio -->
+                            <div class="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2">
+                                <div class="flex gap-2">
+                                    <span class="font-light">{{ t('bills.form.fields.seller.label') }}: </span>
+                                    <span class="font-semibold">{{ bill.seller || t('common.placeholders.notAvailable')
+                                        }}</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="font-light">{{ t('bills.form.fields.samplingRatio.label') }}:</span>
+                                    <span class="font-semibold">{{ bill.sampling_ratio }}%</span>
+                                </div>
                             </div>
-                            <div>
-                                <label
-                                    class="text-sm font-medium text-muted-foreground"
-                                >
-                                    {{ t('bills.form.fields.wJuteBag.label') }}
-                                </label>
-                                <p class="text-lg font-semibold">
-                                    {{ bill.w_jute_bag ? `${bill.w_jute_bag} kg` : t('common.placeholders.notAvailable') }}
-                                </p>
+
+                            <!-- Row 2: Buyer & Jute Bag Weight -->
+                            <div class="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2">
+                                <div class="flex gap-2">
+                                    <span class="font-light">{{ t('bills.form.fields.buyer.label') }}: </span>
+                                    <span class="font-semibold">{{ bill.buyer || t('common.placeholders.notAvailable')
+                                        }}</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="font-light">{{ t('bills.form.fields.wJuteBag.label') }}:</span>
+                                    <span class="font-semibold">{{ bill.w_jute_bag }} kg</span>
+                                </div>
+                            </div>
+
+                            <!-- Row 3: Origin -->
+                            <div class="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2">
+                                <div class="flex gap-2">
+                                    <span class="font-light">{{ t('bills.form.fields.origin.label') }}: </span>
+                                    <span class="font-semibold">{{ bill.origin || t('common.placeholders.notAvailable')
+                                        }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Separator -->
+                            <div class="border-t pt-2 mt-3">
+                                <!-- Row 4: Bags & Dunage & Dribag -->
+                                <div class="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2 mb-1">
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.form.fields.quantityOfBagsOnBl.label') }}:
+                                        </span>
+                                        <span class="font-semibold">{{ bill.quantity_of_bags_on_bl ||
+                                            t('common.placeholders.notAvailable') }}</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.form.fields.wDunnageDribag.label') }}:
+                                        </span>
+                                        <span class="font-semibold">{{ bill.w_dunnage_dribag ?
+                                            `${bill.w_dunnage_dribag}kg` : t('common.placeholders.notAvailable')
+                                            }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Row 5: B/L NET & NET -->
+                                <div class="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2 mb-1">
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.form.fields.netOnBl.label') }}: </span>
+                                        <span class="font-semibold">{{ bill.net_on_bl ?
+                                            `${bill.net_on_bl.toLocaleString()} kg` :
+                                            t('common.placeholders.notAvailable') }}</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.show.labels.net') }}: </span>
+                                        <span class="font-semibold">{{ formatOutturn(bill.average_outurn) }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Inspection Period -->
+                                <div class="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-2 mb-1">
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.show.labels.inspectionPeriod') }} </span>
+                                        <span class="font-semibold">
+                                            {{ bill.inspection_start_date ? new
+                                                Date(bill.inspection_start_date).toLocaleDateString() :
+                                                t('common.placeholders.notAvailable') }}
+                                        </span>
+                                        <span class="font-light">{{ t('bills.show.labels.to') }}</span>
+                                        <span class="font-semibold">
+                                            {{ bill.inspection_end_date ? new
+                                                Date(bill.inspection_end_date).toLocaleDateString() :
+                                                t('common.placeholders.notAvailable') }}
+                                        </span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.form.fields.inspectionLocation.label') }}:
+                                        </span>
+                                        <span class="font-semibold">{{ bill.inspection_location ||
+                                            t('common.placeholders.notAvailable') }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Note -->
+                                <div class="mt-3 border-t pt-2">
+                                    <div class="flex gap-2">
+                                        <span class="font-light">{{ t('bills.form.fields.note.label') }}:</span>
+                                        <span class="text-sm">{{ bill.note }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    <div v-if="bill.note" class="mt-6 pt-4 border-t">
-                        <label
-                            class="text-sm font-medium text-muted-foreground"
-                        >
-                            {{ t('bills.form.fields.note.label') }}
-                        </label>
-                        <p class="mt-1 text-sm">{{ bill.note }}</p>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <!-- Final Samples Section -->
-            <Card>
-                <CardHeader>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <CardTitle class="flex items-center gap-2">
-                                <TestTube class="h-5 w-5" />
+                <!-- Final Samples Section -->
+                <Card class="gap-0">
+                    <CardHeader>
+                        <div class="flex items-center justify-between">
+                            <CardTitle class="flex items-center gap-2 text-lg">
+                                <TestTube class="h-4 w-4" />
                                 {{ t('bills.show.finalSamples.title') }}
                             </CardTitle>
-                            <CardDescription>
-                                {{ t('bills.show.finalSamples.description') }}
-                            </CardDescription>
+                            <Button size="sm" variant="outline" @click="openCreateCuttingTestDialog">
+                                <Plus class="h-3 w-3" />
+                                {{ t('bills.show.finalSamples.add') }}
+                            </Button>
                         </div>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            @click="openCreateCuttingTestDialog"
-                        >
-                            <Plus class="mr-1 h-4 w-4" />
-                            {{ t('bills.show.finalSamples.add') }}
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div v-if="finalSamples.length > 0">
-                        <CuttingTestTable
-                            :tests="finalSamples"
-                            :deleting-id="deletingCuttingTestId"
-                            @edit="openEditCuttingTestDialog"
-                            @delete="openDeleteCuttingTestDialog"
-                        />
-                    </div>
-                    <div v-else class="py-8 text-center text-muted-foreground">
-                        <TestTube class="mx-auto mb-4 h-12 w-12 opacity-50" />
-                        <p>{{ t('bills.show.finalSamples.empty.title') }}</p>
-                        <p class="text-sm">
-                            {{ t('bills.show.finalSamples.empty.subtitle') }}
-                        </p>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            class="mt-4"
-                            @click="openCreateCuttingTestDialog"
-                        >
-                            <Plus class="mr-1 h-4 w-4" />
-                            {{ t('bills.show.finalSamples.add') }}
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardHeader>
+                    <CardContent class="pt-0">
+                        <div v-if="finalSamples.length > 0">
+                            <CuttingTestTable :tests="finalSamples" :deleting-id="deletingCuttingTestId"
+                                @edit="openEditCuttingTestDialog" @delete="openDeleteCuttingTestDialog" />
+                        </div>
+                        <div v-else class="py-6 text-center text-muted-foreground">
+                            <TestTube class="mx-auto mb-2 h-8 w-8 opacity-50" />
+                            <p class="text-sm font-medium">{{ t('bills.show.finalSamples.empty.title') }}</p>
+                            <p class="text-xs">{{ t('bills.show.finalSamples.empty.subtitle') }}</p>
+                            <Button size="sm" variant="outline" class="mt-3" @click="openCreateCuttingTestDialog">
+                                <Plus class="mr-1 h-3 w-3" />
+                                {{ t('bills.show.finalSamples.add') }}
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
 
             <!-- Containers Section -->
-            <Card>
-                <CardHeader>
+            <Card class="gap-0">
+                <CardHeader class="pb-3">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <CardTitle class="flex items-center gap-2">
-                                <Package class="h-5 w-5" />
-                                {{ t('bills.show.containers.title') }}
-                            </CardTitle>
-                            <CardDescription>
-                                {{ t('bills.show.containers.description') }}
-                            </CardDescription>
-                        </div>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            @click="openContainerDialog"
-                        >
-                            <Plus class="mr-2 h-4 w-4" />
+                        <CardTitle class="flex items-center gap-2 text-lg">
+                            <Package class="h-4 w-4" />
+                            {{ t('bills.show.containers.title') }}
+                        </CardTitle>
+                        <Button size="sm" variant="outline" @click="openContainerDialog">
+                            <Plus class="mr-1 h-3 w-3" />
                             {{ t('bills.show.containers.add') }}
                         </Button>
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent class="pt-0">
                     <div v-if="containers.length > 0">
-                        <ContainerTable
-                            :containers="containers"
-                            :deleting-id="deletingContainerId"
-                            @edit="handleEditContainer"
-                            @delete="openDeleteContainerDialog"
-                        />
+                        <ContainerTable :containers="containers" :deleting-id="deletingContainerId"
+                            @edit="handleEditContainer" @delete="openDeleteContainerDialog" />
                     </div>
-                    <div v-else class="py-8 text-center text-muted-foreground">
-                        <Package class="mx-auto mb-4 h-12 w-12 opacity-50" />
-                        <p>{{ t('bills.show.containers.empty.title') }}</p>
-                        <p class="text-sm">
-                            {{ t('bills.show.containers.empty.subtitle') }}
-                        </p>
+                    <div v-else class="py-6 text-center text-muted-foreground">
+                        <Package class="mx-auto mb-2 h-8 w-8 opacity-50" />
+                        <p class="text-sm font-medium">{{ t('bills.show.containers.empty.title') }}</p>
+                        <p class="text-xs">{{ t('bills.show.containers.empty.subtitle') }}</p>
                     </div>
                 </CardContent>
             </Card>
         </div>
 
         <Dialog v-model:open="isEditDialogOpen">
-            <DialogContent
-                class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl"
-            >
-                <BillForm
-                    v-if="isEditDialogOpen"
-                    :bill="bill"
-                    :is-editing="true"
-                    @success="handleEditSuccess"
-                    @cancel="handleEditCancel"
-                />
+            <DialogContent class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl">
+                <BillForm v-if="isEditDialogOpen" :bill="bill" :is-editing="true" @success="handleEditSuccess"
+                    @cancel="handleEditCancel" />
             </DialogContent>
         </Dialog>
 
         <Dialog v-model:open="isContainerDialogOpen">
-            <DialogContent
-                class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl"
-            >
-                <ContainerForm
-                    v-if="isContainerDialogOpen"
-                    :key="
-                        editingContainer
-                            ? `edit-${editingContainer.id}`
-                            : 'create'
-                    "
-                    :bill="bill"
-                    :bill-id="bill.id"
-                    :container="editingContainer || undefined"
-                    :is-editing="Boolean(editingContainer)"
-                    @success="handleContainerSuccess"
-                    @cancel="handleContainerCancel"
-                />
+            <DialogContent class="max-h-[90vh] w-full max-w-4xl overflow-y-auto sm:max-w-4xl lg:max-w-5xl">
+                <ContainerForm v-if="isContainerDialogOpen" :key="editingContainer
+                    ? `edit-${editingContainer.id}`
+                    : 'create'
+                    " :bill="bill" :bill-id="bill.id" :container="editingContainer || undefined"
+                    :is-editing="Boolean(editingContainer)" @success="handleContainerSuccess"
+                    @cancel="handleContainerCancel" />
             </DialogContent>
         </Dialog>
 
@@ -700,25 +571,14 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
                     <DialogTitle>{{ deleteDialogTitle }}</DialogTitle>
                     <DialogDescription>{{
                         deleteDialogDescription
-                    }}</DialogDescription>
+                        }}</DialogDescription>
                 </DialogHeader>
                 <DialogFooter class="gap-2">
-                    <Button
-                        variant="outline"
-                        :disabled="isDeleting"
-                        @click="closeDeleteDialog"
-                    >
+                    <Button variant="outline" :disabled="isDeleting" @click="closeDeleteDialog">
                         {{ t('common.actions.cancel') }}
                     </Button>
-                    <Button
-                        variant="destructive"
-                        :disabled="isDeleting"
-                        @click="confirmDelete"
-                    >
-                        <Loader2
-                            v-if="isDeleting"
-                            class="mr-2 h-4 w-4 animate-spin"
-                        />
+                    <Button variant="destructive" :disabled="isDeleting" @click="confirmDelete">
+                        <Loader2 v-if="isDeleting" class="mr-2 h-4 w-4 animate-spin" />
                         {{
                             isDeleting
                                 ? t('common.states.deleting')
@@ -730,18 +590,10 @@ const formatOutturn = (outturn: number | string | null | undefined): string => {
         </Dialog>
 
         <Dialog v-model:open="isCuttingTestDialogOpen">
-            <DialogContent
-                class="max-h-[90vh] w-full max-w-5xl overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
-            >
-                <CuttingTestForm
-                    v-if="isCuttingTestDialogOpen"
-                    :bill-id="bill.id"
-                    :bill="bill"
-                    :cutting-test="cuttingTestBeingEdited || undefined"
-                    :default-type="defaultFinalSampleType"
-                    @success="handleCuttingTestSuccess"
-                    @cancel="handleCuttingTestCancel"
-                />
+            <DialogContent class="max-h-[90vh] w-full max-w-5xl overflow-y-auto sm:max-w-5xl xl:max-w-6xl">
+                <CuttingTestForm v-if="isCuttingTestDialogOpen" :bill-id="bill.id" :bill="bill"
+                    :cutting-test="cuttingTestBeingEdited || undefined" :default-type="defaultFinalSampleType"
+                    @success="handleCuttingTestSuccess" @cancel="handleCuttingTestCancel" />
             </DialogContent>
         </Dialog>
     </AppLayout>

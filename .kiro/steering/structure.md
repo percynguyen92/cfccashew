@@ -4,6 +4,9 @@ inclusion: always
 
 # Architecture & Code Structure
 
+## Internationalization (i18n) Requirement
+**CRITICAL**: Never hardcode text strings in code. Always use the existing i18n system for all user-facing text.
+
 ## Required Architecture Pattern
 
 **Strict Layered Architecture** - Follow this pattern for ALL new code:
@@ -63,6 +66,9 @@ resources/js/
 
 ### Domain-Specific Rules
 - **Bill/Container/CuttingTest** models require corresponding Repository and Service
+- **Bill-Container** relationship is many-to-many via pivot table `bill_container`
+- Container model provides `bill()` method for accessing first associated bill
+- Container model provides `bill_id` attribute for backward compatibility
 - Use `CuttingTestType` enum for test types (1-4)
 - All weight calculations must be in Service classes
 - Validation alerts for weight discrepancies in Services

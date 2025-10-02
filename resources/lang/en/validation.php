@@ -52,5 +52,19 @@ return [
         'outturn_rate' => [
             'max' => 'Outturn rate cannot exceed 60 lbs/80kg.',
         ],
+        'w_total' => [
+            'must_be_greater_than_truck_container' => 'Total weight must be greater than truck and container weight combined.',
+        ],
+        'container_condition' => [
+            'required' => 'Container condition is required.',
+            'in' => 'Please select a valid container condition.',
+        ],
+        'seal_condition' => [
+            'required' => 'Seal condition is required.',
+            'in' => 'Please select a valid seal condition.',
+        ],
+        'quantity_of_bags' => [
+            'max' => 'Quantity of bags cannot exceed 2000.',
+        ],
     ],
 ];

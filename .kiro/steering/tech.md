@@ -1,5 +1,8 @@
 # Technology Stack
 
+## Internationalization (i18n)
+**CRITICAL**: Never hardcode text strings in code. Always use the existing i18n system for all user-facing text.
+
 ## Backend
 - **PHP**: 8.2+ required
 - **Laravel**: 12.0 framework

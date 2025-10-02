@@ -16,6 +16,7 @@ class ImportDataSeeder extends Seeder
         $this->command->info('Clearing existing data...');
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('cutting_tests')->truncate();
+        DB::table('bill_container')->truncate(); // Clear pivot table
         DB::table('containers')->truncate();
         DB::table('bills')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
